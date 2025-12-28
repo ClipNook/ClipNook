@@ -1,0 +1,21 @@
+{
+    "preset": "laravel",
+    "exclude": [
+        "storage",
+        "vendor",
+        "public/build",
+        "node_modules"
+    ],
+    "rules": {
+        "clean_namespace": true,
+        "no_unused_imports": true,
+        "ordered_imports": {
+            "sort_algorithm": "alpha"
+        },
+        "array_syntax": { "syntax": "short" },
+        "single_line_throw": true,
+        "binary_operator_spaces": {
+            "operators": {"=>": "align", "=": "align"}
+        }
+    }
+}
