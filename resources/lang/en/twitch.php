@@ -33,10 +33,10 @@ return [
     // Clips
     'clips' => [
         'title'           => 'Clips',
-        'create'          => 'Create Clip',
-        'creating'        => 'Creating clip...',
-        'created'         => 'Clip created successfully',
-        'create_failed'   => 'Failed to create clip',
+        'create'          => 'Submit Clip',
+        'creating'        => 'Submitting clip...',
+        'created'         => 'Clip submitted successfully',
+        'create_failed'   => 'Failed to submit clip',
         'not_found'       => 'Clip not found',
         'loading'         => 'Loading clips...',
         'no_clips'        => 'No clips available',
@@ -72,23 +72,27 @@ return [
         'data_retention'   => 'Data will be stored for :days days',
 
         // Avatar handling / GDPR
-        'avatar_title'     => 'Avatar handling',
-        'avatar_download'  => 'With your consent we download and store your Twitch profile image (avatar) locally so we can control retention and deletion according to GDPR.',
-        'avatar_storage'   => 'Stored avatars are kept securely and deleted after :days days or when you revoke access.',
+        'avatar_title'      => 'Avatar handling',
+        'avatar_download'   => 'With your consent we download and store your Twitch profile image (avatar) locally so we can control retention and deletion according to GDPR.',
+        'avatar_storage'    => 'Stored avatars are kept securely and remain stored until you delete them or delete your account.',
+        'consent_error'     => 'Please confirm that you consent to the processing of your data to continue.',
+        'short_intro'       => 'Privacy-first: Tokens are encrypted and retained for :days days',
     ],
 
     // Login / Privacy helper texts
     'login_title'          => 'Sign in',
-    'login_subtitle'       => 'Sign in with Twitch to create and manage clips, personalize your experience, and participate in the community.',
+    'login_subtitle'       => 'Sign in with Twitch to submit and manage clips, personalize your experience, and participate in the community.',
     'login_cta'            => 'Continue with Twitch',
     'login_privacy_intro'  => 'When you sign in with Twitch we will store minimal necessary data and use it only to provide the service. You can revoke access at any time.',
-    'privacy_item_tokens'  => 'We store access and refresh tokens for :days days to maintain session and features like clip creation.',
+    'privacy_item_tokens'  => 'We store access and refresh tokens encrypted to maintain your session and support features like clip submission; tokens are kept until you log out or delete your account.',
     'privacy_item_ip'      => 'IP anonymization is enabled',
     'privacy_item_logging' => 'Request logging is enabled',
     'privacy_yes'          => 'Yes',
     'privacy_no'           => 'No',
     'login_privacy_more'   => 'Read more in our privacy policy',
-    'login_privacy_note'   => 'We do not sell your data. Tokens are stored encrypted and removed automatically after the retention period.',
+    'login_privacy_note'   => 'We do not sell your data. Avatars are stored until you delete them or delete your account. Access and refresh tokens are stored encrypted until you log out or your account is deleted; tokens are replaced on each new login.',
+
+    'login_cta_sub' => 'You will be redirected to Twitch to authorize; we only store access data encrypted and securely.',
 
     // Config / helper
     'login_need_config' => 'Twitch client configuration is missing. Please set TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET in your environment.',

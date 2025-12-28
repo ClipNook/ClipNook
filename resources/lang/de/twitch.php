@@ -33,10 +33,10 @@ return [
     // Clips
     'clips' => [
         'title'           => 'Clips',
-        'create'          => 'Clip erstellen',
-        'creating'        => 'Erstelle Clip...',
-        'created'         => 'Clip erfolgreich erstellt',
-        'create_failed'   => 'Clip konnte nicht erstellt werden',
+        'create'          => 'Clip einreichen',
+        'creating'        => 'Reiche Clip ein...',
+        'created'         => 'Clip erfolgreich eingereicht',
+        'create_failed'   => 'Clip konnte nicht eingereicht werden',
         'not_found'       => 'Clip nicht gefunden',
         'loading'         => 'Clips werden geladen...',
         'no_clips'        => 'Keine Clips verfügbar',
@@ -72,23 +72,27 @@ return [
         'data_retention'   => 'Daten werden für :days Tage gespeichert',
 
         // Avatar-Verarbeitung / DSGVO
-        'avatar_title'     => 'Avatar-Verwaltung',
-        'avatar_download'  => 'Mit Ihrer Zustimmung laden wir Ihr Twitch-Profilbild (Avatar) herunter und speichern es lokal, damit wir Aufbewahrung und Löschung DSGVO-konform steuern können.',
-        'avatar_storage'   => 'Gespeicherte Avatare werden sicher auf unseren Servern aufbewahrt und nach :days Tagen oder beim Widerruf des Zugriffs gelöscht.',
+        'avatar_title'      => 'Avatar-Verwaltung',
+        'avatar_download'   => 'Mit Ihrer Zustimmung laden wir Ihr Twitch-Profilbild (Avatar) herunter und speichern es lokal, damit wir Aufbewahrung und Löschung DSGVO-konform steuern können.',
+        'avatar_storage'    => 'Gespeicherte Avatare werden sicher aufbewahrt und verbleiben, bis Sie sie löschen oder Ihr Konto löschen.',
+        'consent_error'     => 'Bitte bestätige, dass du der Verarbeitung deiner Daten zustimmst, um fortzufahren.',
+        'short_intro'       => 'Datenschutz zuerst: Token werden verschlüsselt und für :days Tage aufbewahrt',
     ],
 
     // Login / Privacy helper texts
     'login_title'          => 'Anmelden',
-    'login_subtitle'       => 'Melde dich mit Twitch an, um Clips zu erstellen, dein Erlebnis zu personalisieren und mit der Community zu interagieren.',
+    'login_subtitle'       => 'Melde dich mit Twitch an, um Clips einzureichen, dein Erlebnis zu personalisieren und mit der Community zu interagieren.',
     'login_cta'            => 'Mit Twitch fortfahren',
     'login_privacy_intro'  => 'Wenn Sie sich mit Twitch anmelden, speichern wir nur die minimal notwendigen Daten und verwenden sie ausschließlich zur Bereitstellung des Dienstes. Sie können den Zugriff jederzeit widerrufen.',
-    'privacy_item_tokens'  => 'Wir speichern Zugangstoken und Refresh-Token für :days Tage, um Sitzung und Funktionen wie das Erstellen von Clips zu ermöglichen.',
+    'privacy_item_tokens'  => 'Wir speichern Zugangstoken und Refresh‑Token verschlüsselt, um Ihre Sitzung zu erhalten und Funktionen wie das Einreichen von Clips zu ermöglichen; Tokens werden gespeichert, bis Sie sich abmelden oder Ihr Konto löschen.',
     'privacy_item_ip'      => 'IP-Anonymisierung ist aktiviert',
     'privacy_item_logging' => 'Request-Logging ist aktiviert',
     'privacy_yes'          => 'Ja',
     'privacy_no'           => 'Nein',
     'login_privacy_more'   => 'Lesen Sie mehr in unserer Datenschutzrichtlinie',
-    'login_privacy_note'   => 'Wir verkaufen Ihre Daten nicht. Token werden verschlüsselt gespeichert und nach Ablauf der Frist automatisch entfernt.',
+    'login_privacy_note'   => 'Wir verkaufen Ihre Daten nicht. Avatare werden gespeichert, bis Sie sie löschen oder Ihr Konto löschen. Zugangstoken und Refresh‑Token werden verschlüsselt gespeichert, bis Sie sich abmelden oder Ihr Konto gelöscht wird; Tokens werden bei jeder neuen Anmeldung ersetzt.',
+
+    'login_cta_sub' => 'Sie werden zu Twitch weitergeleitet, um die Autorisierung vorzunehmen; wir speichern Zugriffsdaten nur verschlüsselt und sicher.',
 
     // Config / helper
     'login_need_config' => 'Die Twitch-Client-Konfiguration fehlt. Bitte setze TWITCH_CLIENT_ID und TWITCH_CLIENT_SECRET in deiner Umgebung.',

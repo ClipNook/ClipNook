@@ -156,7 +156,7 @@ class ClipsService implements ClipsInterface
         );
 
         if (! isset($response['data'][0])) {
-            throw new \RuntimeException('Failed to create clip');
+            throw new \RuntimeException('Failed to submit clip');
         }
 
         return $response['data'][0];

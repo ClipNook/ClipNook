@@ -40,4 +40,9 @@ return [
 
     // Misc
     'language_changed' => 'Language changed: :lang',
+
+    'common' => [
+        'errors_found' => 'Errors found',
+        'note'         => 'Note',
+    ],
 ];

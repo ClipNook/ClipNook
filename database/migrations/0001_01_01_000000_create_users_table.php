@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('twitch_display_name')->nullable();
             $table->string('twitch_email')->nullable();
             $table->string('twitch_avatar')->nullable();
-            $table->string('twitch_access_token', 512)->nullable();
-            $table->string('twitch_refresh_token', 512)->nullable();
+            $table->text('twitch_access_token')->nullable();
+            $table->text('twitch_refresh_token')->nullable();
             $table->timestamp('twitch_token_expires_at')->nullable();
             // Standard Laravel user fields
             $table->rememberToken();
