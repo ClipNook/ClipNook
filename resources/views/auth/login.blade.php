@@ -119,7 +119,7 @@
                                         {{ __('ui.auth.remember_me') }}
                                     </label>
                                 </div>
-                                <button type="submit" id="twitch-submit" data-accent="bg" class="w-full inline-flex items-center justify-center gap-3 px-6 py-3 rounded-md text-white font-semibold bg-gradient-to-r from-indigo-700 via-purple-700 to-gray-900 hover:opacity-95 shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2" :aria-busy="loading" :disabled="loading">
+                                <button type="submit" id="twitch-submit" data-accent="bg" class="w-full inline-flex items-center justify-center gap-3 px-6 py-3 rounded-md text-white font-semibold bg-linear-to-r from-indigo-700 via-purple-700 to-gray-900 hover:opacity-95 shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2" :aria-busy="loading" :disabled="loading">
                                     <i class="fab fa-twitch text-xl"></i>
                                     <span id="twitch-submit-text" x-text="loading ? '{{ __('twitch.oauth.authorizing') }}' : '{{ __('twitch.login_cta') }}'"></span>
                                     <i class="fas fa-spinner fa-spin ml-2" x-show="loading" x-cloak aria-hidden="true"></i>
