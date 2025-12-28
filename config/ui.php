@@ -1,16 +1,16 @@
 <?php
 
 return [
-    // Brand settings — quick adjustments for title / tagline / beta
+    // Brand settings - quick adjustments for title / tagline / beta
     'brand' => [
         'name'       => env('APP_NAME', 'ClipNook'),
-        'tagline'    => 'Privacy‑first clip platform',
+        'tagline'    => 'Privacy-first clip platform',
         'href'       => env('APP_URL', 'http://localhost'),
         'show_beta'  => true,
         'beta_label' => 'Beta',
     ],
 
-    // Primary navigation — use translation keys for labels
+    // Primary navigation - use translation keys for labels
     'nav' => [
         ['label' => 'ui.nav.home', 'route' => 'home'],
         ['label' => 'ui.nav.clips', 'href' => '/#clips'],

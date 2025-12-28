@@ -84,13 +84,13 @@ return [
     'login_subtitle'       => 'Melde dich mit Twitch an, um Clips einzureichen, dein Erlebnis zu personalisieren und mit der Community zu interagieren.',
     'login_cta'            => 'Mit Twitch fortfahren',
     'login_privacy_intro'  => 'Wenn Sie sich mit Twitch anmelden, speichern wir nur die minimal notwendigen Daten und verwenden sie ausschließlich zur Bereitstellung des Dienstes. Sie können den Zugriff jederzeit widerrufen.',
-    'privacy_item_tokens'  => 'Wir speichern Zugangstoken und Refresh‑Token verschlüsselt, um Ihre Sitzung zu erhalten und Funktionen wie das Einreichen von Clips zu ermöglichen; Tokens werden gespeichert, bis Sie sich abmelden oder Ihr Konto löschen.',
+    'privacy_item_tokens'  => 'Wir speichern Zugangstoken und Refresh-Token verschlüsselt, um Ihre Sitzung zu erhalten und Funktionen wie das Einreichen von Clips zu ermöglichen; Tokens werden gespeichert, bis Sie sich abmelden oder Ihr Konto löschen.',
     'privacy_item_ip'      => 'IP-Anonymisierung ist aktiviert',
     'privacy_item_logging' => 'Request-Logging ist aktiviert',
     'privacy_yes'          => 'Ja',
     'privacy_no'           => 'Nein',
     'login_privacy_more'   => 'Lesen Sie mehr in unserer Datenschutzrichtlinie',
-    'login_privacy_note'   => 'Wir verkaufen Ihre Daten nicht. Avatare werden gespeichert, bis Sie sie löschen oder Ihr Konto löschen. Zugangstoken und Refresh‑Token werden verschlüsselt gespeichert, bis Sie sich abmelden oder Ihr Konto gelöscht wird; Tokens werden bei jeder neuen Anmeldung ersetzt.',
+    'login_privacy_note'   => 'Wir verkaufen Ihre Daten nicht. Avatare werden gespeichert, bis Sie sie löschen oder Ihr Konto löschen. Zugangstoken und Refresh-Token werden verschlüsselt gespeichert, bis Sie sich abmelden oder Ihr Konto gelöscht wird; Tokens werden bei jeder neuen Anmeldung ersetzt.',
 
     'login_cta_sub' => 'Sie werden zu Twitch weitergeleitet, um die Autorisierung vorzunehmen; wir speichern Zugriffsdaten nur verschlüsselt und sicher.',
 

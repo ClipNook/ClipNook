@@ -8,11 +8,11 @@ if (! function_exists('mask_email')) {
      *
      * Configuration options (defaults shown):
      *  - mask_char: string (default: '•')
-     *  - visible_local: int (default: 1) — chars visible at the start of the local part
-     *  - visible_local_end: int (default: 1) — chars visible at the end of the local part
+     *  - visible_local: int (default: 1) - chars visible at the start of the local part
+     *  - visible_local_end: int (default: 1) - chars visible at the end of the local part
      *  - visible_domain_start: int (default: 1)
      *  - visible_domain_end: int (default: 1)
-     *  - mask_domain_before_tld: bool (default: true) — mask the domain but keep the TLD
+     *  - mask_domain_before_tld: bool (default: true) - mask the domain but keep the TLD
      *
      * Purpose: keep a small, consistent amount of information visible for UI/logging
      * while hiding the rest for privacy. Invalid or empty input returns an empty string.

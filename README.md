@@ -5,7 +5,7 @@
 [![Laravel Version](https://img.shields.io/badge/Laravel-12.x-ff2d20.svg)](https://laravel.com)
 [![Livewire](https://img.shields.io/badge/Livewire-3.x-fb70a9.svg)](https://laravel-livewire.com)
 
-A privacy-first, self-hosted platform for gamers, streamers, and editors to submit, manage, and discover gaming clips—putting content control back in creators' hands.
+A privacy-first, self-hosted platform for gamers, streamers, and editors to submit, manage, and discover gaming clips-putting content control back in creators' hands.
 
 > **Project Status:** Actively developed (Beta). Not yet production-ready. Perfect for testing and development.
 
@@ -151,6 +151,10 @@ Please ensure your code follows existing style conventions and includes tests wh
 ClipNook is a **non-commercial, community-driven project**. We do not accept donations or offer commercial support.
 
 If you'd like to support our mission, please consider donating to charitable organizations such as cancer research foundations or animal welfare groups instead.
+
+### Contact
+
+- Collaboration / questions: **Telegram:** [@Zurret](https://t.me/Zurret) - for collaboration inquiries and project work.
 
 ## License
 
