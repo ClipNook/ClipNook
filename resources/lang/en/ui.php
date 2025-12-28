@@ -2,33 +2,38 @@
 
 return [
     'nav' => [
-        'home' => 'Home',
+        'home'      => 'Home',
+        'clips'     => 'Clips',
+        'streamers' => 'Streamers',
+        'cutters'   => 'Cutters',
+        'faq'       => 'FAQ',
     ],
 
     // Generic UI strings
-    'skip' => 'Skip to content',
-    'submit' => 'Submit',
+    'skip'            => 'Skip to content',
+    'submit'          => 'Submit',
     'change_language' => 'Change language',
 
     'close_menu' => 'Close menu',
-    'open_menu' => 'Open menu',
+    'open_menu'  => 'Open menu',
 
     'user_menu' => 'User menu',
-    'profile' => 'Profile',
-    'settings' => 'Settings',
+    'profile'   => 'Profile',
+    'settings'  => 'Settings',
 
-    'color' => 'Color',
+    'color'        => 'Color',
     'color_choose' => 'Choose accent color',
 
     'auth' => [
-        'sign_in' => 'Sign in',
+        'sign_in'             => 'Sign in',
         'sign_in_with_twitch' => 'Sign in with Twitch',
-        'sign_out' => 'Sign out',
+        'remember_me'         => 'Remember me',
+        'sign_out'            => 'Sign out',
     ],
 
     'footer' => [
-        'rights' => 'All rights reserved.',
-        'terms' => 'Terms of Service',
+        'rights'  => 'All rights reserved.',
+        'terms'   => 'Terms of Service',
         'privacy' => 'Privacy Policy',
         'imprint' => 'Imprint',
     ],

@@ -12,8 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // $middleware->redirectGuestsTo(fn () => route('auth.twitch.login'));
-        // $middleware->redirectUsersTo(fn () => route('home'));
+        $middleware->redirectGuestsTo(fn () => route('auth.twitch.login'));
+        $middleware->redirectUsersTo(fn () => route('home'));
 
         // Register the SetLocale middleware alias and append it to the 'web' middleware group.
         // This is configured during bootstrap so middleware is available early in the app lifecycle

@@ -25,8 +25,8 @@ if (! function_exists('mask_email')) {
             return '';
         }
 
-        $maskChar          = $options['mask_char'] ?? '•';
-        $visibleLocalStart = isset($options['visible_local']) ? max(0, (int) $options['visible_local']) : ($options['visible_local_start'] ?? 1);
+        $maskChar            = $options['mask_char'] ?? '•';
+        $visibleLocalStart   = isset($options['visible_local']) ? max(0, (int) $options['visible_local']) : ($options['visible_local_start'] ?? 1);
         $visibleLocalEnd     = array_key_exists('visible_local_end', $options) ? (int) $options['visible_local_end'] : (isset($options['visible_local']) ? 0 : 1);
         $visibleDomainStart  = $options['visible_domain_start'] ?? 1;
         $visibleDomainEnd    = $options['visible_domain_end'] ?? 1;
@@ -135,8 +135,8 @@ if (! function_exists('ui_resolve_link')) {
 
         if (! empty($item['route'])) {
             try {
-                $link = \Illuminate\Support\Facades\Route::has($item['route']) 
-                    ? route($item['route'], $item['params'] ?? []) 
+                $link = \Illuminate\Support\Facades\Route::has($item['route'])
+                    ? route($item['route'], $item['params'] ?? [])
                     : '#';
             } catch (\Throwable) {
                 $link = '#';

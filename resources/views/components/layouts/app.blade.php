@@ -119,14 +119,22 @@
 
                         {{-- Desktop User Menu --}}
                         <div class="hidden lg:block relative" x-data="{ open: false }">
+                            @php
+                                $profileUrl = Route::has('profile') ? route('profile') : '#profile';
+                                $settingsUrl = Route::has('settings') ? route('settings') : '#settings';
+                            @endphp
+
                             <button 
-                                @click="open = !open"
+                                @click="open = !open; if (open) $nextTick(() => $refs.firstMenuItem?.focus())"
+                                @keydown.enter.prevent="open = !open; if (open) $nextTick(() => $refs.firstMenuItem?.focus())"
+                                @keydown.space.prevent="open = !open; if (open) $nextTick(() => $refs.firstMenuItem?.focus())"
                                 type="button"
-                                :aria-expanded="open"
+                                x-bind:aria-expanded="open ? 'true' : 'false'"
+                                aria-haspopup="true"
                                 aria-label="{{ __('ui.user_menu') }}"
-                                class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
-                                <img src="{{ Auth::user()->avatar_url }}" alt="" class="w-8 h-8 rounded object-cover">
-                                <span class="text-sm font-semibold text-gray-900 dark:text-white hidden xl:block max-w-32 truncate">{{ Auth::user()->name }}</span>
+                                class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->display_name }}" class="w-8 h-8 rounded object-cover">
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white hidden xl:block max-w-32 truncate">{{ Auth::user()->display_name }}</span>
                                 <i class="fas fa-chevron-down text-xs text-gray-500 dark:text-gray-400"></i>
                             </button>
 
@@ -134,7 +142,7 @@
                                 x-show="open"
                                 x-cloak
                                 @click.outside="open = false"
-                                @keydown.escape="open = false"
+                                @keydown.escape.window="open = false"
                                 x-transition:enter="transition ease-out duration-100"
                                 x-transition:enter-start="opacity-0 -translate-y-1"
                                 x-transition:enter-end="opacity-100 translate-y-0"
@@ -142,33 +150,34 @@
                                 x-transition:leave-start="opacity-100 translate-y-0"
                                 x-transition:leave-end="opacity-0 -translate-y-1"
                                 class="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-xl overflow-hidden"
-                                style="display: none;">
+                                style="display: none;"
+                                role="menu" aria-label="User menu">
                                 
                                 <div class="px-4 py-3 bg-gray-50 dark:bg-gray-800">
                                     <div class="flex items-center gap-3">
-                                        <img src="{{ Auth::user()->avatar_url }}" alt="" class="w-10 h-10 rounded object-cover">
+                                        <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->display_name }}" class="w-10 h-10 rounded object-cover">
                                         <div class="min-w-0 flex-1">
-                                            <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ Auth::user()->name }}</p>
+                                            <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ Auth::user()->display_name }}</p>
                                             <p class="text-xs text-gray-600 dark:text-gray-400 truncate">{{ mask_email(Auth::user()->email) }}</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="py-1">
-                                    <a href="#profile" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                    <a href="{{ $profileUrl }}" x-ref="firstMenuItem" tabindex="-1" role="menuitem" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                                         <i class="fas fa-user w-4 text-gray-400"></i>
                                         {{ __('ui.profile') }}
                                     </a>
-                                    <a href="#settings" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                    <a href="{{ $settingsUrl }}" tabindex="-1" role="menuitem" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                                         <i class="fas fa-cog w-4 text-gray-400"></i>
                                         {{ __('ui.settings') }}
                                     </a>
                                 </div>
 
                                 <div class="border-t border-gray-200 dark:border-gray-800 py-1">
-                                    <form method="POST" action="#logout">
+                                    <form method="POST" action="{{ route('logout') }}">
                                         @csrf
-                                        <button type="submit" class="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors">
+                                        <button type="submit" role="menuitem" class="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors">
                                             <i class="fas fa-sign-out-alt w-4"></i>
                                             {{ __('ui.auth.sign_out') }}
                                         </button>
@@ -185,7 +194,8 @@
 
                     @else
                         {{-- Login Button --}}
-                        <a href="#login" class="hidden lg:inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded text-white dark:text-gray-900 transition-colors ml-2" data-accent="bg">
+                        <a href="{{ route('login') }}" class="hidden lg:inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded text-white dark:text-gray-900 transition-colors ml-2" data-accent="bg">
+                            <i class="fas fa-sign-in-alt text-lg"></i>
                             {{ __('ui.auth.sign_in') }}
                         </a>
                     @endauth
@@ -244,33 +254,38 @@
                 @auth
                     {{-- Mobile User Section --}}
                     <div class="px-4 pt-3 mt-3 border-t border-gray-200 dark:border-gray-800 space-y-3">
+                        @php
+                            $profileUrl = Route::has('profile') ? route('profile') : '#profile';
+                            $settingsUrl = Route::has('settings') ? route('settings') : '#settings';
+                        @endphp
+
                         <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded">
-                            <img src="{{ Auth::user()->avatar_url }}" alt="" class="w-10 h-10 rounded object-cover">
+                            <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->display_name }}" class="w-10 h-10 rounded object-cover">
                             <div class="min-w-0 flex-1">
-                                <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ Auth::user()->name }}</p>
+                                <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ Auth::user()->display_name }}</p>
                                 <p class="text-xs text-gray-600 dark:text-gray-400 truncate">{{ mask_email(Auth::user()->email) }}</p>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <a href="#clips-create" class="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-bold rounded text-white dark:text-gray-900 transition-colors" data-accent="bg">
+                        <div class="space-y-1" role="menu" aria-label="{{ __('ui.user_menu') }}">
+                            <a href="#clips-create" class="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-bold rounded text-white dark:text-gray-900 transition-colors" data-accent="bg" role="menuitem">
                                 <i class="fas fa-plus text-xs"></i>
                                 {{ __('ui.submit') }}
                             </a>
                             
-                            <a href="#profile" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 rounded transition-colors">
+                            <a href="{{ $profileUrl }}" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 rounded transition-colors" role="menuitem">
                                 <i class="fas fa-user w-4 text-gray-400"></i>
                                 {{ __('ui.profile') }}
                             </a>
                             
-                            <a href="#settings" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 rounded transition-colors">
+                            <a href="{{ $settingsUrl }}" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 rounded transition-colors" role="menuitem">
                                 <i class="fas fa-cog w-4 text-gray-400"></i>
                                 {{ __('ui.settings') }}
                             </a>
                             
-                            <form method="POST" action="#logout">
+                            <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 rounded transition-colors">
+                                <button type="submit" aria-label="{{ __('ui.auth.sign_out') }}" class="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 rounded transition-colors" role="menuitem">
                                     <i class="fas fa-sign-out-alt w-4"></i>
                                     {{ __('ui.auth.sign_out') }}
                                 </button>
@@ -279,8 +294,9 @@
                     </div>
                 @else
                     <div class="px-4 pt-3 mt-3 border-t border-gray-200 dark:border-gray-800">
-                        <a href="#login" class="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-bold rounded text-white dark:text-gray-900 transition-colors" data-accent="bg">
-                            {{ __('ui.auth.sign_in_with_twitch') }}
+                        <a href="{{ route('login') }}" class="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-bold rounded text-white dark:text-gray-900 transition-colors" data-accent="bg">
+                            <i class="fas fa-sign-in-alt text-lg"></i>
+                            {{ __('ui.auth.sign_in') }}
                         </a>
                     </div>
                 @endauth

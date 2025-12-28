@@ -35,4 +35,34 @@ return [
         ],
     ],
 
+    'twitch' => [
+        'client_id'     => env('TWITCH_CLIENT_ID'),
+        'client_secret' => env('TWITCH_CLIENT_SECRET'),
+        'redirect_uri'  => env('TWITCH_REDIRECT_URI'),
+        'scopes'        => env('TWITCH_SCOPES', 'user:read:email'),
+
+        // API Configuration
+        'api_url'       => 'https://api.twitch.tv/helix',
+        'auth_url'      => 'https://id.twitch.tv/oauth2',
+        'timeout'       => (int) env('TWITCH_TIMEOUT', 30),
+
+        // Rate Limiting (GDPR Compliance)
+        'rate_limit'    => [
+            'enabled'       => env('TWITCH_RATE_LIMIT_ENABLED', true),
+            'max_requests'  => (int) env('TWITCH_RATE_LIMIT_MAX', 800), // Per minute
+            'retry_after'   => (int) env('TWITCH_RATE_LIMIT_RETRY', 60),
+        ],
+
+        // Data Privacy (GDPR)
+        'privacy' => [
+            'log_requests'      => env('TWITCH_LOG_REQUESTS', false),
+            'anonymize_ip'      => env('TWITCH_ANONYMIZE_IP', true),
+            'data_retention'    => (int) env('TWITCH_DATA_RETENTION_DAYS', 30),
+            // Store avatars locally to comply with privacy requirements
+            'store_avatars'     => env('TWITCH_STORE_AVATARS', true),
+        ],
+        // Remember option controls whether we set a persistent login cookie
+        'remember' => env('TWITCH_REMEMBER', true),
+    ],
+
 ];
