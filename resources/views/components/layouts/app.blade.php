@@ -19,38 +19,14 @@
 
     {{-- Critical CSS for initial render --}}
     <style>
-        :root {
-            /* Default accent color (purple) */
-            --accent-hue: 252;
-            --accent-saturation: 83%;
-            --accent-lightness: 65%;
-
-            /* Generated accent colors */
-            --accent-bg: hsl(var(--accent-hue), var(--accent-saturation), var(--accent-lightness));
-            --accent-border: hsl(var(--accent-hue), var(--accent-saturation), var(--accent-lightness));
-            --accent-bgLight: hsl(var(--accent-hue), 83%, 96%);
-            --accent-bg-dark: hsl(var(--accent-hue), var(--accent-saturation), 75%);
-            --accent-border-dark: hsl(var(--accent-hue), var(--accent-saturation), 75%);
-            --accent-bgLight-dark: hsl(var(--accent-hue), 83%, 15%);
-        }
-
-        /* Dark mode overrides - applied immediately to avoid FOUC */
-        .dark {
-            --accent-bg: var(--accent-bg-dark);
-            --accent-border: var(--accent-border-dark);
-            --accent-bgLight: var(--accent-bgLight-dark);
-        }
-
         /* Minimal critical styles for above-the-fold content */
         [data-accent] {
             transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
         }
-
         [data-accent="bg"] {
             background-color: var(--accent-bg) !important;
             color: white !important;
         }
-
         .sr-only {
             position: absolute;
             width: 1px;
@@ -103,6 +79,11 @@
                 --accent-border-dark: hsl({{ $c['h'] }}, {{ $c['s'] }}%, {{ $darkL }}%);
                 --accent-bgLight-dark: hsl({{ $c['h'] }}, 83%, 15%);
             }
+            .dark {
+                --accent-bg: var(--accent-bg-dark);
+                --accent-border: var(--accent-border-dark);
+                --accent-bgLight: var(--accent-bgLight-dark);
+            }
         </style>
     @endif
 
@@ -114,16 +95,6 @@
             // Set global flags
             window.appAuthenticated = @json(auth()->check());
             window.appDebug = @json(config('app.debug'));
-
-            // Theme initialization (minimal, fast) - disabled to avoid conflicts with theme switcher
-            // try {
-            //     const savedTheme = localStorage.getItem('theme');
-            //     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            //     
-            //     if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-            //         document.documentElement.classList.add('dark');
-            //     }
-            // } catch(e) {}
 
             // Accent color initialization
             try {
