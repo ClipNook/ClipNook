@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\TwitchController;
+use App\Livewire\Clips\ClipOverview;
 use Illuminate\Support\Facades\Route;
 
 // Home
@@ -9,7 +10,7 @@ Route::get('/', fn () => view('home'))->name('home');
 // Authenticated routes
 Route::middleware('auth')->group(function () {
     // User settings
-    Route::prefix('settings')->name('settings.')->middleware('throttle:5,1')->group(function () {
+    Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [App\Http\Controllers\SettingsController::class, 'index'])->name('index');
 
         // Profile settings
@@ -38,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [TwitchController::class, 'logout'])->name('logout');
 });
 
+Route::get('/clips', ClipOverview::class)->name('clips.index');
 // Guest-only login
 Route::get('/login', [TwitchController::class, 'login'])->name('login')->middleware('guest');
 
@@ -60,7 +62,6 @@ Route::middleware('web')->group(function () {
         if ($request->user()) {
             $user         = $request->user();
             $user->locale = $request->locale;
-            $user->save();
         }
 
         return response()->json(['success' => true]);

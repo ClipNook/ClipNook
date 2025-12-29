@@ -13,7 +13,8 @@ return [
     // Primary navigation - use translation keys for labels
     'nav' => [
         ['label' => 'ui.nav.home', 'route' => 'home'],
-        ['label' => 'ui.nav.clips', 'href' => '/#clips'],
+        ['label' => 'ui.nav.clips', 'route' => 'clips.index'],
+        ['label' => 'ui.nav.categories', 'href' => '/#categories'],
         ['label' => 'ui.nav.streamers', 'href' => '/#streamers'],
         ['label' => 'ui.nav.cutters', 'href' => '/#cutters'],
         ['label' => 'ui.nav.faq', 'href' => '/#faq'],

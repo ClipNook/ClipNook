@@ -41,14 +41,17 @@ return [
         'messages' => [
             'enter_input'                => 'Bitte eine Clip-URL oder ID eingeben.',
             'invalid_input'              => 'Ungültige Clip URL oder ID.',
-            'only_streamers'             => 'Nur Streamer können Clips einreichen.',
             'token_failed'               => 'Fehler beim Abrufen des Twitch-Tokens.',
             'not_found'                  => 'Clip nicht gefunden.',
             'broadcaster_not_registered' => 'Broadcaster ist nicht bei uns registriert.',
             'broadcaster_not_streamer'   => 'Der Broadcaster ist kein Streamer.',
+            'broadcaster_no_sharing'     => 'Der Broadcaster erlaubt kein Clip-Sharing.',
+            'only_users'                 => 'Nur registrierte Nutzer können Clips einreichen.',
             'validated'                  => 'Clip validiert und akzeptiert.',
             'no_clip_to_save'            => 'Kein Clip zum Speichern.',
             'saved'                      => 'Clip erfolgreich gespeichert.',
+            'save_failed'                => 'Clip konnte nicht gespeichert werden. Bitte versuche es später erneut.',
+            'limit_reached'              => 'Du kannst heute maximal 10 Clips einreichen.',
         ],
     ],
 ];

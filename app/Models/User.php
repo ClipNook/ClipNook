@@ -174,4 +174,20 @@ class User extends Authenticatable
     {
         return $this->hasOne(CutterProfile::class);
     }
+
+    /**
+     * Clips where user is the broadcaster (streamer)
+     */
+    public function clips(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Clip::class, 'broadcaster_id');
+    }
+
+    /**
+     * Clips submitted by the user
+     */
+    public function submittedClips(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Clip::class, 'submitted_by_id');
+    }
 }

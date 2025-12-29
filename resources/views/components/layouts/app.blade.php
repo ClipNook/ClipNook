@@ -231,9 +231,10 @@
                     <nav class="hidden lg:flex items-center gap-1" aria-label="Main navigation">
                         @foreach (config('ui.nav', []) as $item)
                             @php
-                                $link = $item['href'] ?? '#';
                                 $label = __($item['label'] ?? '');
-                                $isActive = !empty($item['route']) && Route::currentRouteName() === $item['route'];
+                                $isRoute = !empty($item['route']);
+                                $link = $isRoute ? route($item['route']) : ($item['href'] ?? '#');
+                                $isActive = $isRoute && Route::currentRouteName() === $item['route'];
                             @endphp
                             <a href="{{ $link }}"
                                 class="px-3 py-2 text-sm font-semibold rounded transition-colors whitespace-nowrap
@@ -373,9 +374,10 @@
                     <nav class="px-4 pt-3 space-y-1" aria-label="Mobile navigation">
                         @foreach (config('ui.nav', []) as $item)
                             @php
-                                $link = $item['href'] ?? '#';
                                 $label = __($item['label'] ?? '');
-                                $isActive = !empty($item['route']) && Route::currentRouteName() === $item['route'];
+                                $isRoute = !empty($item['route']);
+                                $link = $isRoute ? route($item['route']) : ($item['href'] ?? '#');
+                                $isActive = $isRoute && Route::currentRouteName() === $item['route'];
                             @endphp
                             <a href="{{ $link }}"
                                 class="block px-4 py-2.5 text-sm font-semibold rounded transition-colors 
