@@ -9,9 +9,18 @@ use App\Services\Twitch\Contracts\HttpClientInterface;
 use App\Services\Twitch\DTOs\ClipData;
 use App\Services\Twitch\DTOs\PaginationData;
 use App\Services\Twitch\Exceptions\AuthenticationException;
+use App\Services\Twitch\Exceptions\RateLimitException;
 use App\Services\Twitch\Exceptions\ValidationException;
 use DateTimeInterface;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\RateLimiter;
 
+/**
+ * Service for interacting with Twitch Helix `/clips`, `/games`, and `/videos` endpoints.
+ *
+ * This class is intentionally lightweight and depends on an `HttpClientInterface` which
+ * can be swapped for testing and different transport implementations.
+ */
 class ClipsService implements ClipsInterface
 {
     private readonly string $apiUrl;
@@ -29,7 +38,9 @@ class ClipsService implements ClipsInterface
     }
 
     /**
-     * Set access token for authenticated requests
+     * Set access token for authenticated requests.
+     *
+     * @return $this
      */
     public function setAccessToken(string $token): self
     {
@@ -103,13 +114,21 @@ class ClipsService implements ClipsInterface
             return null;
         }
 
-        $response = $this->httpClient->get(
-            $this->apiUrl.'/games',
-            ['id' => $gameId],
-            $this->getHeaders()
-        );
+        $cacheKey = "twitch:game:{$gameId}";
 
-        return $response['data'][0] ?? null;
+        return Cache::remember($cacheKey, 3600, function () use ($gameId) {
+            // Rate limit per game id to avoid hot loops
+            $limitKey = "twitch:games:{$gameId}";
+            $this->rateLimitOrHit($limitKey, 30, 60);
+
+            $response = $this->httpClient->get(
+                $this->apiUrl.'/games',
+                ['id' => $gameId],
+                $this->getHeaders()
+            );
+
+            return $response['data'][0] ?? null;
+        });
     }
 
     /**
@@ -121,13 +140,21 @@ class ClipsService implements ClipsInterface
             return null;
         }
 
-        $response = $this->httpClient->get(
-            $this->apiUrl.'/videos',
-            ['id' => $videoId],
-            $this->getHeaders()
-        );
+        $cacheKey = "twitch:video:{$videoId}";
 
-        return $response['data'][0] ?? null;
+        return Cache::remember($cacheKey, 600, function () use ($videoId) {
+            // Rate limit per video id to avoid hot loops
+            $limitKey = "twitch:videos:{$videoId}";
+            $this->rateLimitOrHit($limitKey, 10, 60);
+
+            $response = $this->httpClient->get(
+                $this->apiUrl.'/videos',
+                ['id' => $videoId],
+                $this->getHeaders()
+            );
+
+            return $response['data'][0] ?? null;
+        });
     }
 
     /**
@@ -188,7 +215,7 @@ class ClipsService implements ClipsInterface
         $response = $this->httpClient->post(
             $this->apiUrl.'/clips',
             $params,
-            $this->getHeaders()
+            $this->getHeaders(true)
         );
 
         if (! isset($response['data'][0])) {
@@ -199,17 +226,44 @@ class ClipsService implements ClipsInterface
     }
 
     /**
-     * Get request headers
+     * Build request headers.
      *
+     * @param  bool  $includeContentType  Whether to include Content-Type header (useful for POST/PUT)
      * @return array<string, string>
      */
-    private function getHeaders(): array
+    private function getHeaders(bool $includeContentType = false): array
     {
-        return [
-            'Client-Id'     => $this->clientId,
-            'Authorization' => 'Bearer '.$this->accessToken,
-            'Content-Type'  => 'application/json',
+        $headers = [
+            'Client-ID' => $this->clientId,
         ];
+
+        // We only add authorization if there is a token set
+        if (! empty($this->accessToken)) {
+            $headers['Authorization'] = 'Bearer '.$this->accessToken;
+        }
+
+        if ($includeContentType) {
+            // Only add Content-Type for POSTs
+            $headers['Content-Type'] = 'application/json';
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Simple logical rate limiter helper.
+     *
+     * @throws RateLimitException
+     */
+    private function rateLimitOrHit(string $key, int $maxAttempts, int $decaySeconds): void
+    {
+        if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
+            $retryAfter = RateLimiter::availableIn($key);
+
+            throw new RateLimitException('Rate limit for Twitch resource reached', $retryAfter);
+        }
+
+        RateLimiter::hit($key, $decaySeconds);
     }
 
     /**

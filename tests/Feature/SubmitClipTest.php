@@ -61,6 +61,21 @@ it('accepts clip when broadcaster is registered and is a streamer', function () 
         ->assertSee($clipData->id);
 });
 
+it('shows token failure when token cannot be retrieved', function () {
+    $submitter = User::factory()->create(['is_streamer' => true]);
+
+    $this->mock(TokenRefreshService::class, function ($m) {
+        $m->shouldReceive('getValidToken')->once()->andReturn(null);
+    });
+
+    Livewire::actingAs($submitter)
+        ->test(SubmitClip::class)
+        ->set('input', 'DreamyComfortableKimchiBCWarrior-KHiH2nw1Hgh2vAGN')
+        ->call('check')
+        ->assertSet('accepted', false)
+        ->assertSet('message', __('clip.submit.messages.token_failed'));
+});
+
 it('rejects when broadcaster is not registered', function () {
     $submitter = User::factory()->create(['is_streamer' => true]);
 

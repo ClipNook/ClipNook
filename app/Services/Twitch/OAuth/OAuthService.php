@@ -162,7 +162,7 @@ class OAuthService implements OAuthInterface
 
         $response = $this->httpClient->get($this->apiUrl.'/users', [], [
             'Authorization' => 'Bearer '.$accessToken,
-            'Client-Id'     => $this->clientId,
+            'Client-ID'     => $this->clientId,
         ]);
 
         // Helix returns data as ['data' => [ {user} ] ]
@@ -188,7 +188,7 @@ class OAuthService implements OAuthInterface
 
         $response = $this->httpClient->get($this->apiUrl.'/users', ['id' => $userId], [
             'Authorization' => 'Bearer '.$accessToken,
-            'Client-Id'     => $this->clientId,
+            'Client-ID'     => $this->clientId,
         ]);
 
         if (! isset($response['data'][0]) || ! is_array($response['data'][0])) {
