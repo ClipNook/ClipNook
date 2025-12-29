@@ -8,7 +8,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class PreferencesController extends Controller
 {
@@ -17,12 +16,10 @@ class PreferencesController extends Controller
      */
     public function update(UpdateSettingsRequest $request): RedirectResponse|JsonResponse
     {
-        $user = $request->user();
+        $user      = $request->user();
+        $validated = $request->validated();
 
-        DB::beginTransaction();
-        try {
-            $validated = $request->validated();
-
+        DB::transaction(function () use ($user, $validated) {
             $user->update([
                 'theme_preference' => $validated['theme_preference'] ?? $user->theme_preference,
                 'locale'           => $validated['locale'] ?? $user->locale,
@@ -32,41 +29,20 @@ class PreferencesController extends Controller
 
             // Clear preferences cache
             $user->clearPreferencesCache();
+        });
 
-            DB::commit();
+        $message = __('ui.preferences_updated');
 
-            $message = __('ui.preferences_updated');
-
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message,
-                ]);
-            }
-
-            return redirect()
-                ->route('settings.index', ['tab' => 'preferences'])
-                ->with('success', $message);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            Log::error('Preferences update failed', [
-                'user_id' => $user->id,
-                'error'   => $e->getMessage(),
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
             ]);
-
-            $message = __('ui.preferences_update_failed');
-
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $message,
-                ], 500);
-            }
-
-            return redirect()
-                ->route('settings.index', ['tab' => 'preferences'])
-                ->with('error', $message);
         }
+
+        return redirect()
+            ->route('settings.index', ['tab' => 'preferences'])
+            ->with('success', $message);
     }
 
     /**

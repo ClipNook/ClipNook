@@ -7,6 +7,9 @@ use Illuminate\Validation\Rule;
 
 class UpdateSettingsRequest extends FormRequest
 {
+    /**
+     * Only authenticated users can update their settings.
+     */
     public function authorize(): bool
     {
         return $this->user() !== null;

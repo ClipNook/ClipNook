@@ -9,6 +9,18 @@ return [
     'active'               => 'Active',
     'inactive'             => 'Inactive',
 
+    // Twitch Account
+    'twitch_account'          => 'Twitch Account',
+    'twitch_info_description' => 'Information about your connected Twitch account',
+
+    // Appearance
+    'appearance'             => 'Appearance',
+    'appearance_description' => 'Customize how the application looks and feels',
+
+    // Localization
+    'localization'             => 'Localization',
+    'localization_description' => 'Set your language and regional settings',
+
     // Profile
     'profile_information'      => 'Profile Information',
     'profile_info_description' => 'Update your profile information and bio.',
@@ -158,5 +170,25 @@ return [
         'avatar_mimes'          => 'Avatar must be one of the following formats: JPG, JPEG, PNG, GIF, WebP.',
         'avatar_max_size'       => 'Avatar must not exceed 5 MB in size.',
         'avatar_dimensions'     => 'Avatar must be square (1:1 aspect ratio) and between 100x100 and 2000x2000 pixels.',
+    ],
+
+    // Colors
+    'colors' => [
+        'blue'   => 'Blue',
+        'green'  => 'Green',
+        'purple' => 'Purple',
+        'red'    => 'Red',
+        'orange' => 'Orange',
+        'yellow' => 'Yellow',
+        'pink'   => 'Pink',
+        'indigo' => 'Indigo',
+        'gray'   => 'Gray',
+    ],
+
+    // Themes
+    'themes' => [
+        'light' => 'Light',
+        'dark'  => 'Dark',
+        'auto'  => 'Auto',
     ],
 ];

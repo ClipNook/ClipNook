@@ -23,9 +23,6 @@ class AvatarService
      */
     public function restoreFromTwitch(User $user, string $accessToken): void
     {
-        // Start operation; use debug level to avoid noisy info logs with PII
-        Log::debug('Starting avatar restoration from Twitch');
-
         try {
             // Fetch Twitch user data
             $twitchUser = $this->oauth->getUserById($accessToken, $user->twitch_id);
@@ -38,8 +35,6 @@ class AvatarService
         $profileUrl = $twitchUser->profileImageUrl ?? null;
 
         if (empty($profileUrl)) {
-            // No avatar available on Twitch; record as debug to reduce noise
-            Log::debug('No profile image URL available on Twitch');
             throw new ValidationException('No profile image URL found');
         }
 
@@ -112,8 +107,6 @@ class AvatarService
             $user->avatar_source                = 'twitch';
             $user->save();
 
-            Log::debug('Avatar restored locally', ['path' => $filename]);
-
         } catch (ValidationException $e) {
             // Re-throw validation exceptions (expected failure modes)
             throw $e;
@@ -131,9 +124,6 @@ class AvatarService
     {
         $user->twitch_avatar = $url;
         $user->save();
-
-        // Storing remote avatar URL; record at debug level only
-        Log::debug('Avatar restored as remote URL');
     }
 
     /**

@@ -7,6 +7,9 @@ use Illuminate\Validation\Rule;
 
 class DeleteAccountRequest extends FormRequest
 {
+    /**
+     * Only authenticated users can delete their account.
+     */
     public function authorize(): bool
     {
         return $this->user() !== null;

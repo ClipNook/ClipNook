@@ -101,10 +101,8 @@ class SubmitClip extends Component
             try {
                 $clipsService->setAccessToken($token);
             } catch (\Throwable $e) {
-                Log::debug('Failed to set access token on ClipsService', ['error' => $e->getMessage()]);
+                // Silently ignore if setting token fails
             }
-        } else {
-            Log::debug('ClipsService implementation does not support setAccessToken');
         }
 
         $clip = $clipsService->getClipById($clipId);
@@ -145,7 +143,7 @@ class SubmitClip extends Component
                     $this->clip['game_name'] = $game['name'];
                 }
             } catch (\Throwable $e) {
-                Log::debug('Game enrichment failed', ['game_id' => $this->clip['game_id'], 'error' => $e->getMessage()]);
+                // Silently ignore game enrichment failures
             }
         }
 
@@ -160,16 +158,13 @@ class SubmitClip extends Component
                     $this->clip['video_url'] = 'https://www.twitch.tv/videos/'.$this->clip['video_id'];
                 }
             } catch (\Throwable $e) {
-                Log::debug('Video enrichment failed', ['video_id' => $this->clip['video_id'], 'error' => $e->getMessage()]);
+                // Silently ignore video enrichment failures
             }
         }
 
         $this->accepted   = true;
         $this->message    = __('clip.submit.messages.validated');
         $this->isChecking = false;
-
-        // Log the validation for now; front-end events can be added when runtime supports them
-        Log::info('Clip validated', ['id' => $this->clip['id'] ?? null]);
     }
 
     private function extractClipId(string $input): ?string

@@ -9,6 +9,18 @@ return [
     'active'               => 'Aktiv',
     'inactive'             => 'Inaktiv',
 
+    // Twitch Account
+    'twitch_account'          => 'Twitch-Konto',
+    'twitch_info_description' => 'Informationen zu Ihrem verbundenen Twitch-Konto',
+
+    // Appearance
+    'appearance'             => 'Erscheinungsbild',
+    'appearance_description' => 'Passen Sie aus, wie die Anwendung aussieht und sich anfühlt',
+
+    // Localization
+    'localization'             => 'Lokalisierung',
+    'localization_description' => 'Stellen Sie Ihre Sprache und regionalen Einstellungen ein',
+
     // Profil
     'profile_information'      => 'Profilinformationen',
     'profile_info_description' => 'Aktualisieren Sie Ihre Profilinformationen und Bio.',

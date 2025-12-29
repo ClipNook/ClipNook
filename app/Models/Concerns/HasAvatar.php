@@ -14,19 +14,33 @@ trait HasAvatar
             return asset('images/avatar-default.svg');
         }
 
-        $avatar = $this->twitch_avatar;
+        // Check avatar source and return appropriate avatar
+        switch ($this->avatar_source) {
+            case 'custom':
+                if (! empty($this->custom_avatar_path)) {
+                    $disk = \Illuminate\Support\Facades\Storage::disk('public');
+                    if ($disk->exists($this->custom_avatar_path)) {
+                        return asset('storage/'.$this->custom_avatar_path);
+                    }
+                }
+                break;
 
-        if (! empty($avatar)) {
-            // Check if it's a URL
-            if (filter_var($avatar, FILTER_VALIDATE_URL)) {
-                return $avatar;
-            }
+            case 'twitch':
+            default:
+                $avatar = $this->twitch_avatar;
+                if (! empty($avatar)) {
+                    // Check if it's a URL
+                    if (filter_var($avatar, FILTER_VALIDATE_URL)) {
+                        return $avatar;
+                    }
 
-            // Local file in public storage
-            $disk = \Illuminate\Support\Facades\Storage::disk('public');
-            if ($disk->exists($avatar)) {
-                return asset('storage/'.$avatar);
-            }
+                    // Local file in public storage
+                    $disk = \Illuminate\Support\Facades\Storage::disk('public');
+                    if ($disk->exists($avatar)) {
+                        return asset('storage/'.$avatar);
+                    }
+                }
+                break;
         }
 
         // Fallback to our SVG

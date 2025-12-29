@@ -146,35 +146,6 @@ class User extends Authenticatable
         return $this->twitch_display_name ?? $this->twitch_login ?? null;
     }
 
-    /**
-     * Returns the user's avatar URL (Twitch, local or fallback SVG).
-     */
-    public function getAvatarUrlAttribute(): string
-    {
-        // If the user disabled avatars, always return fallback
-        if ($this->isAvatarDisabled()) {
-            return asset('images/avatar-default.svg');
-        }
-
-        $avatar = $this->twitch_avatar;
-
-        if (! empty($avatar)) {
-            // Check if it's a URL
-            if (filter_var($avatar, FILTER_VALIDATE_URL)) {
-                return $avatar;
-            }
-
-            // Local file in public storage
-            $disk = \Illuminate\Support\Facades\Storage::disk('public');
-            if ($disk->exists($avatar)) {
-                return asset('storage/'.$avatar);
-            }
-        }
-
-        // Fallback to our SVG
-        return asset('images/avatar-default.svg');
-    }
-
     public function getThemeAttribute()
     {
         return $this->theme_preference ?? 'system';

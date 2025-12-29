@@ -41,7 +41,7 @@ class AvatarController extends Controller
     /**
      * Upload a new custom avatar.
      */
-    public function upload(UploadAvatarRequest $request): JsonResponse
+    public function upload(UploadAvatarRequest $request): JsonResponse|RedirectResponse
     {
         $user = $request->user();
         $file = $request->file('avatar');
@@ -65,12 +65,20 @@ class AvatarController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success'       => true,
-                'message'       => __('ui.avatar_upload_success'),
-                'avatar_url'    => $user->avatar_url,
-                'thumbnail_url' => $user->avatar_thumbnail_url,
-            ]);
+            $message = __('ui.avatar_upload_success');
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success'       => true,
+                    'message'       => $message,
+                    'avatar_url'    => $user->avatar_url,
+                    'thumbnail_url' => $user->avatar_thumbnail_url,
+                ]);
+            }
+
+            return redirect()
+                ->route('settings.index', ['tab' => 'avatar'])
+                ->with('success', $message);
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('Avatar upload failed', [
@@ -78,10 +86,18 @@ class AvatarController extends Controller
                 'error'   => $e->getMessage(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => __('ui.avatar_upload_failed'),
-            ], 500);
+            $message = __('ui.avatar_upload_failed');
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message,
+                ], 500);
+            }
+
+            return redirect()
+                ->route('settings.index', ['tab' => 'avatar'])
+                ->with('error', $message);
         }
     }
 

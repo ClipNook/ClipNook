@@ -9,7 +9,7 @@ Route::get('/', fn () => view('home'))->name('home');
 // Authenticated routes
 Route::middleware('auth')->group(function () {
     // User settings
-    Route::prefix('settings')->name('settings.')->group(function () {
+    Route::prefix('settings')->name('settings.')->middleware('throttle:5,1')->group(function () {
         Route::get('/', [App\Http\Controllers\SettingsController::class, 'index'])->name('index');
 
         // Profile settings

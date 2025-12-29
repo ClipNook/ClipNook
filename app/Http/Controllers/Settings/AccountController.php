@@ -8,7 +8,6 @@ use App\Http\Requests\ExportDataRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AccountController extends Controller
@@ -36,25 +35,15 @@ class AccountController extends Controller
     {
         $user = $request->user();
 
-        DB::beginTransaction();
-        try {
+        DB::transaction(function () use ($user, $request) {
             $this->deleteUserCompletely($user);
 
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+        });
 
-            DB::commit();
-
-            return redirect('/')->with('success', __('ui.account_deleted'));
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            Log::error('Account deletion failed', ['error' => $e->getMessage()]);
-
-            return redirect()
-                ->route('settings.index', ['tab' => 'account'])
-                ->with('error', __('ui.account_deletion_failed'));
-        }
+        return redirect('/')->with('success', __('ui.account_deleted'));
     }
 
     /**

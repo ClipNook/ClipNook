@@ -1,75 +1,70 @@
 {{-- Profile Settings Tab --}}
-<div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
-                <i class="fas fa-user text-indigo-600 dark:text-indigo-400"></i>
+<div class="space-y-6">
+    {{-- Twitch Account Information --}}
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                    <i class="fab fa-twitch text-purple-600 dark:text-purple-400"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('ui.twitch_account') ?? 'Twitch Account' }}</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ __('ui.twitch_info_description') ?? 'Your connected Twitch account information' }}</p>
+                </div>
             </div>
-            <div>
-                <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('ui.profile_information') }}</h2>
-                <p class="text-sm text-gray-600 dark:text-gray-400">{{ __('ui.profile_info_description') }}</p>
+        </div>
+
+        <div class="p-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="space-y-1">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <i class="fas fa-user-circle mr-2 text-gray-400"></i>{{ __('ui.display_name') }}
+                    </label>
+                    <p class="text-gray-900 dark:text-white font-medium bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-lg">{{ $user->display_name }}</p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <i class="fas fa-at mr-2 text-gray-400"></i>{{ __('ui.username') }}
+                    </label>
+                    <p class="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-lg">{{ $user->twitch_login }}</p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <i class="fas fa-envelope mr-2 text-gray-400"></i>{{ __('ui.email_address') }}
+                    </label>
+                    <p class="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-lg">{{ $user->twitch_email }}</p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <i class="fas fa-hashtag mr-2 text-gray-400"></i>{{ __('ui.twitch_id') }}
+                    </label>
+                    <p class="text-gray-900 dark:text-white font-mono text-sm bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-lg">{{ $user->twitch_id }}</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="p-6">
-        <form method="POST" action="{{ route('settings.profile.update') }}" class="space-y-6">
-            @csrf
-            @method('PUT')
-
-            {{-- Twitch Information (Read-only) --}}
-            <div class="grid md:grid-cols-2 gap-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        {{ __('ui.display_name') }}
-                    </label>
-                    <p class="text-gray-900 dark:text-white font-medium">{{ $user->display_name }}</p>
+    {{-- Profile Customization --}}
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-user-edit text-indigo-600 dark:text-indigo-400"></i>
                 </div>
-
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        {{ __('ui.username') }}
-                    </label>
-                    <p class="text-gray-900 dark:text-white">{{ $user->twitch_login }}</p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        {{ __('ui.email_address') }}
-                    </label>
-                    <p class="text-gray-900 dark:text-white">{{ $user->twitch_email }}</p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        {{ __('ui.twitch_id') }}
-                    </label>
-                    <p class="text-gray-900 dark:text-white font-mono text-sm">{{ $user->twitch_id }}</p>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('ui.profile_information') }}</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ __('ui.profile_info_description') }}</p>
                 </div>
             </div>
+        </div>
 
-            {{-- Display Name --}}
-            <div>
-                <label for="twitch_display_name" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                    {{ __('ui.display_name') }}
-                    <span class="text-xs text-gray-500 dark:text-gray-400">({{ __('ui.optional') }})</span>
-                </label>
-                <input type="text" id="twitch_display_name" name="twitch_display_name" maxlength="255"
-                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
-                    placeholder="{{ __('ui.display_name_placeholder') }}"
-                    value="{{ old('twitch_display_name', $user->twitch_display_name) }}">
-                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ __('ui.display_name_help') }}</p>
-            </div>
-
-            {{-- Email --}}
-            <div>
-                <label for="twitch_email" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                    {{ __('ui.email_address') }}
-                </label>
-                <input type="email" id="twitch_email" name="twitch_email" required
-                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
-                    value="{{ old('twitch_email', $user->twitch_email) }}">
-            </div>
+        <div class="p-6">
+            <form method="POST" action="{{ route('settings.profile.update') }}" class="space-y-6">
+                @csrf
+                @method('PUT')
 
             {{-- Biography --}}
             <div>
