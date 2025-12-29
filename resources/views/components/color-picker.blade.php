@@ -3,8 +3,8 @@
     <button 
         @click="toggle()" 
         type="button"
-        :aria-label="'{{ __('ui.color') }}: ' + (colors[currentColor] ? colors[currentColor].name : '')"
-        :aria-expanded="open"
+        x-bind:aria-label="'{{ __('ui.color') }}: ' + (colors[currentColor] ? colors[currentColor].name : '')"
+        x-bind:aria-expanded="open"
         aria-haspopup="true"
         class="inline-flex items-center gap-1.5 text-[11px] font-medium text-gray-600 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
         <i class="fas fa-palette text-[13px]"></i>
@@ -34,18 +34,17 @@
                 <button
                     @click="setColor(key)"
                     type="button"
-                    :aria-label="color.name"
-                    :aria-pressed="currentColor === key"
+                    x-bind:aria-label="color.name"
+                    x-bind:aria-pressed="currentColor === key"
                     class="group relative w-9 h-9 rounded border-2 hover:opacity-80 focus:outline-none focus-visible:border focus-visible:border-indigo-500 transition-opacity"
-                    :class="currentColor === key ? color.border : 'border-transparent'"
-                    :style="currentColor === key ? 'border-color: currentColor' : ''"
-                    :data-accent="currentColor === key ? 'border' : ''">
-                    <div 
+                    x-bind:class="currentColor === key ? color.border : 'border-transparent'"
+                    x-bind:style="currentColor === key ? 'border-color: currentColor' : ''"
+                    x-bind:data-accent="currentColor === key ? 'border' : ''">                    <div 
                         class="w-full h-full rounded"
-                        :class="color.bg"></div>
+                        x-bind:class="color.bg"></div>
                     <i x-show="currentColor === key" 
                        class="fas fa-check absolute inset-0 m-auto text-white text-xs"
-                       :class="key === 'slate' ? 'text-gray-900' : 'text-white'"></i>
+                       x-bind:class="key === 'slate' ? 'text-gray-900' : 'text-white'"></i>
                 </button>
             </template>
         </div>

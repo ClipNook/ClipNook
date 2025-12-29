@@ -28,14 +28,9 @@
         'https://clips.twitch.tv/DreamyComfortableKimchiBCWarrior-KHiH2nw1Hgh2vAGN' => __('clip.submit.examples.clips'),
         'DreamyComfortableKimchiBCWarrior-KHiH2nw1Hgh2vAGN' => __('clip.submit.examples.id'),
     ] as $example => $label)
-                    <button type="button" wire:click="setInput('{{ $example }}')"
-                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors
-                               bg-gray-100 dark:bg-gray-800 
-                               text-gray-700 dark:text-gray-300 
-                               hover:bg-gray-200 dark:hover:bg-gray-700
-                               focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <x-button size="sm" variant="neutral" type="button" wire:click="setInput('{{ $example }}')">
                         {{ $label }}
-                    </button>
+                    </x-button>
                 @endforeach
             </div>
         </div>
@@ -52,9 +47,7 @@
 
         {{-- Submit-Button mit Ladezustand --}}
         <div class="flex items-center gap-3">
-            <button type="submit" wire:loading.attr="disabled" wire:target="check"
-                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed {{ $accepted ? 'bg-green-600 hover:bg-green-700' : 'bg-indigo-600 hover:bg-indigo-700' }}">
-
+            <x-button type="submit" variant="{{ $accepted ? 'success' : 'primary' }}" wire:loading.attr="disabled" wire:target="check" class="inline-flex items-center justify-center gap-2 font-semibold">
                 <i wire:loading wire:target="check" class="fas fa-spinner animate-spin" aria-hidden="true"></i>
 
                 <span wire:loading.remove wire:target="check">
@@ -64,16 +57,12 @@
                 <span wire:loading wire:target="check">
                     {{ __('clip.submit.actions.checking') }}
                 </span>
-            </button>
+            </x-button>
 
             @if ($input)
-                <button type="button" wire:click="$set('input', '')"
-                    class="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 
-                           hover:text-gray-900 dark:hover:text-white
-                           hover:bg-gray-100 dark:hover:bg-gray-800
-                           rounded-lg transition-colors duration-200">
+                <x-button size="sm" variant="neutral" type="button" wire:click="$set('input', '')">
                     {{ __('clip.submit.actions.reset') }}
-                </button>
+                </x-button>
             @endif
         </div>
     </form>
@@ -181,34 +170,25 @@
                             {{-- Aktionen --}}
                             <div
                                 class="flex flex-wrap items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
-                                <a href="{{ $clip['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer"
-                                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-colors bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
+                                <x-button variant="neutral" size="sm" href="{{ $clip['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer">
                                     <i class="fab fa-twitch"></i>
                                     {{ __('clip.submit.actions.open_on_twitch') }}
-                                </a>
+                                </x-button>
 
-                                <button type="button"
-                                    @click="navigator.clipboard.writeText('{{ $clip['id'] }}'); copied = true; setTimeout(() => copied = false, 2000)"
-                                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-colors bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
-                                    <i class="fas" :class="copied ? 'fa-check' : 'fa-copy'"></i>
-                                    <span
-                                        x-text="copied ? '{{ __('clip.submit.actions.copied') }}' : '{{ __('clip.submit.actions.copy_id') }}'"></span>
-                                </button>
+                                <x-button size="sm" variant="neutral" type="button" @click="navigator.clipboard.writeText('{{ $clip['id'] }}'); copied = true; setTimeout(() => copied = false, 2000)">
+                                    <i class="fas" x-bind:class="copied ? 'fa-check' : 'fa-copy'"></i>
+                                    <span x-text="copied ? '{{ __('clip.submit.actions.copied') }}' : '{{ __('clip.submit.actions.copy_id') }}'"></span>
+                                </x-button>
 
                                 @if (!empty($clip['video_available']) && !empty($clip['video_url']))
-                                    <a href="{{ $clip['video_url'] }}" target="_blank" rel="noopener noreferrer"
-                                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-colors bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
+                                    <x-button size="sm" variant="neutral" href="{{ $clip['video_url'] }}" target="_blank" rel="noopener noreferrer">
                                         <i class="fas fa-play-circle"></i>
                                         {{ __('clip.submit.actions.watch_vod') }}
-                                    </a>
+                                    </x-button>
                                 @endif
 
-                                <button type="button" wire:click="saveClip" wire:loading.attr="disabled"
-                                    wire:target="saveClip"
-                                    class="ml-auto inline-flex items-center gap-2 px-5 py-2 text-sm font-bold rounded-lg transition-opacity bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white disabled:opacity-70 disabled:cursor-not-allowed">
-
-                                    <i wire:loading wire:target="saveClip" class="fas fa-spinner animate-spin"
-                                        aria-hidden="true"></i>
+                                <x-button variant="dark" class="ml-auto" wire:click="saveClip" wire:loading.attr="disabled" wire:target="saveClip">
+                                    <i wire:loading wire:target="saveClip" class="fas fa-spinner animate-spin" aria-hidden="true"></i>
 
                                     <span wire:loading.remove wire:target="saveClip">
                                         <i class="fas fa-plus"></i>
@@ -218,7 +198,7 @@
                                     <span wire:loading wire:target="saveClip">
                                         {{ __('clip.submit.actions.saving') }}
                                     </span>
-                                </button>
+                                </x-button>
                             </div>
 
                             {{-- Metadaten --}}

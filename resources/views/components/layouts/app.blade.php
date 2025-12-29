@@ -187,30 +187,24 @@
                         </div>
 
                         {{-- Submit Button --}}
-                        <a href="{{ route('clips.submit') }}" class="hidden lg:inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded text-white dark:text-gray-900 transition-colors ml-2" data-accent="bg">
+                        <x-button href="{{ route('clips.submit') }}" variant="primary" size="sm" class="hidden lg:inline-flex ml-2" accent="bg">
                             <i class="fas fa-plus text-xs"></i>
                             <span>{{ __('ui.submit') }}</span>
-                        </a>
+                        </x-button>
 
                     @else
                         {{-- Login Button --}}
-                        <a href="{{ route('login') }}" class="hidden lg:inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded text-white dark:text-gray-900 transition-colors ml-2" data-accent="bg">
+                        <x-button href="{{ route('login') }}" variant="primary" size="sm" class="hidden lg:inline-flex ml-2" accent="bg">
                             <i class="fas fa-sign-in-alt text-lg"></i>
                             {{ __('ui.auth.sign_in') }}
-                        </a>
+                        </x-button>
                     @endauth
 
                     {{-- Mobile Menu Button --}}
-                    <button 
-                        @click="mobileMenuOpen = !mobileMenuOpen"
-                        type="button"
-                        :aria-expanded="mobileMenuOpen"
-                        aria-controls="mobile-menu"
-                        :aria-label="mobileMenuOpen ? '{{ __('ui.close_menu') }}' : '{{ __('ui.open_menu') }}'"
-                        class="lg:hidden flex items-center justify-center w-10 h-10 rounded text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
+                    <x-button variant="icon" type="button" @click="mobileMenuOpen = !mobileMenuOpen" x-bind:aria-expanded="mobileMenuOpen" aria-controls="mobile-menu" x-bind:aria-label="mobileMenuOpen ? '{{ __('ui.close_menu') }}' : '{{ __('ui.open_menu') }}'" class="lg:hidden">
                         <i x-show="!mobileMenuOpen" class="fas fa-bars text-lg"></i>
                         <i x-show="mobileMenuOpen" class="fas fa-times text-lg" style="display: none;"></i>
-                    </button>
+                    </x-button>
                 </div>
             </div>
 
@@ -294,10 +288,10 @@
                     </div>
                 @else
                     <div class="px-4 pt-3 mt-3 border-t border-gray-200 dark:border-gray-800">
-                        <a href="{{ route('login') }}" class="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-bold rounded text-white dark:text-gray-900 transition-colors" data-accent="bg">
+                        <x-button href="{{ route('login') }}" variant="primary" size="md" block accent="bg">
                             <i class="fas fa-sign-in-alt text-lg"></i>
                             {{ __('ui.auth.sign_in') }}
-                        </a>
+                        </x-button>
                     </div>
                 @endauth
             </div>

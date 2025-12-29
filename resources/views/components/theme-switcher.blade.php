@@ -1,20 +1,17 @@
 {{-- Theme Switcher Component --}}
 <div x-data="themeSwitcher()" class="relative">
     {{-- Toggle Button --}}
-    <button @click="toggle()" @keydown.enter.prevent="toggle()" @keydown.space.prevent="toggle()" type="button"
-        :aria-label="labels.aria_label.replace(':mode', currentModeLabel)"
-        :aria-pressed="theme !== 'system'" aria-haspopup="true" :aria-expanded="open"
-        class="inline-flex items-center justify-center w-8 h-8 rounded text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors">
+    <x-button variant="icon" type="button" @click="toggle()" @keydown.enter.prevent="toggle()" @keydown.space.prevent="toggle()" x-bind:aria-label="labels.aria_label.replace(':mode', currentModeLabel)" x-bind:aria-pressed="theme !== 'system'" aria-haspopup="true" x-bind:aria-expanded="open">
 
         {{-- Icon --}}
         <i class="fas text-[13px]"
-            :class="{
+            x-bind:class="{
                 'fa-circle-half-stroke': effective === 'system',
                 'fa-sun': effective === 'light',
                 'fa-moon': effective === 'dark'
             }"
             aria-hidden="true"></i>
-    </button>
+    </x-button>
 
     {{-- Dropdown Menu --}}
     <div x-show="open" x-cloak @click.outside="close" @keydown.escape="close"
@@ -28,7 +25,7 @@
         @foreach (['system', 'light', 'dark'] as $mode)
             <button @click="setTheme('{{ $mode }}')" @keydown.enter.prevent="setTheme('{{ $mode }}')"
                 @keydown.space.prevent="setTheme('{{ $mode }}')" type="button" role="menuitemradio"
-                :aria-checked="theme === '{{ $mode }}'" x-ref="menuitem"
+                x-bind:aria-checked="theme === '{{ $mode }}'" x-ref="menuitem"
                 class="w-full flex items-center justify-between px-3 py-2 text-[13px] font-medium text-gray-700 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none dark:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800 transition-colors">
 
                 <span class="flex items-center gap-2.5">

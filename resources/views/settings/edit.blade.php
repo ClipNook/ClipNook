@@ -171,13 +171,10 @@
                         <span x-show="hasChanges" x-cloak class="text-sm text-gray-600 dark:text-gray-400">
                             {{ __('ui.unsaved_changes') }}
                         </span>
-                        <button type="submit" 
-                                :disabled="!hasChanges"
-                                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-                                data-accent="bg">
+                        <x-button type="submit" variant="primary" size="md" accent="bg" x-bind:disabled="!hasChanges">
                             <i class="fas fa-save text-xs" aria-hidden="true"></i>
                             {{ __('ui.save_changes') }}
-                        </button>
+                        </x-button>
                     </div>
                 </form>
             </div>
@@ -234,22 +231,17 @@
                         </h3>
                         <div class="space-y-3">
                             <template x-if="!isAvatarDisabled && hasTwitchAvatar">
-                                <button @click="openDialog('remove')"
-                                        type="button"
-                                        class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors">
+                                <x-button type="button" size="md" class="w-full text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900" @click="openDialog('remove')">
                                     <i class="fas fa-trash-alt text-xs" aria-hidden="true"></i>
                                     {{ __('ui.remove_avatar') }}
-                                </button>
+                                </x-button>
                             </template>
 
                             <template x-if="hasTwitchConnection">
-                                <button @click="openDialog(isAvatarDisabled ? 'enable' : 'restore')"
-                                        type="button"
-                                        class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white dark:text-gray-900 rounded-lg transition-opacity hover:opacity-90"
-                                        data-accent="bg">
+                                <x-button type="button" size="md" variant="primary" class="w-full" accent="bg" @click="openDialog(isAvatarDisabled ? 'enable' : 'restore')">
                                     <i class="fas fa-sync-alt text-xs" aria-hidden="true"></i>
                                     <span x-text="isAvatarDisabled ? '{{ __('ui.enable_avatar') }}' : '{{ __('ui.restore_avatar') }}'"></span>
-                                </button>
+                                </x-button>
                             </template>
                         </div>
                     </div>
@@ -300,12 +292,10 @@
                         </ul>
                     </div>
 
-                    <button @click="openDialog()"
-                            type="button"
-                            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
+                    <x-button type="button" size="md" class="inline-flex items-center gap-2 text-white bg-red-600 hover:bg-red-700" @click="openDialog()">
                         <i class="fas fa-user-times text-xs" aria-hidden="true"></i>
                         {{ __('ui.delete_my_account') }}
-                    </button>
+                    </x-button>
                 </div>
             </div>
         </div>
@@ -331,17 +321,14 @@
              class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-md w-full overflow-hidden">
             
             {{-- Dialog Header --}}
-            <div class="px-6 py-4 border-b" :class="type === 'danger' ? 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800' : 'border-gray-200 dark:border-gray-800'">
+            <div class="px-6 py-4 border-b" x-bind:class="type === 'danger' ? 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800' : 'border-gray-200 dark:border-gray-800'">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-bold" :class="type === 'danger' ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'">
+                    <h3 class="text-lg font-bold" x-bind:class="type === 'danger' ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'">
                         <span x-text="title"></span>
                     </h3>
-                    <button @click="close"
-                            type="button"
-                            class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                            :aria-label="'{{ __('ui.close') }}'">
+                    <x-button variant="icon" type="button" @click="close" x-bind:aria-label="'{{ __('ui.close') }}'" class="w-8 h-8">
                         <i class="fas fa-times text-sm" aria-hidden="true"></i>
-                    </button>
+                    </x-button>
                 </div>
             </div>
 
@@ -352,7 +339,7 @@
 
 
                 {{-- Action Form --}}
-                <form x-ref="dialogForm" method="POST" :action="action" @submit.prevent="submitForm" class="contents">
+                <form x-ref="dialogForm" method="POST" x-bind:action="action" @submit.prevent="submitForm" class="contents">
                     <template x-if="type === 'danger' && confirmText">
                         <div class="space-y-3">
                             <div class="p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
@@ -370,31 +357,24 @@
                                        x-model="userInput"
                                        @input="checkConfirmation"
                                        class="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500"
-                                       :class="userInput === confirmText ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'"
-                                       :placeholder="confirmText">
+                                       x-bind:class="userInput === confirmText ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'"
+                                       x-bind:placeholder="confirmText">
                             </div>
                         </div>
                     </template>
                     @csrf
-                    <input type="hidden" name="_method" :value="method">
+                    <input type="hidden" name="_method" x-bind:value="method">
 
-                    <input type="hidden" :name="actionType" value="1">
+                    <input type="hidden" x-bind:name="actionType" value="1">
 
                     <div class="pt-2 flex items-center justify-end gap-3">
-                        <button @click="close"
-                                type="button"
-                                class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                        <x-button variant="neutral" size="sm" type="button" @click="close">
                             {{ __('ui.cancel') }}
-                        </button>
+                        </x-button>
 
-                        <button type="submit"
-                                :disabled="type === 'danger' && confirmText && userInput !== confirmText"
-                                class="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-                                :class="type === 'danger' ? 'bg-red-600 hover:bg-red-700' : ''"
-                                :data-accent="type === 'primary' ? 'bg' : ''"
-                                x-bind:class="type === 'primary' ? 'text-white dark:text-gray-900' : ''">
+                        <x-button type="submit" size="md" x-bind:disabled="type === 'danger' && confirmText && userInput !== confirmText" x-bind:class="type === 'danger' ? 'bg-red-600 hover:bg-red-700 text-white' : (type === 'primary' ? 'bg-indigo-600 hover:bg-indigo-700 text-white dark:text-gray-900' : '')" x-bind:data-accent="type === 'primary' ? 'bg' : ''">
                             <span x-text="confirmButtonText"></span>
-                        </button>
+                        </x-button>
                     </div>
                 </form>
             </div>

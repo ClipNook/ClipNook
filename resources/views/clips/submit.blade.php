@@ -2,6 +2,6 @@
         @auth
             <livewire:clips.submit-clip />
         @else
-            <p>Please <a href="{{ route('login') }}" class="text-indigo-600">log in</a> to submit clips.</p>
+            <p>Please <x-button variant="primary" size="sm" href="{{ route('login') }}" accent="bg">{{ __('ui.auth.sign_in_with_twitch') }}</x-button> to submit clips.</p>
         @endauth
 </x-layouts.app>
