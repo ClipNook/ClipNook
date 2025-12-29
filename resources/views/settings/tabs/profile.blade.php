@@ -34,7 +34,7 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         <i class="fas fa-envelope mr-2 text-gray-400"></i>{{ __('ui.email_address') }}
                     </label>
-                    <p class="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-lg">{{ $user->twitch_email }}</p>
+                    <p class="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-lg">{{ mask_email($user->twitch_email) }}</p>
                 </div>
 
                 <div class="space-y-1">
