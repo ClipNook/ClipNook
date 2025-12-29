@@ -170,7 +170,7 @@ class ClipsService implements ClipsInterface
     private function getHeaders(): array
     {
         return [
-            'Client-ID'     => $this->clientId,
+            'Client-Id'     => $this->clientId,
             'Authorization' => 'Bearer '.$this->accessToken,
             'Content-Type'  => 'application/json',
         ];

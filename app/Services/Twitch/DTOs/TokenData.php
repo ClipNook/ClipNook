@@ -28,11 +28,18 @@ readonly class TokenData
             ? (new DateTimeImmutable)->modify("+{$data['expires_in']} seconds")
             : null;
 
+        // Normalize scopes: Twitch may return a string (space-separated) or an array
+        $scopes = $data['scope'] ?? [];
+        if (is_string($scopes)) {
+            $scopes = $scopes === '' ? [] : explode(' ', $scopes);
+        }
+        $scopes = is_array($scopes) ? $scopes : (array) $scopes;
+
         return new self(
             accessToken: $data['access_token'],
             refreshToken: $data['refresh_token'] ?? '',
             expiresIn: $data['expires_in'],
-            scopes: $data['scope'] ?? [],
+            scopes: $scopes,
             tokenType: $data['token_type'] ?? 'bearer',
             expiresAt: $expiresAt,
         );
