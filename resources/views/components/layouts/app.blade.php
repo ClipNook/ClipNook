@@ -306,7 +306,7 @@
                                             <i class="fas fa-user w-4 text-gray-400"></i>
                                             {{ __('ui.profile') }}
                                         </a>
-                                        <a href="{{ route('settings.edit') }}"
+                                        <a href="{{ route('settings.index') }}"
                                             class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                                             <i class="fas fa-cog w-4 text-gray-400"></i>
                                             {{ __('ui.settings') }}
@@ -418,7 +418,7 @@
                                     {{ __('ui.profile') }}
                                 </a>
 
-                                <a href="{{ route('settings.edit') }}"
+                                <a href="{{ route('settings.index') }}"
                                     class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 rounded transition-colors"
                                     role="menuitem">
                                     <i class="fas fa-cog w-4 text-gray-400"></i>

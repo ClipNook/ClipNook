@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Auth\TwitchController;
-use App\Http\Controllers\UserSettingsController;
 use Illuminate\Support\Facades\Route;
 
 // Home
@@ -11,25 +10,25 @@ Route::get('/', fn () => view('home'))->name('home');
 Route::middleware('auth')->group(function () {
     // User settings
     Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('/', [UserSettingsController::class, 'edit'])->name('edit');
-        Route::post('/profile', [UserSettingsController::class, 'updateProfile'])->name('profile.update');
-        Route::match(['patch', 'post'], '/preferences', [UserSettingsController::class, 'updatePreferences'])->name('preferences.update');
-        Route::post('/roles', [UserSettingsController::class, 'updateRoles'])->name('roles.update');
-        Route::post('/avatar', [UserSettingsController::class, 'updateAvatar'])->name('avatar.update');
-        Route::post('/avatar/upload', [UserSettingsController::class, 'uploadAvatar'])->name('avatar.upload');
-        Route::post('/export', [UserSettingsController::class, 'exportData'])->name('export');
-        Route::delete('/', [UserSettingsController::class, 'destroy'])->name('destroy');
-    });
+        Route::get('/', [App\Http\Controllers\SettingsController::class, 'index'])->name('index');
 
-    // Theme preference
-    Route::post('/settings/theme', function (\Illuminate\Http\Request $request) {
-        $request->validate([
-            'theme' => ['required', 'string', 'in:system,light,dark'],
-        ]);
-        $user = $request->user();
-        $user->theme_preference = $request->theme;
-        $user->save();
-        return response()->json(['success' => true]);
+        // Profile settings
+        Route::put('/profile', [App\Http\Controllers\Settings\ProfileController::class, 'update'])->name('profile.update');
+
+        // Preferences
+        Route::put('/preferences', [App\Http\Controllers\Settings\PreferencesController::class, 'update'])->name('preferences.update');
+        Route::post('/theme', [App\Http\Controllers\Settings\PreferencesController::class, 'updateTheme'])->name('theme.update');
+
+        // Roles
+        Route::put('/roles', [App\Http\Controllers\Settings\RolesController::class, 'update'])->name('roles.update');
+
+        // Avatar
+        Route::put('/avatar', [App\Http\Controllers\Settings\AvatarController::class, 'update'])->name('avatar.update');
+        Route::post('/avatar/upload', [App\Http\Controllers\Settings\AvatarController::class, 'upload'])->name('avatar.upload');
+
+        // Account management
+        Route::post('/export', [App\Http\Controllers\Settings\AccountController::class, 'export'])->name('export');
+        Route::delete('/account', [App\Http\Controllers\Settings\AccountController::class, 'destroy'])->name('account.destroy');
     });
 
     // Clips submission (Livewire)
@@ -59,10 +58,11 @@ Route::middleware('web')->group(function () {
         app()->setLocale($request->locale);
         session()->put('locale', $request->locale);
         if ($request->user()) {
-            $user = $request->user();
+            $user         = $request->user();
             $user->locale = $request->locale;
             $user->save();
         }
+
         return response()->json(['success' => true]);
     });
     // GET: Change language (fallback for no-JS)
@@ -71,6 +71,7 @@ Route::middleware('web')->group(function () {
             app()->setLocale($locale);
             session()->put('locale', $locale);
         }
+
         return redirect()->back();
     });
 });

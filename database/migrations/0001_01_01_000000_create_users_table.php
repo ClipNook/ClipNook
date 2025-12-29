@@ -48,6 +48,7 @@ return new class extends Migration
             $table->string('accent_color')->nullable();
             $table->string('theme_preference')->default('system');
             $table->string('locale')->default('de');
+            $table->string('timezone')->default('UTC');
 
             // Standard Laravel fields
             $table->rememberToken();
