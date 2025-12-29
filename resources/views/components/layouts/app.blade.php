@@ -17,98 +17,47 @@
 
     <title>{{ isset($title) ? $title . ' · ' . config('app.name') : config('app.name') }}</title>
 
-    {{-- Critical CSS for initial render --}}
-    <style>
-        /* Minimal critical styles for above-the-fold content */
-        [data-accent] {
-            transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-        }
-        [data-accent="bg"] {
-            background-color: var(--accent-bg) !important;
-            color: white !important;
-        }
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-    </style>
-
-    {{-- Server-side accent color --}}
-    @php
-        $accent =
-            auth()->check() && auth()->user()->accent_color
-                ? auth()->user()->accent_color
-                : request()->cookie('accentColor', 'purple');
-
-        $colorMap = [
-            'purple' => ['h' => 252, 's' => 83, 'l' => 65],
-            'blue' => ['h' => 221, 's' => 83, 'l' => 65],
-            'green' => ['h' => 142, 's' => 76, 'l' => 45],
-            'red' => ['h' => 0, 's' => 84, 'l' => 53],
-            'orange' => ['h' => 25, 's' => 95, 'l' => 47],
-            'pink' => ['h' => 330, 's' => 81, 'l' => 60],
-            'indigo' => ['h' => 238, 's' => 75, 'l' => 59],
-            'teal' => ['h' => 173, 's' => 80, 'l' => 36],
-            'amber' => ['h' => 38, 's' => 92, 'l' => 45],
-            'slate' => ['h' => 215, 's' => 13, 'l' => 55],
-        ];
-
-        if (isset($colorMap[$accent])) {
-            $c = $colorMap[$accent];
-            $darkL = min($c['l'] + 10, 85);
-        }
-    @endphp
-
-    @if (isset($c))
-        <style id="accent-variables">
-            :root {
-                --accent-hue: {{ $c['h'] }};
-                --accent-saturation: {{ $c['s'] }}%;
-                --accent-lightness: {{ $c['l'] }}%;
-                --accent-bg: hsl({{ $c['h'] }}, {{ $c['s'] }}%, {{ $c['l'] }}%);
-                --accent-border: hsl({{ $c['h'] }}, {{ $c['s'] }}%, {{ $c['l'] }}%);
-                --accent-bgLight: hsl({{ $c['h'] }}, 83%, 96%);
-                --accent-bg-dark: hsl({{ $c['h'] }}, {{ $c['s'] }}%, {{ $darkL }}%);
-                --accent-border-dark: hsl({{ $c['h'] }}, {{ $c['s'] }}%, {{ $darkL }}%);
-                --accent-bgLight-dark: hsl({{ $c['h'] }}, 83%, 15%);
-            }
-            .dark {
-                --accent-bg: var(--accent-bg-dark);
-                --accent-border: var(--accent-border-dark);
-                --accent-bgLight: var(--accent-bgLight-dark);
-            }
-        </style>
-    @endif
-
-    {{-- Inline critical initialization script --}}
+    {{-- Dark mode JS: client override (localStorage) --}}
     <script>
         (function() {
             'use strict';
 
+            // Theme mode (auto/dark/light)
+            try {
+            var theme = localStorage.theme;
+            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (theme === 'auto') {
+                if (prefersDark) {
+                document.documentElement.classList.add('dark');
+                } else {
+                document.documentElement.classList.remove('dark');
+                }
+            } else if (theme === 'dark' || (!theme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            } catch (e) {}
+        })();
+    </script>
+    {{-- Accent color JS: client override (localStorage) --}}
+    <script>
+        (function() {
+            'use strict';
             // Set global flags
             window.appAuthenticated = @json(auth()->check());
             window.appDebug = @json(config('app.debug'));
-
-            // Accent color initialization
+            // Accent color override from localStorage (if set)
             try {
                 const accentKey = localStorage.getItem('accentColor');
                 if (accentKey && accentKey !== 'purple') {
                     const accentStyles = document.getElementById('accent-variables');
                     if (accentStyles) {
-                        // Update CSS variables if different from server default
                         const root = document.documentElement;
                         const computed = getComputedStyle(root);
                         const currentHue = computed.getPropertyValue('--accent-hue').trim();
-
                         if (parseInt(currentHue) !== {{ $c['h'] ?? 252 }}) {
-                            // Load accent via fetch to avoid FOUC
                             fetch('/api/color/' + encodeURIComponent(accentKey))
                                 .then(r => r.json())
                                 .then(data => {
@@ -126,14 +75,113 @@
         })();
     </script>
 
+    {{-- Critical accent color styles --}}
+    <style>
+        /* Screen reader only utility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Smooth accent color transitions */
+        [data-accent] {
+            transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+        }
+
+        /* Accent color system */
+        [data-accent="bg"] {
+            background-color: var(--accent-bg) !important;
+            color: var(--accent-text) !important;
+            border-color: var(--accent-bg) !important;
+        }
+
+        [data-accent="border"] {
+            border-color: var(--accent-border) !important;
+            color: var(--accent-border) !important;
+            background-color: transparent !important;
+        }
+
+        [data-accent="border"]:hover:not(:disabled) {
+            background-color: var(--accent-bg) !important;
+            color: var(--accent-text) !important;
+        }
+
+        [data-accent="text"] {
+            color: var(--accent-border) !important;
+        }
+
+        [data-accent="bgLight"] {
+            background-color: var(--accent-bgLight) !important;
+            color: var(--accent-border) !important;
+        }
+    </style>
+
+
+    {{-- Server-side accent color variables --}}
+    @php
+        $accentColor = auth()->check() && auth()->user()->accent_color
+            ? auth()->user()->accent_color
+            : request()->cookie('accentColor', 'purple');
+
+        $colorMap = [
+            'purple' => ['h' => 252, 's' => 83, 'l' => 65],
+            'blue' => ['h' => 221, 's' => 83, 'l' => 65],
+            'green' => ['h' => 142, 's' => 76, 'l' => 45],
+            'red' => ['h' => 0, 's' => 84, 'l' => 53],
+            'orange' => ['h' => 25, 's' => 95, 'l' => 47],
+            'pink' => ['h' => 330, 's' => 81, 'l' => 60],
+            'indigo' => ['h' => 238, 's' => 75, 'l' => 59],
+            'teal' => ['h' => 173, 's' => 80, 'l' => 36],
+            'amber' => ['h' => 38, 's' => 92, 'l' => 45],
+            'slate' => ['h' => 215, 's' => 13, 'l' => 55],
+        ];
+
+        $accentData = $colorMap[$accentColor] ?? $colorMap['purple'];
+        $darkLightness = min($accentData['l'] + 10, 85);
+    @endphp
+
+    @if($accentData)
+        <style id="accent-variables">
+            :root {
+                --accent-hue: {{ $accentData['h'] }};
+                --accent-saturation: {{ $accentData['s'] }}%;
+                --accent-lightness: {{ $accentData['l'] }}%;
+                --accent-bg: hsl({{ $accentData['h'] }}, {{ $accentData['s'] }}%, {{ $accentData['l'] }}%);
+                --accent-border: hsl({{ $accentData['h'] }}, {{ $accentData['s'] }}%, {{ $accentData['l'] }}%);
+                --accent-bgLight: hsl({{ $accentData['h'] }}, 83%, 96%);
+                --accent-text: #ffffff;
+                --accent-bg-dark: hsl({{ $accentData['h'] }}, {{ $accentData['s'] }}%, {{ $darkLightness }}%);
+                --accent-border-dark: hsl({{ $accentData['h'] }}, {{ $accentData['s'] }}%, {{ $darkLightness }}%);
+                --accent-bgLight-dark: hsl({{ $accentData['h'] }}, 83%, 15%);
+                --accent-text-dark: #ffffff;
+            }
+
+            .dark {
+                --accent-bg: var(--accent-bg-dark);
+                --accent-border: var(--accent-border-dark);
+                --accent-bgLight: var(--accent-bgLight-dark);
+                --accent-text: var(--accent-text-dark);
+            }
+        </style>
+    @endif
+
+    {{-- Global app flags --}}
+    <script>
+        window.appAuthenticated = @json(auth()->check());
+        window.appDebug = @json(config('app.debug'));
+    </script>
+
     @livewireStyles
     @stack('scripts_header')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-
-<body
-    class="antialiased font-roboto bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
-
     <body
         class="antialiased font-roboto bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col"
         @if (request()->cookie('theme') === 'dark') data-theme="dark" @endif>
@@ -183,12 +231,12 @@
                     <nav class="hidden lg:flex items-center gap-1" aria-label="Main navigation">
                         @foreach (config('ui.nav', []) as $item)
                             @php
-                                $link = ui_resolve_link($item);
+                                $link = $item['href'] ?? '#';
                                 $label = __($item['label'] ?? '');
                                 $isActive = !empty($item['route']) && Route::currentRouteName() === $item['route'];
                             @endphp
                             <a href="{{ $link }}"
-                                class="px-3 py-2 text-sm font-semibold rounded transition-colors whitespace-nowrap 
+                                class="px-3 py-2 text-sm font-semibold rounded transition-colors whitespace-nowrap
                                   {{ $isActive ? 'text-white dark:text-gray-900' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }}"
                                 @if ($isActive) data-accent="bg" @endif
                                 aria-current="{{ $isActive ? 'page' : 'false' }}">
@@ -325,7 +373,7 @@
                     <nav class="px-4 pt-3 space-y-1" aria-label="Mobile navigation">
                         @foreach (config('ui.nav', []) as $item)
                             @php
-                                $link = ui_resolve_link($item);
+                                $link = $item['href'] ?? '#';
                                 $label = __($item['label'] ?? '');
                                 $isActive = !empty($item['route']) && Route::currentRouteName() === $item['route'];
                             @endphp

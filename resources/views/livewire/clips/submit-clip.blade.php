@@ -1,6 +1,6 @@
 <div class="space-y-6">
     <form wire:submit.prevent="check" novalidate class="space-y-5">
-        {{-- Eingabefeld mit direktem Livewire-Model-Binding --}}
+        {{-- Input field with direct Livewire model binding --}}
         <div>
             <label for="clip-input" class="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 {{ __('clip.submit.labels.input') }}
