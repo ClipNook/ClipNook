@@ -1,19 +1,30 @@
 <?php
 
 use App\Http\Controllers\Auth\TwitchController;
+use App\Http\Controllers\UserSettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('home');
 })->name('home');
 
+// User settings routes
+Route::middleware('auth')->group(function () {
+    Route::get('/settings', [UserSettingsController::class, 'edit'])->name('settings');
+    Route::patch('/settings', [UserSettingsController::class, 'update'])->name('settings.update');
+
+    // Account deletion (GDPR compliant)
+    Route::delete('/settings', [UserSettingsController::class, 'destroy'])->name('settings.destroy');
+});
+
+// Twitch OAuth routes
 Route::prefix('auth/twitch')->name('auth.twitch.')->group(function () {
     Route::get('/redirect', [TwitchController::class, 'redirect'])->name('redirect');
     Route::get('/callback', [TwitchController::class, 'callback'])->name('callback');
     Route::post('/revoke', [TwitchController::class, 'revoke'])->name('revoke')->middleware('auth');
 });
 
-// Login page (DSGVO-compliant info + status) handled by controller
+// Login page (privacy info + status) handled by controller
 Route::get('/login', [TwitchController::class, 'login'])->name('login')->middleware('guest');
 
 // Local logout (logs out the user and revokes Twitch access if configured)

@@ -23,7 +23,7 @@ class TwitchController extends Controller
 
     public function redirect(Request $request)
     {
-        // Require explicit consent server-side for GDPR
+        // Require explicit consent
         if (! $request->has('consent')) {
             return Redirect::route('login')->withErrors(['twitch' => LangFacade::get('twitch.privacy.consent_required')]);
         }
@@ -110,7 +110,7 @@ class TwitchController extends Controller
                         'twitch_login'        => $twitchUser->login ?? $localUser->twitch_login,
                         'twitch_display_name' => $twitchUser->displayName ?? $localUser->twitch_display_name,
                         'twitch_email'        => $twitchUser->email ?? $localUser->twitch_email,
-                        'twitch_avatar'       => $twitchUser->profileImageUrl ?? $localUser->twitch_avatar,
+                        'twitch_avatar'       => $localUser->avatar_disabled ? $localUser->twitch_avatar : ($twitchUser->profileImageUrl ?? $localUser->twitch_avatar),
                     ]);
                     // Minimal logging: avoid writing user identifiers to logs
                     Log::info('Updated local user with Twitch data');
@@ -126,7 +126,7 @@ class TwitchController extends Controller
                     $twitchConfig = config('services.twitch', []);
                     $storeAvatars = $twitchConfig['privacy']['store_avatars'] ?? true;
 
-                    if ($storeAvatars && ! empty($twitchUser->profileImageUrl)) {
+                    if ($storeAvatars && ! empty($twitchUser->profileImageUrl) && ! $localUser->avatar_disabled) {
                         try {
                             $resp = \Illuminate\Support\Facades\Http::timeout(10)->get($twitchUser->profileImageUrl);
 

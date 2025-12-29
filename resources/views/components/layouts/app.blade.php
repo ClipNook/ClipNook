@@ -132,7 +132,7 @@
                                 x-bind:aria-expanded="open ? 'true' : 'false'"
                                 aria-haspopup="true"
                                 aria-label="{{ __('ui.user_menu') }}"
-                                class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors focus:outline-none focus-visible:border focus-visible:border-indigo-500">
                                 <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->display_name }}" class="w-8 h-8 rounded object-cover">
                                 <span class="text-sm font-semibold text-gray-900 dark:text-white hidden xl:block max-w-32 truncate">{{ Auth::user()->display_name }}</span>
                                 <i class="fas fa-chevron-down text-xs text-gray-500 dark:text-gray-400"></i>
@@ -149,7 +149,7 @@
                                 x-transition:leave="transition ease-in duration-75"
                                 x-transition:leave-start="opacity-100 translate-y-0"
                                 x-transition:leave-end="opacity-0 -translate-y-1"
-                                class="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-xl overflow-hidden"
+                                class="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow overflow-hidden"
                                 style="display: none;"
                                 role="menu" aria-label="User menu">
                                 
@@ -374,7 +374,9 @@
         @endif
 
         {{-- Page Content --}}
-        {{ $slot }}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            {{ $slot }}
+            </div>
     </main>
 
     {{-- Accent Bar --}}

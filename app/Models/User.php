@@ -23,9 +23,21 @@ class User extends Authenticatable
         'twitch_display_name',
         'twitch_email',
         'twitch_avatar',
+        'avatar_disabled',
         'twitch_access_token',
         'twitch_refresh_token',
         'twitch_token_expires_at',
+
+        // Role flags
+        'is_viewer',
+        'is_cutter',
+        'is_streamer',
+        'is_moderator',
+        'is_admin',
+
+        // Profile fields
+        'intro',
+        'available_for_jobs',
     ];
 
     /**
@@ -51,6 +63,20 @@ class User extends Authenticatable
         // Use Eloquent's encrypted cast for tokens (Laravel encrypted cast)
         'twitch_access_token'     => 'encrypted',
         'twitch_refresh_token'    => 'encrypted',
+
+        // Role flags
+        'is_viewer'               => 'boolean',
+        'is_cutter'               => 'boolean',
+        'is_streamer'             => 'boolean',
+        'is_moderator'            => 'boolean',
+        'is_admin'                => 'boolean',
+
+        // Avatar preference
+        'avatar_disabled'         => 'boolean',
+
+        // Profile fields
+        'available_for_jobs'      => 'boolean',
+        'intro'                   => 'string',
     ];
 
     /**
@@ -74,7 +100,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Return a display name preference (twitch display name > name > twitch login)
+     * Returns the preferred display name (Twitch display name > name > Twitch login).
      */
     public function getDisplayNameAttribute(): ?string
     {
@@ -82,34 +108,36 @@ class User extends Authenticatable
     }
 
     /**
-     * Return a public avatar URL (serve from storage/public if local path)
+     * Returns the user's avatar URL (Twitch, local or fallback SVG).
      */
     public function getAvatarUrlAttribute(): string
     {
-        $avatar = $this->twitch_avatar;
-
-        if (empty($avatar)) {
+        // If the user disabled avatars, always return fallback
+        if (! empty($this->avatar_disabled)) {
             return asset('images/avatar-default.svg');
         }
 
-        // If it's already a remote URL (legacy), return it
-        if (str_starts_with($avatar, 'http://') || str_starts_with($avatar, 'https://')) {
-            return $avatar;
+        $avatar = $this->twitch_avatar;
+
+        if (! empty($avatar)) {
+            // Check if it's a URL
+            if (filter_var($avatar, FILTER_VALIDATE_URL)) {
+                return $avatar;
+            }
+
+            // Local file in public storage
+            $disk = \Illuminate\Support\Facades\Storage::disk('public');
+            if ($disk->exists($avatar)) {
+                return asset('storage/'.$avatar);
+            }
         }
 
-        $disk = \Illuminate\Support\Facades\Storage::disk('public');
-
-        // Ensure file exists before returning a URL
-        if ($disk->exists($avatar)) {
-            return $disk->url($avatar);
-        }
-
-        // Fallback to default avatar
+        // Fallback to our SVG
         return asset('images/avatar-default.svg');
     }
 
     /**
-     * Whether the user has an associated Twitch account
+     * Checks if the user is connected to Twitch.
      */
     public function isTwitchConnected(): bool
     {
@@ -117,37 +145,55 @@ class User extends Authenticatable
     }
 
     /**
-     * Delete a locally stored avatar (if any) and clear the attribute
+     * Whether the user has disabled avatars (opted out of saving)
      */
-    public function deleteAvatar(): bool
+    public function isAvatarDisabled(): bool
+    {
+        return (bool) $this->avatar_disabled;
+    }
+
+    /**
+     * Convenience helpers for role flags
+     */
+    public function isViewer(): bool
+    {
+        return (bool) $this->is_viewer;
+    }
+
+    public function isCutter(): bool
+    {
+        return (bool) $this->is_cutter;
+    }
+
+    public function isStreamer(): bool
+    {
+        return (bool) $this->is_streamer;
+    }
+
+    public function isModerator(): bool
+    {
+        return (bool) $this->is_moderator;
+    }
+
+    public function isAdmin(): bool
+    {
+        return (bool) $this->is_admin;
+    }
+
+    /**
+     * Deletes the user's avatar image (local files only).
+     */
+    public function deleteAvatar(): void
     {
         $avatar = $this->twitch_avatar;
 
-        if (empty($avatar)) {
-            return false;
-        }
-
-        // If remote URL, only clear DB reference
-        if (str_starts_with($avatar, 'http://') || str_starts_with($avatar, 'https://')) {
+        if (! empty($avatar)) {
+            // Only delete if it's not a URL
+            if (! filter_var($avatar, FILTER_VALIDATE_URL)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($avatar);
+            }
             $this->twitch_avatar = null;
             $this->save();
-
-            return true;
         }
-
-        $disk = \Illuminate\Support\Facades\Storage::disk('public');
-
-        try {
-            if ($disk->exists($avatar)) {
-                $disk->delete($avatar);
-            }
-        } catch (\Throwable $e) {
-            // Don't throw on delete failure; log elsewhere if desired
-        }
-
-        $this->twitch_avatar = null;
-        $this->save();
-
-        return true;
     }
 }

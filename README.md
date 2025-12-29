@@ -90,7 +90,7 @@ cd ClipNook
 
 2. Install dependencies
 ```bash
-composer install
+composer install --no-dev
 npm install
 ```
 

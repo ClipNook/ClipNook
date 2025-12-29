@@ -105,7 +105,7 @@
                         <form method="GET" action="{{ route('auth.twitch.redirect') }}" id="twitch-login-form" class="mt-2" x-data="{ consent: false, loading: false, showConsentError: false }" @submit="if(!consent){ showConsentError = true; $refs.consent.focus(); $event.preventDefault(); } else { showConsentError = false; loading = true }">
                             <div class="space-y-5">
                                 <div class="flex items-center gap-3" :class="showConsentError ? 'border border-red-300 rounded p-2 bg-red-50 dark:bg-red-950' : ''" x-ref="consentWrapper">
-                                    <input id="consent" name="consent" type="checkbox" x-model="consent" x-ref="consent" aria-describedby="consent-error" aria-required="true" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <input id="consent" name="consent" type="checkbox" x-model="consent" x-ref="consent" aria-describedby="consent-error" aria-required="true" class="h-4 w-4 text-indigo-600 focus-visible:border-indigo-500 border-gray-300 rounded">
                                     <label for="consent" class="text-sm text-gray-700 dark:text-gray-300">
                                         {{ __('twitch.privacy.consent_required') }}
                                     </label>
@@ -114,12 +114,12 @@
                                     {{ __('twitch.privacy.consent_error') }}
                                 </p>
                                 <div class="flex items-center gap-3">
-                                    <input id="remember" name="remember" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <input id="remember" name="remember" type="checkbox" class="h-4 w-4 text-indigo-600 focus-visible:border-indigo-500 border-gray-300 rounded">
                                     <label for="remember" class="text-sm text-gray-700 dark:text-gray-300">
                                         {{ __('ui.auth.remember_me') }}
                                     </label>
                                 </div>
-                                <button type="submit" id="twitch-submit" data-accent="bg" class="w-full inline-flex items-center justify-center gap-3 px-6 py-3 rounded-md text-white font-semibold bg-linear-to-r from-indigo-700 via-purple-700 to-gray-900 hover:opacity-95 shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2" :aria-busy="loading" :disabled="loading">
+                                <button type="submit" id="twitch-submit" data-accent="bg" class="w-full inline-flex items-center justify-center gap-3 px-6 py-3 rounded-md text-white font-semibold bg-linear-to-r from-indigo-700 via-purple-700 to-gray-900 hover:opacity-95 shadow focus:outline-none focus-visible:border focus-visible:border-indigo-500" :aria-busy="loading" :disabled="loading">
                                     <i class="fab fa-twitch text-xl"></i>
                                     <span id="twitch-submit-text" x-text="loading ? '{{ __('twitch.oauth.authorizing') }}' : '{{ __('twitch.login_cta') }}'"></span>
                                     <i class="fas fa-spinner fa-spin ml-2" x-show="loading" x-cloak aria-hidden="true"></i>

@@ -172,4 +172,29 @@ class OAuthService implements OAuthInterface
 
         return UserData::fromArray($response['data'][0]);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getUserById(string $accessToken, string $userId): UserData
+    {
+        if (empty($accessToken)) {
+            throw new ValidationException('Access token is required');
+        }
+
+        if (empty($userId)) {
+            throw new ValidationException('User id is required');
+        }
+
+        $response = $this->httpClient->get($this->apiUrl.'/users', ['id' => $userId], [
+            'Authorization' => 'Bearer '.$accessToken,
+            'Client-Id'     => $this->clientId,
+        ]);
+
+        if (! isset($response['data'][0]) || ! is_array($response['data'][0])) {
+            throw AuthenticationException::fromResponse($response, $this->httpClient->getLastStatusCode());
+        }
+
+        return UserData::fromArray($response['data'][0]);
+    }
 }

@@ -22,7 +22,7 @@
         x-transition:leave="transition ease-in duration-75"
         x-transition:leave-start="opacity-100 translate-y-0"
         x-transition:leave-end="opacity-0 -translate-y-2"
-        class="absolute bottom-full left-0 mb-2 w-60 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-xl overflow-hidden z-50"
+        class="absolute bottom-full left-0 mb-2 w-60 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow overflow-hidden z-50"
         style="display:none;">
         
         <div class="p-2.5 border-b border-gray-200 dark:border-gray-800">
@@ -36,7 +36,7 @@
                     type="button"
                     :aria-label="color.name"
                     :aria-pressed="currentColor === key"
-                    class="group relative w-9 h-9 rounded border-2 hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-opacity"
+                    class="group relative w-9 h-9 rounded border-2 hover:opacity-80 focus:outline-none focus-visible:border focus-visible:border-indigo-500 transition-opacity"
                     :class="currentColor === key ? color.border : 'border-transparent'"
                     :style="currentColor === key ? 'border-color: currentColor' : ''"
                     :data-accent="currentColor === key ? 'border' : ''">

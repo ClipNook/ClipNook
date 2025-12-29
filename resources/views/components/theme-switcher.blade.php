@@ -22,7 +22,7 @@
         x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75"
         x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" role="menu"
         x-ref="menu"
-        class="absolute right-0 mt-2 w-40 origin-top-right rounded-lg bg-white border border-gray-200 dark:border-gray-800 shadow-xl py-1 z-50 dark:bg-gray-900">
+        class="absolute right-0 mt-2 w-40 origin-top-right rounded-lg bg-white border border-gray-200 dark:border-gray-800 shadow py-1 z-50 dark:bg-gray-900">
 
         {{-- Menu Items --}}
         @foreach (['system', 'light', 'dark'] as $mode)

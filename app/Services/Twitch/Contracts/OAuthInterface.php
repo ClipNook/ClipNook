@@ -43,4 +43,9 @@ interface OAuthInterface
      * Fetch user information from Helix `/users` endpoint using access token
      */
     public function getUser(string $accessToken): UserData;
+
+    /**
+     * Fetch a specific user by Twitch id using an access token
+     */
+    public function getUserById(string $accessToken, string $userId): UserData;
 }

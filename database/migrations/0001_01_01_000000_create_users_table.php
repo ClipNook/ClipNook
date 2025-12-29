@@ -22,6 +22,21 @@ return new class extends Migration
             $table->text('twitch_access_token')->nullable();
             $table->text('twitch_refresh_token')->nullable();
             $table->timestamp('twitch_token_expires_at')->nullable();
+
+            // Settings
+            $table->boolean('avatar_disabled')->default(false);
+
+            // Role flags
+            $table->boolean('is_viewer')->default(true);
+            $table->boolean('is_cutter')->default(false);
+            $table->boolean('is_streamer')->default(false);
+            $table->boolean('is_moderator')->default(false);
+            $table->boolean('is_admin')->default(false);
+
+            // Profile fields
+            $table->text('intro')->nullable();
+            $table->boolean('available_for_jobs')->default(false);
+
             // Standard Laravel user fields
             $table->rememberToken();
             $table->timestamps();
