@@ -26,7 +26,7 @@ class Notifications extends Component
 
             if ($user) {
                 // Query unread count (do not eager-load all notifications)
-                $this->unread = $user->unreadNotifications()->count();
+                $this->unread = $user->unreadNotificationsCount();
             }
         } catch (Throwable $e) {
             // Fail gracefully and log the issue

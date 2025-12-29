@@ -19,6 +19,10 @@ class CreateNotificationsTable extends Migration
             $table->text('data');
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
+
+            $table->index(['user_id', 'read_at'], 'idx_notifications_user_read');
+            $table->index('type', 'idx_notifications_type');
+            $table->index('created_at', 'idx_notifications_created_at');
         });
     }
 

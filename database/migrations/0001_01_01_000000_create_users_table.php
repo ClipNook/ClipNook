@@ -52,6 +52,11 @@ return new class extends Migration
             // Standard Laravel fields
             $table->rememberToken();
             $table->timestamps();
+
+            $table->index(['is_streamer', 'is_cutter', 'is_admin'], 'idx_users_roles');
+            $table->index('twitch_id', 'idx_users_twitch_id');
+            $table->index('created_at', 'idx_users_created_at');
+            $table->index('updated_at', 'idx_users_updated_at');
         });
 
         Schema::create('streamer_profiles', function (Blueprint $table) {

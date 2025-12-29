@@ -9,7 +9,7 @@ class DeleteAccountRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->check();
+        return $this->user() !== null;
     }
 
     public function rules(): array

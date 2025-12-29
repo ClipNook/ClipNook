@@ -25,6 +25,11 @@ class UpdateSettingsRequest extends FormRequest
             'intro'              => 'nullable|string|max:2000',
             'available_for_jobs' => 'nullable|boolean',
 
+            // Preferences (Laravel 12 / PHP 8.5)
+            'theme_preference' => ['nullable', 'string', Rule::in(['light', 'dark', 'system'])],
+            'locale'           => ['nullable', 'string', Rule::in(['en', 'de', 'fr', 'es', 'it'])],
+            'timezone'         => ['nullable', 'timezone'],
+
             // Accent color (predefined keys from color-picker)
             'accent_color' => ['nullable', 'string', Rule::in(['purple', 'blue', 'green', 'red', 'orange', 'pink', 'indigo', 'teal', 'amber', 'slate'])],
 

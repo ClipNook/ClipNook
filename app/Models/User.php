@@ -10,6 +10,15 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    use Concerns\HasAvatar;
+    use Concerns\HasNotifications;
+    use Concerns\HasPreferences;
+    use Concerns\HasProfile;
+
+    // Custom traits for modular functionality
+    use Concerns\HasRoles;
+    use Concerns\HasTimestamps;
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
@@ -52,6 +61,7 @@ class User extends Authenticatable
         'accent_color',
         'theme_preference',
         'locale',
+        'timezone',
     ];
 
     /**
@@ -97,6 +107,7 @@ class User extends Authenticatable
         // Preferences
         'preferences'             => 'array',
         'theme_preference'        => 'string',
+        'timezone'                => 'string',
     ];
 
     /**
@@ -118,6 +129,12 @@ class User extends Authenticatable
 
         static::deleting(function (self $user) {
             $user->deleteAvatar();
+        });
+
+        // Clear caches when user is updated
+        static::updating(function (self $user) {
+            $user->clearProfileCompletionCache();
+            $user->clearPreferencesCache();
         });
     }
 
@@ -169,132 +186,6 @@ class User extends Authenticatable
     public function isTwitchConnected(): bool
     {
         return ! empty($this->twitch_id);
-    }
-
-    /**
-     * Whether the user has disabled avatars.
-     *
-     * Supports legacy boolean flag (avatar_disabled) and timestamp (avatar_disabled_at).
-     */
-    public function isAvatarDisabled(): bool
-    {
-        return (bool) $this->avatar_disabled || $this->avatar_disabled_at !== null;
-    }
-
-    /**
-     * Convenience helpers for role flags
-     */
-    public function isViewer(): bool
-    {
-        return (bool) $this->is_viewer;
-    }
-
-    public function isCutter(): bool
-    {
-        return (bool) $this->is_cutter;
-    }
-
-    public function isStreamer(): bool
-    {
-        return (bool) $this->is_streamer;
-    }
-
-    public function isModerator(): bool
-    {
-        return (bool) $this->is_moderator;
-    }
-
-    public function isAdmin(): bool
-    {
-        return (bool) $this->is_admin;
-    }
-
-    /**
-     * Deletes the user's avatar image (local files only).
-     */
-    public function deleteAvatar(): void
-    {
-        $avatar = $this->twitch_avatar;
-
-        if (! empty($avatar)) {
-            // Only delete if it's not a URL
-            if (! filter_var($avatar, FILTER_VALIDATE_URL)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($avatar);
-            }
-            $this->twitch_avatar = null;
-            $this->save();
-        }
-    }
-
-    /**
-     * Calculate profile completion percentage.
-     */
-    public function profileCompletion(): int
-    {
-        $steps = [
-            'profile'     => $this->isProfileComplete(),
-            'avatar'      => ! $this->isAvatarDisabled(),
-            'roles'       => $this->isStreamer() || $this->isCutter(),
-            'preferences' => $this->hasPreferencesSet(),
-        ];
-
-        $completed = count(array_filter($steps));
-
-        return (int) round(($completed / count($steps)) * 100);
-    }
-
-    /**
-     * Determine if base profile is complete.
-     */
-    public function isProfileComplete(): bool
-    {
-        return ! empty($this->display_name)
-            && ! empty($this->email)
-            && filter_var($this->email, FILTER_VALIDATE_EMAIL) !== false;
-    }
-
-    /**
-     * Whether user has set timezone & locale.
-     */
-    public function hasPreferencesSet(): bool
-    {
-        return ! empty($this->timezone) && ! empty($this->locale);
-    }
-
-    /**
-     * List completed profile step keys.
-     *
-     * @return array<int, string>
-     */
-    public function completedProfileSteps(): array
-    {
-        $steps = [];
-
-        if ($this->isProfileComplete()) {
-            $steps[] = 'profile';
-        }
-
-        if (! $this->isAvatarDisabled()) {
-            $steps[] = 'avatar';
-        }
-
-        if ($this->isStreamer() || $this->isCutter()) {
-            $steps[] = 'roles';
-        }
-
-        if ($this->hasPreferencesSet()) {
-            $steps[] = 'preferences';
-        }
-
-        return $steps;
-    }
-
-    /**
-     * Human readable profile updated at or 'never'.
-     */
-    public function profileUpdatedAt(): string
-    {
-        return $this->updated_at ? $this->updated_at->diffForHumans() : __('ui.never');
     }
 
     /**

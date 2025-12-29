@@ -13,22 +13,23 @@ class UpdateProfileRequest extends FormRequest
 
     public function rules(): array
     {
-        // Only allow editing of profile free-text fields via this request.
         return [
-            'bio' => ['nullable', 'string', 'max:500'],
+            'twitch_display_name' => ['nullable', 'string', 'max:255'],
+            'twitch_email'        => ['required', 'email:rfc,dns', 'unique:users,twitch_email,'.$this->user()->id],
+            'intro'               => ['nullable', 'string', 'max:1000'],
+            'available_for_jobs'  => ['boolean'],
+            'allow_clip_sharing'  => ['boolean'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'display_name.required' => __('ui.validation.display_name_required'),
-            'display_name.max'      => __('ui.validation.display_name_max'),
-            'email.required'        => __('ui.validation.email_required'),
-            'email.unique'          => __('ui.validation.email_taken'),
-            'username.unique'       => __('ui.validation.username_taken'),
-            'username.alpha_dash'   => __('ui.validation.username_alpha_dash'),
-            'bio.max'               => __('ui.validation.bio_max'),
+            'twitch_display_name.max' => __('ui.validation.display_name_max'),
+            'twitch_email.required'   => __('ui.validation.email_required'),
+            'twitch_email.email'      => __('ui.validation.email_invalid'),
+            'twitch_email.unique'     => __('ui.validation.email_taken'),
+            'intro.max'               => __('ui.validation.intro_max'),
         ];
     }
 }
