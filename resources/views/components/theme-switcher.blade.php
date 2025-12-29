@@ -1,183 +1,288 @@
 {{-- Theme Switcher Component --}}
-<div x-data="themeSwitcher()" class="relative">
+<div x-data="themeSwitcher" 
+     x-init="init()"
+     class="relative">
+    
     {{-- Toggle Button --}}
-    <x-button variant="icon" type="button" @click="toggle()" @keydown.enter.prevent="toggle()" @keydown.space.prevent="toggle()" x-bind:aria-label="labels.aria_label.replace(':mode', currentModeLabel)" x-bind:aria-pressed="theme !== 'system'" aria-haspopup="true" x-bind:aria-expanded="open">
-
-        {{-- Icon --}}
-        <i class="fas text-[13px]"
-            x-bind:class="{
-                'fa-circle-half-stroke': effective === 'system',
-                'fa-sun': effective === 'light',
-                'fa-moon': effective === 'dark'
-            }"
-            aria-hidden="true"></i>
-    </x-button>
+    <button 
+        @click="toggle()"
+        type="button"
+        :aria-label="labels.change_theme.replace(':theme', currentThemeLabel)"
+        :aria-expanded="open"
+        aria-haspopup="true"
+        class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+        :class="{ 'bg-gray-100 dark:bg-gray-800': open }">
+        
+        {{-- Dynamic Icon based on theme --}}
+        <i class="fas text-[14px] transition-all duration-200"
+           :class="{
+               'fa-circle-half-stroke': theme === 'system',
+               'fa-sun': theme === 'light',
+               'fa-moon': theme === 'dark'
+           }"
+           aria-hidden="true"></i>
+        <span class="sr-only">{{ __('theme.change_theme') }}</span>
+    </button>
 
     {{-- Dropdown Menu --}}
-    <div x-show="open" x-cloak @click.outside="close" @keydown.escape="close"
-        x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95"
-        x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75"
-        x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" role="menu"
-        x-ref="menu"
-        class="absolute right-0 mt-2 w-40 origin-top-right rounded-lg bg-white border border-gray-200 dark:border-gray-800 shadow py-1 z-50 dark:bg-gray-900">
+    <div 
+        x-show="open"
+        x-cloak
+        @click.outside="close()"
+        @keydown.escape.window="close()"
+        x-transition:enter="transition ease-out duration-100"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-75"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-95"
+        class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-xl z-50 overflow-hidden"
+        style="display: none;">
+        
+        {{-- Header --}}
+        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">
+                {{ __('theme.appearance') }}
+            </h3>
+        </div>
 
-        {{-- Menu Items --}}
-        @foreach (['system', 'light', 'dark'] as $mode)
-            <button @click="setTheme('{{ $mode }}')" @keydown.enter.prevent="setTheme('{{ $mode }}')"
-                @keydown.space.prevent="setTheme('{{ $mode }}')" type="button" role="menuitemradio"
-                x-bind:aria-checked="theme === '{{ $mode }}'" x-ref="menuitem"
-                class="w-full flex items-center justify-between px-3 py-2 text-[13px] font-medium text-gray-700 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none dark:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800 transition-colors">
+        {{-- Theme Options --}}
+        <div class="py-1" role="menu" aria-label="{{ __('theme.theme_options') }}">
+            @foreach (['system', 'light', 'dark'] as $theme)
+                <button
+                    @click="setTheme('{{ $theme }}')"
+                    @keydown.enter.prevent="setTheme('{{ $theme }}')"
+                    @keydown.space.prevent="setTheme('{{ $theme }}')"
+                    type="button"
+                    role="menuitemradio"
+                    :aria-checked="theme === '{{ $theme }}'"
+                    :tabindex="open ? '0' : '-1'"
+                    class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-800"
+                    :class="{
+                        'bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white': theme === '{{ $theme }}',
+                        'text-gray-700 dark:text-gray-300': theme !== '{{ $theme }}'
+                    }">
+                    
+                    <div class="flex items-center gap-3">
+                        @if($theme === 'system')
+                            <i class="fas fa-circle-half-stroke text-gray-500 text-sm" aria-hidden="true"></i>
+                        @elseif($theme === 'light')
+                            <i class="fas fa-sun text-yellow-500 text-sm" aria-hidden="true"></i>
+                        @else
+                            <i class="fas fa-moon text-indigo-400 text-sm" aria-hidden="true"></i>
+                        @endif
+                        <span>{{ __("theme.{$theme}") }}</span>
+                    </div>
+                    
+                    <i x-show="theme === '{{ $theme }}'" 
+                       class="fas fa-check text-xs" 
+                       data-accent="text" 
+                       aria-hidden="true"></i>
+                </button>
+            @endforeach
+        </div>
 
-                <span class="flex items-center gap-2.5">
-                    @if($mode === 'system')
-                        <i class="fas w-3.5 text-[11px] text-gray-400 dark:text-gray-600 fa-circle-half-stroke" aria-hidden="true"></i>
-                    @elseif($mode === 'light')
-                        <i class="fas w-3.5 text-[11px] text-gray-400 dark:text-gray-600 fa-sun" aria-hidden="true"></i>
-                    @else
-                        <i class="fas w-3.5 text-[11px] text-gray-400 dark:text-gray-600 fa-moon" aria-hidden="true"></i>
-                    @endif
-                    <span>{{ __("theme.$mode") }}</span>
+        {{-- Footer with current theme --}}
+        <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-600 dark:text-gray-400">
+                    {{ __('theme.current') }}:
+                    <span class="font-semibold" x-text="currentThemeLabel"></span>
                 </span>
-
-                <i x-show="theme === '{{ $mode }}'" class="fas fa-check text-[11px]" data-accent="text"
-                    aria-hidden="true"></i>
-            </button>
-        @endforeach
+                <button 
+                    type="button"
+                    @click="close()"
+                    class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                    aria-label="{{ __('ui.close') }}">
+                    {{ __('ui.close') }}
+                </button>
+            </div>
+        </div>
     </div>
-
-    {{-- Screen Reader Announcements --}}
-    <div class="sr-only" aria-live="polite" x-text="announcement"></div>
 </div>
 
 @once
-    @push('scripts_footer')
-        <script>
-            (function registerThemeSwitcher(){
-                const factory = () => ({
-                    // State
-                    open: false,
-                    theme: (() => {
-                        try {
-                            const saved = localStorage.getItem('theme');
-                            return ['dark', 'light', 'system'].includes(saved) ? saved : 'system';
-                        } catch {
-                            return 'system';
-                        }
-                    })(),
-                    announcement: '',
-
-                    // i18n labels
-                    labels: @js([
-                        'system' => __( 'theme.system' ),
-                        'light' => __( 'theme.light' ),
-                        'dark' => __( 'theme.dark' ),
-                        'changed' => __( 'theme.changed' ),
-                        'aria_label' => __( 'theme.aria_label' ),
-                    ]),
-
-                    // Computed: effective theme (what's actually displayed)
-                    get effective() {
-                        if (this.theme === 'system') {
-                            return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-                        }
-                        return this.theme;
-                    },
-
-                    // Computed: current mode label for display
-                    get currentModeLabel() {
-                        return this.labels[this.effective] || this.effective;
-                    },
-
-                    // Initialize
-                    init() {
-                        // Sync theme across tabs
-                        window.addEventListener('storage', (e) => {
-                            if (e.key === 'theme') {
-                                this.theme = localStorage.getItem('theme') || 'system';
-                                this.announce();
-                            }
-                        });
-
-                        // Focus management when menu opens
-                        this.$watch('open', (isOpen) => {
-                            if (isOpen) {
-                                this.$nextTick(() => {
-                                    const items = this.getMenuItems();
-                                    const selectedIndex = items.findIndex(
-                                        el => el.getAttribute('aria-checked') === 'true'
-                                    );
-                                    items[selectedIndex >= 0 ? selectedIndex : 0]?.focus();
-                                });
-                            }
-                        });
-
-                        // Keyboard navigation
-                        this.$refs.menu?.addEventListener('keydown', (e) => {
-                            const items = this.getMenuItems();
-                            if (!items.length) return;
-
-                            const currentIndex = items.indexOf(document.activeElement);
-                            let nextIndex = currentIndex;
-
-                            switch (e.key) {
-                                case 'ArrowDown':
-                                    e.preventDefault();
-                                    nextIndex = (currentIndex + 1) % items.length;
-                                    break;
-                                case 'ArrowUp':
-                                    e.preventDefault();
-                                    nextIndex = (currentIndex - 1 + items.length) % items.length;
-                                    break;
-                                case 'Home':
-                                    e.preventDefault();
-                                    nextIndex = 0;
-                                    break;
-                                case 'End':
-                                    e.preventDefault();
-                                    nextIndex = items.length - 1;
-                                    break;
-                            }
-
-                            items[nextIndex]?.focus();
-                        });
-                    },
-
-                    // Actions
-                    toggle() { this.open = !this.open; },
-                    close() { this.open = false; },
-
-                    setTheme(mode) {
-                        if (typeof window.setTheme === 'function') {
-                            window.setTheme(mode);
-                        }
-                        this.theme = mode;
-                        this.announce();
-                        this.close();
-                    },
-
-                    announce() {
-                        const modeLabel = this.labels[this.effective] || this.effective;
-                        const template = this.labels.changed || 'Theme changed: :mode';
-                        this.announcement = template.replace(':mode', modeLabel);
-                        setTimeout(() => this.announcement = '', 1200);
-                    },
-
-                    // Helpers
-                    getMenuItems() {
-                        return Array.from(this.$refs.menu?.querySelectorAll('button[role="menuitemradio"]') || []);
-                    }
-                });
-
-                function register(){
-                    if (window.Alpine && typeof window.Alpine.data === 'function') {
-                        Alpine.data('themeSwitcher', factory);
-                    } else {
-                        document.addEventListener('alpine:init', () => Alpine.data('themeSwitcher', factory));
-                    }
+@push('scripts_footer')
+<script>
+// Theme Switcher Alpine.js Component
+document.addEventListener('alpine:init', () => {
+    Alpine.data('themeSwitcher', () => ({
+        // State
+        open: false,
+        theme: 'system', // Default
+        labels: @js([
+            'change_theme' => __('theme.change_theme'),
+        ]),
+        
+        // Initialize
+        init() {
+            // Load saved theme preference
+            this.loadTheme();
+            
+            // Listen for theme changes from other tabs
+            window.addEventListener('storage', (event) => {
+                if (event.key === 'theme') {
+                    this.theme = event.newValue || 'system';
+                    this.applyTheme(this.theme);
                 }
-
-                register();
-            })();
-        </script>
-    @endpush
+            });
+            
+            // Listen for system preference changes
+            this.detectSystemTheme();
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!this.$el.contains(e.target)) {
+                    this.close();
+                }
+            });
+        },
+        
+        // Computed
+        get currentThemeLabel() {
+            const labels = {
+                'system': '{{ __("theme.system") }}',
+                'light': '{{ __("theme.light") }}',
+                'dark': '{{ __("theme.dark") }}'
+            };
+            return labels[this.theme] || this.theme;
+        },
+        
+        // Toggle dropdown
+        toggle() {
+            this.open = !this.open;
+            if (this.open) {
+                // Focus first item when opening
+                this.$nextTick(() => {
+                    const firstButton = this.$el.querySelector('[role="menuitemradio"]');
+                    if (firstButton) firstButton.focus();
+                });
+            }
+        },
+        
+        // Close dropdown
+        close() {
+            this.open = false;
+        },
+        
+        // Set theme
+        setTheme(mode) {
+            if (!['system', 'light', 'dark'].includes(mode)) return;
+            
+            this.theme = mode;
+            this.applyTheme(mode);
+            this.saveTheme(mode);
+            this.close();
+            
+            // Dispatch event for other components
+            window.dispatchEvent(new CustomEvent('theme-changed', {
+                detail: { theme: mode }
+            }));
+        },
+        
+        // Load saved theme
+        loadTheme() {
+            try {
+                const saved = localStorage.getItem('theme');
+                if (saved && ['system', 'light', 'dark'].includes(saved)) {
+                    this.theme = saved;
+                } else {
+                    // Default to system theme
+                    this.theme = 'system';
+                }
+                
+                this.applyTheme(this.theme);
+            } catch (error) {
+                console.debug('Could not load theme preference:', error);
+                this.theme = 'system';
+                this.applyTheme('system');
+            }
+        },
+        
+        // Apply theme to document
+        applyTheme(mode) {
+            const html = document.documentElement;
+            
+            if (mode === 'dark') {
+                html.classList.add('dark');
+                html.setAttribute('data-theme', 'dark');
+            } else if (mode === 'light') {
+                html.classList.remove('dark');
+                html.setAttribute('data-theme', 'light');
+            } else {
+                // System theme
+                html.removeAttribute('data-theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (prefersDark) {
+                    html.classList.add('dark');
+                } else {
+                    html.classList.remove('dark');
+                }
+            }
+        },
+        
+        // Save theme preference
+        saveTheme(mode) {
+            try {
+                localStorage.setItem('theme', mode);
+                
+                // Trigger storage event for other tabs
+                window.dispatchEvent(new StorageEvent('storage', {
+                    key: 'theme',
+                    newValue: mode,
+                    storageArea: localStorage
+                }));
+                
+                // Save to server if authenticated
+                this.saveToServer(mode);
+                
+            } catch (error) {
+                console.debug('Could not save theme preference:', error);
+            }
+        },
+        
+        // Detect system theme changes
+        detectSystemTheme() {
+            const darkModeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            darkModeMedia.addEventListener('change', (e) => {
+                if (this.theme === 'system') {
+                    this.applyTheme('system');
+                }
+            });
+        },
+        
+        // Save theme to server via AJAX
+        async saveToServer(theme) {
+            // Check if user is authenticated via meta tag
+            const userIdMeta = document.querySelector('meta[name="user-id"]');
+            if (!userIdMeta) return;
+            
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+                if (!csrfToken) return;
+                
+                const response = await fetch('/settings/theme', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ theme: theme })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server responded with ${response.status}`);
+                }
+                
+            } catch (error) {
+                // Silent fail - client-side storage is sufficient
+                console.debug('Failed to save theme to server:', error.message);
+            }
+        }
+    }));
+});
+</script>
+@endpush
 @endonce

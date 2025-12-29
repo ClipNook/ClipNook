@@ -177,7 +177,7 @@
 
                                 <x-button size="sm" variant="neutral" type="button" @click="navigator.clipboard.writeText('{{ $clip['id'] }}'); copied = true; setTimeout(() => copied = false, 2000)">
                                     <i class="fas" x-bind:class="copied ? 'fa-check' : 'fa-copy'"></i>
-                                    <span x-text="copied ? '{{ __('clip.submit.actions.copied') }}' : '{{ __('clip.submit.actions.copy_id') }}'"></span>
+                                    <span x-text="copied ? @json(__('clip.submit.actions.copied')) : @json(__('clip.submit.actions.copy_id'))"></span>
                                 </x-button>
 
                                 @if (!empty($clip['video_available']) && !empty($clip['video_url']))

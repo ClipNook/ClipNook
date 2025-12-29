@@ -40,9 +40,13 @@ class TwitchServiceProvider extends ServiceProvider
 
         // Register Clips Service
         $this->app->singleton(ClipsInterface::class, function ($app) {
+            $clipsConfig = config('services.twitch', []);
+            // Inject centralized rate_limit actions if not present to keep behavior consistent
+            $clipsConfig['rate_limit_actions'] = config('services.twitch.rate_limit.actions', []);
+
             return new ClipsService(
                 httpClient: $app->make(HttpClientInterface::class),
-                config: config('services.twitch'),
+                config: $clipsConfig,
             );
         });
 

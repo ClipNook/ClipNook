@@ -1,6 +1,40 @@
 <?php
 
 return [
+    // Color Picker
+    'accent_color' => 'Accent color',
+    'reset_color' => 'Reset color',
+    'reset' => 'Reset',
+    'change_color' => 'Change color: :color',
+    'color_options' => 'Color options',
+    'color_purple' => 'Purple',
+    'color_blue' => 'Blue',
+    'color_green' => 'Green',
+    'color_red' => 'Red',
+    'color_orange' => 'Orange',
+    'color_pink' => 'Pink',
+    'color_indigo' => 'Indigo',
+    'color_teal' => 'Teal',
+    'color_amber' => 'Amber',
+    'color_slate' => 'Slate',
+
+    // Controller feedback (added for UserSettingsController)
+    'profile_updated' => 'Profile updated successfully.',
+    'profile_update_failed' => 'Failed to update profile.',
+    'accent_updated' => 'Accent color updated.',
+    'preferences_update_failed' => 'Failed to update preferences.',
+    'roles_updated' => 'Roles updated successfully.',
+    'roles_update_failed' => 'Failed to update roles.',
+    'invalid_action' => 'Invalid action.',
+    'avatar_upload_success' => 'Avatar uploaded successfully.',
+    'avatar_upload_failed' => 'Failed to upload avatar.',
+    'avatar_removed' => 'Avatar removed.',
+    'not_connected_to_twitch' => 'Not connected to Twitch.',
+    'twitch_connection_failed' => 'Failed to connect to Twitch.',
+    'no_twitch_avatar' => 'No Twitch avatar found to restore.',
+    'avatar_restored' => 'Avatar restored from Twitch.',
+    'avatar_restore_failed' => 'Failed to restore avatar from Twitch.',
+    
     'nav' => [
         'home'      => 'Home',
         'clips'     => 'Clips',
@@ -139,6 +173,15 @@ return [
     'unsaved_changes'                => 'You have unsaved changes.',
     'save_changes'                   => 'Save changes',
     'settings_save_failed'           => 'Failed to save settings.',
+
+    'clip_sharing'             => 'Allow clip sharing',
+    'clip_sharing_description' => 'Allow others to share and distribute clips from your streams.',
+
+    'availability'             => 'Availability',
+    'availability_description' => 'Set your availability for freelance editing work.',
+
+    'active'  => 'Active',
+    'inactive' => 'Inactive',
 
     'avatar_settings'             => 'Avatar settings',
     'avatar_settings_description' => 'Your avatar is taken from Twitch if available. Manage or restore it here.',

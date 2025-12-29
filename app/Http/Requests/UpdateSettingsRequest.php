@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateSettingsRequest extends FormRequest
 {
@@ -23,6 +24,9 @@ class UpdateSettingsRequest extends FormRequest
             'is_cutter'          => 'nullable|boolean',
             'intro'              => 'nullable|string|max:2000',
             'available_for_jobs' => 'nullable|boolean',
+
+            // Accent color (predefined keys from color-picker)
+            'accent_color' => ['nullable', 'string', Rule::in(['purple', 'blue', 'green', 'red', 'orange', 'pink', 'indigo', 'teal', 'amber', 'slate'])],
 
             // dialog action type (from JS) to map actions explicitly
             'actionType' => 'nullable|string',

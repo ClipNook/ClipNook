@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import obfuscatorPlugin from "vite-plugin-bundle-obfuscator";
+import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default defineConfig({
     plugins: [
@@ -24,6 +25,14 @@ export default defineConfig({
                 disableConsoleOutput: true,
                 selfDefending: true,
             },
+        }),
+        viteStaticCopy({
+            targets: [
+                {
+                    src: "node_modules/flag-icons/flags/**/*",
+                    dest: "flags",
+                },
+            ],
         }),
     ],
     build: {

@@ -29,12 +29,39 @@ class ClipsService implements ClipsInterface
 
     private ?string $accessToken = null;
 
+    /**
+     * Per-action rate limit configuration
+     *
+     * Example shape: [
+     *   'get_clips' => ['max' => 60, 'decay' => 60],
+     * ]
+     *
+     * @var array<string, array<string,int>>
+     */
+    private array $rateLimitActions;
+
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         array $config,
     ) {
         $this->apiUrl   = rtrim($config['api_url'] ?? 'https://api.twitch.tv/helix', '/');
         $this->clientId = $config['client_id'] ?? throw new \InvalidArgumentException('Missing client_id');
+
+        // Allow overriding action-specific limits via configuration. Prefer explicit
+        // $config value, otherwise fallback to centralized config('services.twitch.rate_limit.actions')
+        $fallback = [
+            'get_clips'        => ['max' => 60, 'decay' => 60],
+            'get_clips_by_ids' => ['max' => 120, 'decay' => 60],
+            'create_clip'      => ['max' => 10, 'decay' => 60],
+        ];
+
+        if (isset($config['rate_limit_actions'])) {
+            $this->rateLimitActions = $config['rate_limit_actions'];
+        } elseif (function_exists('app') && app()->bound('config')) {
+            $this->rateLimitActions = config('services.twitch.rate_limit.actions', $fallback);
+        } else {
+            $this->rateLimitActions = $fallback;
+        }
     }
 
     /**
@@ -86,6 +113,11 @@ class ClipsService implements ClipsInterface
         if ($endedAt !== null) {
             $params['ended_at'] = $endedAt->format('Y-m-d\TH:i:s\Z');
         }
+
+        // Per-broadcaster rate limiting to avoid abusive polling
+        $limit    = $this->getRateLimitSettings('get_clips');
+        $limitKey = "twitch:clips:{$broadcasterId}";
+        $this->rateLimitOrHit($limitKey, $limit['max'], $limit['decay']);
 
         $response = $this->httpClient->get(
             $this->apiUrl.'/clips',
@@ -184,6 +216,11 @@ class ClipsService implements ClipsInterface
 
         $params = ['id' => $clipIds];
 
+        // Rate limit lookup for batch queries (IDs)
+        $limit    = $this->getRateLimitSettings('get_clips_by_ids');
+        $limitKey = 'twitch:clips:ids:'.md5(implode(',', $clipIds));
+        $this->rateLimitOrHit($limitKey, $limit['max'], $limit['decay']);
+
         $response = $this->httpClient->get(
             $this->apiUrl.'/clips',
             $params,
@@ -211,6 +248,11 @@ class ClipsService implements ClipsInterface
             'broadcaster_id' => $broadcasterId,
             'has_delay'      => $hasDelay ? 'true' : 'false',
         ];
+
+        // Limit createClip calls per broadcaster to avoid clip spam
+        $limit    = $this->getRateLimitSettings('create_clip');
+        $limitKey = "twitch:create_clip:{$broadcasterId}";
+        $this->rateLimitOrHit($limitKey, $limit['max'], $limit['decay']);
 
         $response = $this->httpClient->post(
             $this->apiUrl.'/clips',
@@ -248,6 +290,23 @@ class ClipsService implements ClipsInterface
         }
 
         return $headers;
+    }
+
+    /**
+     * Resolve rate limit settings for a named action
+     *
+     * @return array{max:int,decay:int}
+     */
+    private function getRateLimitSettings(string $action): array
+    {
+        $settings = $this->rateLimitActions[$action] ?? null;
+
+        if (is_array($settings) && isset($settings['max'], $settings['decay'])) {
+            return ['max' => (int) $settings['max'], 'decay' => (int) $settings['decay']];
+        }
+
+        // Fallback default
+        return ['max' => 60, 'decay' => 60];
     }
 
     /**

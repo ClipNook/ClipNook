@@ -12,6 +12,7 @@
         "@tailwindcss/vite": "^4.1.18",
         "axios": "^1.13.2",
         "concurrently": "^9.2.1",
+        "flag-icons": "^7.5.0",
         "laravel-vite-plugin": "^2.0.1",
         "tailwindcss": "^4.1.18",
         "terser": "^5.44.1",

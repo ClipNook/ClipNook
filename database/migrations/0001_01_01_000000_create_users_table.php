@@ -13,18 +13,23 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            // Twitch OAuth fields
+
+            // Twitch OAuth fields (primary auth)
             $table->string('twitch_id')->unique()->nullable();
             $table->string('twitch_login')->nullable();
             $table->string('twitch_display_name')->nullable();
             $table->string('twitch_email')->nullable();
-            $table->string('twitch_avatar')->nullable();
             $table->text('twitch_access_token')->nullable();
             $table->text('twitch_refresh_token')->nullable();
             $table->timestamp('twitch_token_expires_at')->nullable();
 
-            // Settings
+            // Avatar fields
+            $table->string('twitch_avatar')->nullable();
+            $table->string('custom_avatar_path')->nullable();
+            $table->string('custom_avatar_thumbnail_path')->nullable();
+            $table->string('avatar_source')->nullable();
             $table->boolean('avatar_disabled')->default(false);
+            $table->timestamp('avatar_disabled_at')->nullable();
 
             // Role flags
             $table->boolean('is_viewer')->default(true);
@@ -36,9 +41,39 @@ return new class extends Migration
             // Profile fields
             $table->text('intro')->nullable();
             $table->boolean('available_for_jobs')->default(false);
+            $table->boolean('allow_clip_sharing')->default(false);
 
-            // Standard Laravel user fields
+            // Preferences
+            $table->json('preferences')->default('{"accent_color": "purple"}');
+            $table->string('accent_color')->nullable();
+            $table->string('theme_preference')->default('system');
+            $table->string('locale')->default('de');
+
+            // Standard Laravel fields
             $table->rememberToken();
+            $table->timestamps();
+        });
+
+        Schema::create('streamer_profiles', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->text('intro')->nullable();
+            $table->string('stream_schedule')->nullable();
+            $table->string('preferred_games')->nullable();
+            $table->string('stream_quality')->default('720p');
+            $table->boolean('has_overlay')->default(false);
+            $table->timestamps();
+        });
+
+        Schema::create('cutter_profiles', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->decimal('hourly_rate', 8, 2)->nullable();
+            $table->string('response_time')->default('24');
+            $table->json('skills')->nullable();
+            $table->boolean('is_available')->default(false);
+            $table->string('portfolio_url')->nullable();
+            $table->integer('experience_years')->nullable();
             $table->timestamps();
         });
 

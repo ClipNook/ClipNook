@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -24,9 +25,15 @@ class User extends Authenticatable
         'twitch_email',
         'twitch_avatar',
         'avatar_disabled',
+        'avatar_disabled_at',
         'twitch_access_token',
         'twitch_refresh_token',
         'twitch_token_expires_at',
+
+        // Avatar fields
+        'custom_avatar_path',
+        'custom_avatar_thumbnail_path',
+        'avatar_source',
 
         // Role flags
         'is_viewer',
@@ -38,6 +45,13 @@ class User extends Authenticatable
         // Profile fields
         'intro',
         'available_for_jobs',
+        'allow_clip_sharing',
+
+        // Preferences
+        'preferences',
+        'accent_color',
+        'theme_preference',
+        'locale',
     ];
 
     /**
@@ -73,10 +87,16 @@ class User extends Authenticatable
 
         // Avatar preference
         'avatar_disabled'         => 'boolean',
+        'avatar_disabled_at'      => 'datetime',
 
         // Profile fields
         'available_for_jobs'      => 'boolean',
+        'allow_clip_sharing'      => 'boolean',
         'intro'                   => 'string',
+
+        // Preferences
+        'preferences'             => 'array',
+        'theme_preference'        => 'string',
     ];
 
     /**
@@ -94,17 +114,19 @@ class User extends Authenticatable
      */
     protected static function booted(): void
     {
+        parent::boot();
+
         static::deleting(function (self $user) {
             $user->deleteAvatar();
         });
     }
 
     /**
-     * Returns the preferred display name (Twitch display name > name > Twitch login).
+     * Returns the preferred display name (Twitch display name > Twitch login).
      */
     public function getDisplayNameAttribute(): ?string
     {
-        return $this->twitch_display_name ?? $this->name ?? $this->twitch_login ?? null;
+        return $this->twitch_display_name ?? $this->twitch_login ?? null;
     }
 
     /**
@@ -113,7 +135,7 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute(): string
     {
         // If the user disabled avatars, always return fallback
-        if (! empty($this->avatar_disabled)) {
+        if ($this->isAvatarDisabled()) {
             return asset('images/avatar-default.svg');
         }
 
@@ -136,6 +158,11 @@ class User extends Authenticatable
         return asset('images/avatar-default.svg');
     }
 
+    public function getThemeAttribute()
+    {
+        return $this->theme_preference ?? 'system';
+    }
+
     /**
      * Checks if the user is connected to Twitch.
      */
@@ -145,11 +172,13 @@ class User extends Authenticatable
     }
 
     /**
-     * Whether the user has disabled avatars (opted out of saving)
+     * Whether the user has disabled avatars.
+     *
+     * Supports legacy boolean flag (avatar_disabled) and timestamp (avatar_disabled_at).
      */
     public function isAvatarDisabled(): bool
     {
-        return (bool) $this->avatar_disabled;
+        return (bool) $this->avatar_disabled || $this->avatar_disabled_at !== null;
     }
 
     /**
@@ -195,5 +224,92 @@ class User extends Authenticatable
             $this->twitch_avatar = null;
             $this->save();
         }
+    }
+
+    /**
+     * Calculate profile completion percentage.
+     */
+    public function profileCompletion(): int
+    {
+        $steps = [
+            'profile'     => $this->isProfileComplete(),
+            'avatar'      => ! $this->isAvatarDisabled(),
+            'roles'       => $this->isStreamer() || $this->isCutter(),
+            'preferences' => $this->hasPreferencesSet(),
+        ];
+
+        $completed = count(array_filter($steps));
+
+        return (int) round(($completed / count($steps)) * 100);
+    }
+
+    /**
+     * Determine if base profile is complete.
+     */
+    public function isProfileComplete(): bool
+    {
+        return ! empty($this->display_name)
+            && ! empty($this->email)
+            && filter_var($this->email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    /**
+     * Whether user has set timezone & locale.
+     */
+    public function hasPreferencesSet(): bool
+    {
+        return ! empty($this->timezone) && ! empty($this->locale);
+    }
+
+    /**
+     * List completed profile step keys.
+     *
+     * @return array<int, string>
+     */
+    public function completedProfileSteps(): array
+    {
+        $steps = [];
+
+        if ($this->isProfileComplete()) {
+            $steps[] = 'profile';
+        }
+
+        if (! $this->isAvatarDisabled()) {
+            $steps[] = 'avatar';
+        }
+
+        if ($this->isStreamer() || $this->isCutter()) {
+            $steps[] = 'roles';
+        }
+
+        if ($this->hasPreferencesSet()) {
+            $steps[] = 'preferences';
+        }
+
+        return $steps;
+    }
+
+    /**
+     * Human readable profile updated at or 'never'.
+     */
+    public function profileUpdatedAt(): string
+    {
+        return $this->updated_at ? $this->updated_at->diffForHumans() : __('ui.never');
+    }
+
+    /**
+     * One-to-one relationship to the StreamerProfile model.
+     */
+    public function streamerProfile(): HasOne
+    {
+        return $this->hasOne(StreamerProfile::class);
+    }
+
+    /**
+     * One-to-one relationship to the CutterProfile model.
+     */
+    public function cutterProfile(): HasOne
+    {
+        return $this->hasOne(CutterProfile::class);
     }
 }

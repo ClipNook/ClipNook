@@ -3,6 +3,8 @@
 @import "@fontsource-variable/roboto";
 /* Import Font Awesome CSS */
 @import "@fortawesome/fontawesome-free/css/all.css";
+/* Import flag-icons CSS */
+@import "flag-icons/css/flag-icons.min.css";
 /** Import: Tailwind CSS **/
 @import "tailwindcss";
 /* Blade View Source Tracking */
@@ -10,14 +12,7 @@
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
-/* Custom Theme Variables */
-@theme {
-    /* Primary typography */
-    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
-        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-        "Noto Color Emoji";
-    --font-roboto: "Roboto Variable", var(--font-sans);
-}
+
 /* Adds pointer cursor to buttons and base styles using palette variables */
 @layer base {
     button:not(:disabled),
@@ -27,3 +22,83 @@
 }
 /* Custom Variants */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Custom Theme Variables */
+@theme {
+    /* Primary typography */
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+    --font-roboto: "Roboto Variable", var(--font-sans);
+}
+
+/* Accent Color System */
+:root {
+    /* Default HSL values (purple) */
+    --accent-hue: 252;
+    --accent-saturation: 83%;
+    --accent-lightness: 65%;
+
+    /* Generated colors from HSL */
+    --accent-bg: hsl(
+        var(--accent-hue),
+        var(--accent-saturation),
+        var(--accent-lightness)
+    );
+    --accent-border: hsl(
+        var(--accent-hue),
+        var(--accent-saturation),
+        var(--accent-lightness)
+    );
+    --accent-bgLight: hsl(var(--accent-hue), 83%, 96%);
+    --accent-text: #ffffff;
+
+    /* Dark mode variants */
+    --accent-bg-dark: hsl(
+        var(--accent-hue),
+        var(--accent-saturation),
+        calc(var(--accent-lightness) + 10%)
+    );
+    --accent-border-dark: hsl(
+        var(--accent-hue),
+        var(--accent-saturation),
+        calc(var(--accent-lightness) + 10%)
+    );
+    --accent-bgLight-dark: hsl(var(--accent-hue), 83%, 18%);
+    --accent-text-dark: #ffffff;
+}
+
+/* Dark mode overrides */
+.dark {
+    --accent-bg: var(--accent-bg-dark);
+    --accent-border: var(--accent-border-dark);
+    --accent-bgLight: var(--accent-bgLight-dark);
+    --accent-text: var(--accent-text-dark);
+}
+
+/* Accent styling system */
+[data-accent="bg"] {
+    background-color: var(--accent-bg) !important;
+    color: var(--accent-text) !important;
+    border-color: var(--accent-bg) !important;
+}
+
+[data-accent="border"] {
+    border-color: var(--accent-border) !important;
+    color: var(--accent-border) !important;
+    background-color: transparent !important;
+}
+
+[data-accent="border"]:hover:not(:disabled) {
+    background-color: var(--accent-bg) !important;
+    color: var(--accent-text) !important;
+}
+
+[data-accent="text"] {
+    color: var(--accent-border) !important;
+}
+
+[data-accent="bgLight"] {
+    background-color: var(--accent-bgLight) !important;
+    color: var(--accent-border) !important;
+}

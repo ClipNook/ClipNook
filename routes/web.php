@@ -4,46 +4,73 @@ use App\Http\Controllers\Auth\TwitchController;
 use App\Http\Controllers\UserSettingsController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+// Home
+Route::get('/', fn () => view('home'))->name('home');
 
-// User settings routes
+// Authenticated routes
 Route::middleware('auth')->group(function () {
-    Route::get('/settings', [UserSettingsController::class, 'edit'])->name('settings');
-    Route::patch('/settings', [UserSettingsController::class, 'update'])->name('settings.update');
+    // User settings
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [UserSettingsController::class, 'edit'])->name('edit');
+        Route::post('/profile', [UserSettingsController::class, 'updateProfile'])->name('profile.update');
+        Route::match(['patch', 'post'], '/preferences', [UserSettingsController::class, 'updatePreferences'])->name('preferences.update');
+        Route::post('/roles', [UserSettingsController::class, 'updateRoles'])->name('roles.update');
+        Route::post('/avatar', [UserSettingsController::class, 'updateAvatar'])->name('avatar.update');
+        Route::post('/avatar/upload', [UserSettingsController::class, 'uploadAvatar'])->name('avatar.upload');
+        Route::post('/export', [UserSettingsController::class, 'exportData'])->name('export');
+        Route::delete('/', [UserSettingsController::class, 'destroy'])->name('destroy');
+    });
 
-    // Account deletion (GDPR compliant)
-    Route::delete('/settings', [UserSettingsController::class, 'destroy'])->name('settings.destroy');
+    // Theme preference
+    Route::post('/settings/theme', function (\Illuminate\Http\Request $request) {
+        $request->validate([
+            'theme' => ['required', 'string', 'in:system,light,dark'],
+        ]);
+        $user = $request->user();
+        $user->theme_preference = $request->theme;
+        $user->save();
+        return response()->json(['success' => true]);
+    });
 
-    // Clips submission page (Livewire)
-    Route::get('/clips/submit', function () {
-        return view('clips.submit');
-    })->name('clips.submit');
+    // Clips submission (Livewire)
+    Route::get('/clips/submit', fn () => view('clips.submit'))->name('clips.submit');
+
+    // Logout
+    Route::post('/logout', [TwitchController::class, 'logout'])->name('logout');
 });
 
-// Twitch OAuth routes
+// Guest-only login
+Route::get('/login', [TwitchController::class, 'login'])->name('login')->middleware('guest');
+
+// Twitch OAuth
 Route::prefix('auth/twitch')->name('auth.twitch.')->group(function () {
     Route::get('/redirect', [TwitchController::class, 'redirect'])->name('redirect');
     Route::get('/callback', [TwitchController::class, 'callback'])->name('callback');
     Route::post('/revoke', [TwitchController::class, 'revoke'])->name('revoke')->middleware('auth');
 });
 
-// Login page (privacy info + status) handled by controller
-Route::get('/login', [TwitchController::class, 'login'])->name('login')->middleware('guest');
-
-// Local logout (logs out the user and revokes Twitch access if configured)
-Route::post('/logout', [TwitchController::class, 'logout'])->name('logout')->middleware('auth');
-
-// Language switcher route (stores locale in session and redirects back)
-Route::get('/lang/{locale}', function ($locale) {
-    $available = array_keys(config('app.locales', []));
-    if (! in_array($locale, $available, true)) {
+// Language/Localization
+Route::middleware('web')->group(function () {
+    // POST: Change language
+    Route::post('/lang', function (\Illuminate\Http\Request $request) {
+        $request->validate([
+            'locale' => ['required', 'string', 'in:'.implode(',', array_keys(config('app.locales', [])))],
+        ]);
+        app()->setLocale($request->locale);
+        session()->put('locale', $request->locale);
+        if ($request->user()) {
+            $user = $request->user();
+            $user->locale = $request->locale;
+            $user->save();
+        }
+        return response()->json(['success' => true]);
+    });
+    // GET: Change language (fallback for no-JS)
+    Route::get('/lang/{locale}', function ($locale) {
+        if (array_key_exists($locale, config('app.locales', []))) {
+            app()->setLocale($locale);
+            session()->put('locale', $locale);
+        }
         return redirect()->back();
-    }
-
-    session(['locale' => $locale]);
-    cookie()->queue(cookie('locale', $locale, 60 * 24 * 30)); // 30 days
-
-    return redirect()->back();
-})->name('lang.switch');
+    });
+});

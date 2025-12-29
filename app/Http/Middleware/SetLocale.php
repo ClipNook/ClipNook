@@ -44,6 +44,11 @@ class SetLocale
      */
     protected function resolveLocale(Request $request, array $availableLocales): ?string
     {
+        // 0. Authenticated user preference
+        if ($request->user() && $request->user()->locale && in_array($request->user()->locale, $availableLocales, true)) {
+            return $request->user()->locale;
+        }
+
         // 1. Query parameter
         $locale = $request->query('lang');
         if ($locale && in_array($locale, $availableLocales, true)) {

@@ -102,8 +102,11 @@ class TokenRefreshService
                     'grant_type'    => 'client_credentials',
                 ]);
 
-            if ($response->ok() && $response->has('access_token')) {
-                return $response->json('access_token');
+            /** @var \Illuminate\Http\Client\Response $response */
+            $data = $response->json();
+
+            if ($response->ok() && is_array($data) && array_key_exists('access_token', $data)) {
+                return $data['access_token'];
             }
 
             // Log status code only; response bodies may contain sensitive details

@@ -21,12 +21,21 @@ class CurlHttpClient implements HttpClientInterface
 
     private int $requestWindowStart;
 
+    // Retry/backoff settings
+    private int $maxRetries = 3;
+
+    private int $backoffBaseMs = 200; // base backoff in milliseconds
+
     public function __construct(
         private readonly bool $rateLimitEnabled = true,
         private readonly int $maxRequestsPerMinute = 800,
         private readonly int $retryAfter = 60,
+        int $maxRetries = 3,
+        int $backoffBaseMs = 200,
     ) {
         $this->requestWindowStart = time();
+        $this->maxRetries         = $maxRetries;
+        $this->backoffBaseMs      = $backoffBaseMs;
     }
 
     /**
@@ -99,67 +108,138 @@ class CurlHttpClient implements HttpClientInterface
         // Rate limiting check (GDPR compliance)
         $this->checkRateLimit();
 
-        $ch = curl_init();
+        $attempt = 0;
 
-        // Normalize headers and ensure Accept
-        $normalized = [];
-        $hasAccept  = false;
-        foreach ($headers as $key => $value) {
-            $normalized[$key] = $value;
-            if (strtolower($key) === 'accept') {
-                $hasAccept = true;
-            }
-        }
-
-        if (! $hasAccept) {
-            $normalized['Accept'] = 'application/json';
-        }
-
-        // Build headers
-        $curlHeaders = [];
-        foreach ($normalized as $key => $value) {
-            $curlHeaders[] = "{$key}: {$value}";
-        }
-
-        // Prepare cURL options
-        $options = [
-            CURLOPT_URL            => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => $this->timeout,
-            CURLOPT_HTTPHEADER     => $curlHeaders,
-            CURLOPT_HEADER         => true,
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => 2,
-        ];
-
-        // Method-specific handling
-        if ($method === 'POST') {
-            $options[CURLOPT_POST] = true;
-
-            // Determine content type
-            $contentType = '';
-            foreach ($normalized as $k => $v) {
-                if (strtolower($k) === 'content-type') {
-                    $contentType = strtolower($v);
-                    break;
+        while (true) {
+            // Normalize headers and ensure Accept
+            $normalized = [];
+            $hasAccept  = false;
+            foreach ($headers as $key => $value) {
+                $normalized[$key] = $value;
+                if (strtolower($key) === 'accept') {
+                    $hasAccept = true;
                 }
             }
 
-            if ($contentType === 'application/x-www-form-urlencoded') {
-                $options[CURLOPT_POSTFIELDS] = http_build_query($data);
-            } elseif (str_starts_with($contentType, 'multipart/form-data')) {
-                // Let cURL handle multipart arrays
-                $options[CURLOPT_POSTFIELDS] = $data;
-            } else {
-                $options[CURLOPT_POSTFIELDS] = empty($data) ? '' : json_encode($data);
+            if (! $hasAccept) {
+                $normalized['Accept'] = 'application/json';
             }
-        } elseif ($method === 'DELETE') {
-            $options[CURLOPT_CUSTOMREQUEST] = 'DELETE';
-        }
 
+            // Build headers array
+            $curlHeaders = [];
+            foreach ($normalized as $key => $value) {
+                $curlHeaders[] = "{$key}: {$value}";
+            }
+
+            // Prepare cURL options
+            $options = [
+                CURLOPT_URL            => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => $this->timeout,
+                CURLOPT_HTTPHEADER     => $curlHeaders,
+                CURLOPT_HEADER         => true,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
+            ];
+
+            // Method-specific handling
+            if ($method === 'POST') {
+                $options[CURLOPT_POST] = true;
+
+                // Determine content type
+                $contentType = '';
+                foreach ($normalized as $k => $v) {
+                    if (strtolower($k) === 'content-type') {
+                        $contentType = strtolower($v);
+                        break;
+                    }
+                }
+
+                if ($contentType === 'application/x-www-form-urlencoded') {
+                    $options[CURLOPT_POSTFIELDS] = http_build_query($data);
+                } elseif (str_starts_with($contentType, 'multipart/form-data')) {
+                    // Let cURL handle multipart arrays
+                    $options[CURLOPT_POSTFIELDS] = $data;
+                } else {
+                    $options[CURLOPT_POSTFIELDS] = empty($data) ? '' : json_encode($data);
+                }
+            } elseif ($method === 'DELETE') {
+                $options[CURLOPT_CUSTOMREQUEST] = 'DELETE';
+            }
+
+            // Execute request (allow overriding executeCurl() in tests)
+            [$response, $error, $errno, $httpCode, $headerSize] = $this->executeCurlWithOptions($options);
+
+            // Handle cURL errors
+            if ($errno !== 0 || $response === false) {
+                if ($attempt < $this->maxRetries) {
+                    // exponential backoff
+                    $this->delay($this->backoffBaseMs * (2 ** $attempt));
+                    $attempt++;
+
+                    continue;
+                }
+
+                throw new TwitchException("cURL error ({$errno}): {$error}", $errno);
+            }
+
+            // Parse response
+            $headerString = substr((string) $response, 0, $headerSize);
+            $body         = substr((string) $response, $headerSize);
+
+            $this->lastResponseHeaders = $this->parseHeaders($headerString);
+            $this->lastStatusCode      = $httpCode;
+
+            // Decode JSON response
+            $decoded = json_decode($body, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $decoded = ['raw' => $body];
+            }
+
+            // Handle HTTP errors
+            if ($httpCode >= 400) {
+                // 429 - Rate limit handling
+                if ($httpCode === 429) {
+                    $retryAfterHeader = $this->lastResponseHeaders['retry-after'] ?? $this->lastResponseHeaders['Retry-After'] ?? null;
+                    $retryAfter       = $retryAfterHeader !== null ? (int) $retryAfterHeader : $this->retryAfter;
+
+                    if ($attempt < $this->maxRetries) {
+                        // wait retry-after (ms) + exponential backoff
+                        $this->delay(($retryAfter * 1000) + ($this->backoffBaseMs * (2 ** $attempt)));
+                        $attempt++;
+
+                        continue;
+                    }
+
+                    throw new RateLimitException('Rate limit exceeded', $retryAfter);
+                }
+
+                // Retry on 5xx
+                if ($httpCode >= 500 && $attempt < $this->maxRetries) {
+                    $this->delay($this->backoffBaseMs * (2 ** $attempt));
+                    $attempt++;
+
+                    continue;
+                }
+
+                throw TwitchException::fromResponse($decoded, $httpCode);
+            }
+
+            return $decoded;
+        }
+    }
+
+    /**
+     * Execute cURL with provided options. Extracted for testability.
+     *
+     * @return array{0: string|false, 1: string, 2: int, 3: int, 4: int}
+     */
+    protected function executeCurlWithOptions(array $options): array
+    {
+        $ch = curl_init();
         curl_setopt_array($ch, $options);
 
-        // Execute request
         $response   = curl_exec($ch);
         $error      = curl_error($ch);
         $errno      = curl_errno($ch);
@@ -168,36 +248,20 @@ class CurlHttpClient implements HttpClientInterface
 
         curl_close($ch);
 
-        // Handle cURL errors
-        if ($errno !== 0 || $response === false) {
-            throw new TwitchException("cURL error ({$errno}): {$error}", $errno);
+        return [$response, $error, $errno, $httpCode, $headerSize];
+    }
+
+    /**
+     * Delay helper (ms). Extracted for testability so tests can override and skip sleeping.
+     */
+    protected function delay(int $ms): void
+    {
+        if ($ms <= 0) {
+            return;
         }
 
-        // Parse response
-        $headerString = substr((string) $response, 0, $headerSize);
-        $body         = substr((string) $response, $headerSize);
-
-        $this->lastResponseHeaders = $this->parseHeaders($headerString);
-        $this->lastStatusCode      = $httpCode;
-
-        // Decode JSON response
-        $decoded = json_decode($body, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $decoded = ['raw' => $body];
-        }
-
-        // Handle HTTP errors
-        if ($httpCode >= 400) {
-            if ($httpCode === 429) {
-                $retryAfter = (int) ($this->lastResponseHeaders['ratelimit-reset'] ?? $this->lastResponseHeaders['retry-after'] ?? $this->retryAfter);
-                throw new RateLimitException(retryAfter: $retryAfter);
-            }
-
-            throw TwitchException::fromResponse($decoded, $httpCode);
-        }
-
-        return $decoded;
+        // Convert to microseconds
+        usleep($ms * 1000);
     }
 
     /**
