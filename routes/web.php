@@ -15,6 +15,11 @@ Route::middleware('auth')->group(function () {
 
     // Account deletion (GDPR compliant)
     Route::delete('/settings', [UserSettingsController::class, 'destroy'])->name('settings.destroy');
+
+    // Clips submission page (Livewire)
+    Route::get('/clips/submit', function () {
+        return view('clips.submit');
+    })->name('clips.submit');
 });
 
 // Twitch OAuth routes

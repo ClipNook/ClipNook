@@ -187,7 +187,7 @@
                         </div>
 
                         {{-- Submit Button --}}
-                        <a href="#clips-create" class="hidden lg:inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded text-white dark:text-gray-900 transition-colors ml-2" data-accent="bg">
+                        <a href="{{ route('clips.submit') }}" class="hidden lg:inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded text-white dark:text-gray-900 transition-colors ml-2" data-accent="bg">
                             <i class="fas fa-plus text-xs"></i>
                             <span>{{ __('ui.submit') }}</span>
                         </a>
@@ -268,7 +268,7 @@
                         </div>
 
                         <div class="space-y-1" role="menu" aria-label="{{ __('ui.user_menu') }}">
-                            <a href="#clips-create" class="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-bold rounded text-white dark:text-gray-900 transition-colors" data-accent="bg" role="menuitem">
+                            <a href="{{ route('clips.submit') }}" class="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-bold rounded text-white dark:text-gray-900 transition-colors" data-accent="bg" role="menuitem">
                                 <i class="fas fa-plus text-xs"></i>
                                 {{ __('ui.submit') }}
                             </a>

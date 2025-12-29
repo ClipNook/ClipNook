@@ -1,3 +1,3 @@
 <x-layouts.app title="Welcome">
-    Content here
+    {{ __('Content here') }}
 </x-layouts.app>

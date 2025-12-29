@@ -49,4 +49,18 @@ interface ClipsInterface
      * @return array{id: string, edit_url: string}
      */
     public function createClip(string $broadcasterId, bool $hasDelay = false): array;
+
+    /**
+     * Fetch a game by id from the Helix API
+     *
+     * @return array<string, mixed>|null
+     */
+    public function getGameById(string $gameId): ?array;
+
+    /**
+     * Fetch a video by id from the Helix API
+     *
+     * @return array<string, mixed>|null
+     */
+    public function getVideoById(string $videoId): ?array;
 }

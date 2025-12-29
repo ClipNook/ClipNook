@@ -95,6 +95,42 @@ class ClipsService implements ClipsInterface
     }
 
     /**
+     * Fetch a game by ID from Helix `/games` endpoint
+     */
+    public function getGameById(string $gameId): ?array
+    {
+        if (empty($gameId)) {
+            return null;
+        }
+
+        $response = $this->httpClient->get(
+            $this->apiUrl.'/games',
+            ['id' => $gameId],
+            $this->getHeaders()
+        );
+
+        return $response['data'][0] ?? null;
+    }
+
+    /**
+     * Fetch a video by ID from Helix `/videos` endpoint
+     */
+    public function getVideoById(string $videoId): ?array
+    {
+        if (empty($videoId)) {
+            return null;
+        }
+
+        $response = $this->httpClient->get(
+            $this->apiUrl.'/videos',
+            ['id' => $videoId],
+            $this->getHeaders()
+        );
+
+        return $response['data'][0] ?? null;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getClipById(string $clipId): ?ClipData
