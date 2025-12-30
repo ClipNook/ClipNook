@@ -19,13 +19,18 @@ return Application::configure(basePath: dirname(__DIR__))
         // This is configured during bootstrap so middleware is available early in the app lifecycle
         // and works consistently across HTTP and console contexts.
         $middleware->alias([
-            'setlocale'     => \App\Http\Middleware\SetLocale::class,
-            'trackactivity' => \App\Http\Middleware\TrackLastActivity::class,
+            'setlocale'      => \App\Http\Middleware\SetLocale::class,
+            'trackactivity'  => \App\Http\Middleware\TrackLastActivity::class,
+            'security'       => \App\Http\Middleware\SecurityHeaders::class,
+            'performance'    => \App\Http\Middleware\PerformanceMonitoring::class,
+            'cache.response' => \App\Http\Middleware\CacheResponse::class,
         ]);
 
         // Append to the 'web' group so the locale is applied to all regular HTTP routes
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\TrackLastActivity::class);
+        $middleware->appendToGroup('web', \App\Http\Middleware\SecurityHeaders::class);
+        $middleware->appendToGroup('web', \App\Http\Middleware\PerformanceMonitoring::class);
 
         // Add Sanctum middleware to API routes
         $middleware->appendToGroup('api', \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class);

@@ -13,7 +13,7 @@ Route::get('/status', function () {
 Route::get('/health', HealthCheckController::class);
 
 // Clip management routes
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'cache.response'])->group(function () {
     Route::apiResource('clips', ClipController::class);
     Route::get('clips/pending/moderation', [ClipController::class, 'pending']);
     Route::get('users/{user}/clips', [ClipController::class, 'userClips']);
