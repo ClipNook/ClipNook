@@ -1,65 +1,75 @@
-# Twitch API Integration Docs
+# Twitch Integration Documentation
 
-This directory contains documentation for our Twitch API services.
+This documentation provides comprehensive information about the Twitch API integration system built with Laravel 12.
 
-## Overview
+## Table of Contents
 
-We built a comprehensive Twitch integration with:
-- Clean abstractions over Twitch Helix API
-- Proper error handling and rate limiting
-- Type-safe DTOs
-- Automatic token management
-- Privacy-conscious avatar handling
+- [Architecture Overview](architecture.md)
+- [Configuration](configuration.md)
+- [API Usage](api-usage.md)
+- [Authentication Flow](authentication.md)
+- [Testing](testing.md)
+- [Deployment](deployment.md)
+- [Troubleshooting](troubleshooting.md)
 
-## Files
+## Quick Start
 
-- [twitch-services-overview.md](twitch-services-overview.md) - High-level architecture
-- [clips-service.md](clips-service.md) - Clip fetching and creation
-- [oauth-service.md](oauth-service.md) - Authentication flow
-- [http-client.md](http-client.md) - HTTP abstraction layer
-- [dtos.md](dtos.md) - Data transfer objects
-- [exceptions.md](exceptions.md) - Error handling
-- [token-refresh.md](token-refresh.md) - Automatic token refresh
-- [avatar-service.md](avatar-service.md) - User avatar management
+1. **Install Dependencies**
+   ```bash
+   composer install
+   npm install
+   ```
 
-## Key Design Decisions
+2. **Configure Environment**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-1. **Contracts First**: All services implement interfaces for testability
-2. **DTOs Everywhere**: Type safety over raw arrays
-3. **Custom Exceptions**: Specific error types for different scenarios
-4. **Rate Limiting**: Per-action limits to respect Twitch's quotas
-5. **Privacy**: User control over avatars and data storage
+3. **Set Twitch API Credentials**
+   ```env
+   TWITCH_CLIENT_ID=your_client_id
+   TWITCH_CLIENT_SECRET=your_client_secret
+   ```
 
-## Testing
+4. **Run Migrations**
+   ```bash
+   php artisan migrate
+   ```
 
-All services are designed for easy testing:
+5. **Start Development Server**
+   ```bash
+   php artisan serve
+   ```
 
-```php
-$mockClient = Mockery::mock(HttpClientInterface::class);
-$service = new ClipsService($mockClient, $config);
-```
+## Key Features
 
-## Configuration
+- **OAuth 2.0 Authentication**: Secure Twitch login integration
+- **Token Management**: Automatic token refresh and storage
+- **Rate Limiting**: Built-in API rate limit handling
+- **Data Sanitization**: XSS protection and input validation
+- **Caching**: Response caching for improved performance
+- **Comprehensive Testing**: Unit and feature tests included
 
-Rate limits and other settings in `config/services.php`:
+## Architecture Principles
 
-```php
-'twitch' => [
-    'rate_limit' => [
-        'actions' => [
-            'get_clips' => ['max' => 60, 'decay' => 60],
-            // ...
-        ]
-    ]
-]
-```
+- **Service Layer Pattern**: Separation of concerns with dedicated services
+- **Dependency Injection**: Clean architecture with IoC container
+- **SOLID Principles**: Maintainable and extensible code
+- **Data Transfer Objects**: Type-safe data structures
+- **Error Handling**: Comprehensive exception management
 
-## Contributing
+## Security Features
 
-When adding new API endpoints:
-1. Add method to the appropriate interface
-2. Implement in the service class
-3. Create/update DTOs as needed
-4. Add rate limiting
-5. Write tests
-6. Update this documentation
+- **Input Sanitization**: All API responses are sanitized
+- **CSRF Protection**: Laravel's built-in CSRF protection
+- **Rate Limiting**: API call rate limiting
+- **Secure Token Storage**: Encrypted token storage
+- **Domain Validation**: URL domain whitelisting
+
+## Performance Optimizations
+
+- **Response Caching**: Configurable caching with TTL
+- **Lazy Loading**: Efficient database queries
+- **Background Processing**: Queued jobs for heavy operations
+- **Optimized API Calls**: Minimal API requests with batching

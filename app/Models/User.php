@@ -2,72 +2,52 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use Concerns\HasAvatar;
-    use Concerns\HasNotifications;
-    use Concerns\HasPreferences;
-    use Concerns\HasProfile;
-
-    // Custom traits for modular functionality
-    use Concerns\HasRoles;
-    use Concerns\HasTimestamps;
-
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
-     *
-     * @var list<string>
      */
     protected $fillable = [
+        // Twitch Authentication
         'twitch_id',
         'twitch_login',
         'twitch_display_name',
         'twitch_email',
-        'twitch_avatar',
-        'avatar_disabled',
-        'avatar_disabled_at',
         'twitch_access_token',
         'twitch_refresh_token',
         'twitch_token_expires_at',
 
-        // Avatar fields
+        // Avatar Management
+        'twitch_avatar',
+        'description',
         'custom_avatar_path',
-        'custom_avatar_thumbnail_path',
         'avatar_source',
+        'avatar_disabled',
+        'avatar_disabled_at',
 
-        // Role flags
+        // Roles and Permissions
         'is_viewer',
         'is_cutter',
         'is_streamer',
         'is_moderator',
         'is_admin',
 
-        // Profile fields
-        'intro',
-        'available_for_jobs',
-        'allow_clip_sharing',
-
         // Preferences
         'preferences',
-        'accent_color',
-        'theme_preference',
-        'locale',
-        'timezone',
+        'scopes',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
      */
     protected $hidden = [
         'remember_token',
@@ -76,118 +56,195 @@ class User extends Authenticatable
     ];
 
     /**
-     * Attribute casting
-     *
-     * @var array<string, string>
+     * The attributes that should be cast.
      */
     protected $casts = [
-        'email_verified_at'       => 'datetime',
+        // Timestamps
         'twitch_token_expires_at' => 'datetime',
+        'avatar_disabled_at'      => 'datetime',
+        'last_activity_at'        => 'datetime',
+        'last_login_at'           => 'datetime',
 
-        // Use Eloquent's encrypted cast for tokens (Laravel encrypted cast)
+        // Encrypted fields
         'twitch_access_token'     => 'encrypted',
         'twitch_refresh_token'    => 'encrypted',
 
-        // Role flags
+        // Description
+        'description'              => 'string',
+
+        // Booleans
+        'avatar_disabled'         => 'boolean',
         'is_viewer'               => 'boolean',
         'is_cutter'               => 'boolean',
         'is_streamer'             => 'boolean',
         'is_moderator'            => 'boolean',
         'is_admin'                => 'boolean',
 
-        // Avatar preference
-        'avatar_disabled'         => 'boolean',
-        'avatar_disabled_at'      => 'datetime',
-
-        // Profile fields
-        'available_for_jobs'      => 'boolean',
-        'allow_clip_sharing'      => 'boolean',
-        'intro'                   => 'string',
-
-        // Preferences
+        // JSON
         'preferences'             => 'array',
-        'theme_preference'        => 'string',
-        'timezone'                => 'string',
+        'scopes'                  => 'array',
     ];
 
     /**
-     * Append computed attributes when model is serialized (optional)
-     *
-     * @var array<int, string>
-     */
-    protected $appends = [
-        'display_name',
-        'avatar_url',
-    ];
-
-    /**
-     * Model boot to cleanup resources when deleting user
+     * Boot the model.
      */
     protected static function booted(): void
     {
-        parent::boot();
+        static::created(function (self $user) {
+            $preferences                 = $user->preferences ?? [];
+            $preferences['lang']         = app()->getLocale();
+            $user->preferences           = $preferences;
+            $user->save();
+        });
 
         static::deleting(function (self $user) {
             $user->deleteAvatar();
         });
+    }
 
-        // Clear caches when user is updated
-        static::updating(function (self $user) {
-            $user->clearProfileCompletionCache();
-            $user->clearPreferencesCache();
-        });
+    // Relationships
+
+    /**
+     * Get the user's sessions.
+     */
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(Session::class);
+    }
+
+    // Accessors & Mutators
+
+    /**
+     * Get the user's display name.
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->twitch_display_name ?? $this->twitch_login ?? __('user.messages.anonymous_user');
     }
 
     /**
-     * Returns the preferred display name (Twitch display name > Twitch login).
+     * Get the user's avatar URL.
      */
-    public function getDisplayNameAttribute(): ?string
+    public function getAvatarUrlAttribute(): ?string
     {
-        return $this->twitch_display_name ?? $this->twitch_login ?? null;
-    }
+        if ($this->avatar_disabled) {
+            return null;
+        }
 
-    public function getThemeAttribute()
-    {
-        return $this->theme_preference ?? 'system';
-    }
+        if ($this->custom_avatar_path && Storage::exists($this->custom_avatar_path)) {
+            return Storage::url($this->custom_avatar_path);
+        }
 
-    /**
-     * Checks if the user is connected to Twitch.
-     */
-    public function isTwitchConnected(): bool
-    {
-        return ! empty($this->twitch_id);
+        return $this->twitch_avatar;
     }
 
     /**
-     * One-to-one relationship to the StreamerProfile model.
+     * Get the user's role badges.
      */
-    public function streamerProfile(): HasOne
+    public function getRoleBadgesAttribute(): array
     {
-        return $this->hasOne(StreamerProfile::class);
+        $badges = [];
+
+        if ($this->is_admin) {
+            $badges[] = __('user.roles.admin');
+        }
+        if ($this->is_moderator) {
+            $badges[] = __('user.roles.moderator');
+        }
+        if ($this->is_streamer) {
+            $badges[] = __('user.roles.streamer');
+        }
+        if ($this->is_cutter) {
+            $badges[] = __('user.roles.cutter');
+        }
+        if ($this->is_viewer) {
+            $badges[] = __('user.roles.viewer');
+        }
+
+        return $badges;
+    }
+
+    // Helper Methods
+
+    /**
+     * Check if the user has a specific role.
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->{'is_'.$role} ?? false;
     }
 
     /**
-     * One-to-one relationship to the CutterProfile model.
+     * Check if the user has any of the specified roles.
      */
-    public function cutterProfile(): HasOne
+    public function hasAnyRole(array $roles): bool
     {
-        return $this->hasOne(CutterProfile::class);
+        foreach ($roles as $role) {
+            if ($this->hasRole($role)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
-     * Clips where user is the broadcaster (streamer)
+     * Check if the user is an admin or moderator.
      */
-    public function clips(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function isStaff(): bool
     {
-        return $this->hasMany(Clip::class, 'broadcaster_id');
+        return $this->is_admin || $this->is_moderator;
     }
 
     /**
-     * Clips submitted by the user
+     * Check if the user's Twitch token is expired.
      */
-    public function submittedClips(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function isTwitchTokenExpired(): bool
     {
-        return $this->hasMany(Clip::class, 'submitted_by_id');
+        return $this->twitch_token_expires_at && $this->twitch_token_expires_at->isPast();
+    }
+
+    /**
+     * Delete the user's custom avatar files.
+     */
+    public function deleteAvatar(): void
+    {
+        if ($this->custom_avatar_path) {
+            Storage::delete($this->custom_avatar_path);
+        }
+    }
+
+    /**
+     * Update the user's last activity timestamp.
+     */
+    public function updateLastActivity(): void
+    {
+        $this->update(['last_activity_at' => now()]);
+    }
+
+    // Relationships
+
+    /**
+     * Get the user's submitted clips.
+     */
+    public function clips(): HasMany
+    {
+        return $this->hasMany(Clip::class);
+    }
+
+    /**
+     * Get the user's consent records.
+     */
+    public function consents(): HasMany
+    {
+        return $this->hasMany(UserConsent::class);
+    }
+
+    /**
+     * Get the user's activity logs.
+     */
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
     }
 }

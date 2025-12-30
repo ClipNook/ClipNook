@@ -1,103 +1,154 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * Clip model.
- *
- * Represents a Twitch clip with local thumbnail and category assignment.
- *
- * @property int $id
- * @property string $twitch_clip_id
- * @property string $title
- * @property string|null $description
- * @property int|null $category_id
- * @property string $thumbnail_path
- * @property int $broadcaster_id
- * @property int|null $submitted_by_id
- * @property bool $is_public
- * @property int|null $duration
- * @property string|null $creator_name
- * @property string|null $game_id
- * @property string|null $video_id
- * @property \Illuminate\Support\Carbon|null $clip_created_at
- *
- * @method static \Illuminate\Database\Eloquent\Builder|static query()
- */
 class Clip extends Model
 {
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    use HasFactory;
+
     protected $fillable = [
+        'user_id',
         'twitch_clip_id',
         'title',
         'description',
-        'category_id',
-        'thumbnail_path',
-        'broadcaster_id',
-        'submitted_by_id',
-        'is_public',
+        'url',
+        'thumbnail_url',
         'duration',
-        'creator_name',
-        'game_id',
-        'video_id',
-        'clip_created_at',
+        'view_count',
+        'created_at_twitch',
+        'status',
+        'moderation_reason',
+        'moderated_by',
+        'moderated_at',
+        'tags',
+        'is_featured',
+        'upvotes',
+        'downvotes',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    public function casts(): array
+    protected $casts = [
+        'created_at_twitch' => 'datetime',
+        'moderated_at'      => 'datetime',
+        'tags'              => 'array',
+        'is_featured'       => 'boolean',
+    ];
+
+    protected $attributes = [
+        'status'     => 'pending',
+        'upvotes'    => 0,
+        'downvotes'  => 0,
+        'view_count' => 0,
+    ];
+
+    // Relationships
+    public function user(): BelongsTo
     {
-        return [
-            'is_public'       => 'boolean',
-            'clip_created_at' => 'datetime',
-        ];
+        return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get the broadcaster (streamer) for this clip.
-     */
-    public function broadcaster(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function moderator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'broadcaster_id');
+        return $this->belongsTo(User::class, 'moderated_by');
     }
 
-    /**
-     * Get the user who submitted this clip.
-     */
-    public function submitter(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    // Scopes
+    public function scopePending($query)
     {
-        return $this->belongsTo(User::class, 'submitted_by_id');
+        return $query->where('status', 'pending');
     }
 
-    /**
-     * Get the category for this clip.
-     */
-    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function scopeApproved($query)
     {
-        return $this->belongsTo(Category::class);
+        return $query->where('status', 'approved');
     }
 
-    /**
-     * Delete the local thumbnail when the clip is deleted.
-     */
-    protected static function booted(): void
+    public function scopeRejected($query)
     {
-        parent::boot();
-        static::deleting(function (self $clip) {
-            if ($clip->thumbnail_path && file_exists(public_path($clip->thumbnail_path))) {
-                @unlink(public_path($clip->thumbnail_path));
-            }
-        });
+        return $query->where('status', 'rejected');
+    }
+
+    public function scopeFlagged($query)
+    {
+        return $query->where('status', 'flagged');
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    // Helper methods
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === 'approved';
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
+    }
+
+    public function isFlagged(): bool
+    {
+        return $this->status === 'flagged';
+    }
+
+    public function approve(?User $moderator = null): void
+    {
+        $this->update([
+            'status'            => 'approved',
+            'moderated_by'      => $moderator?->id,
+            'moderated_at'      => now(),
+            'moderation_reason' => null,
+        ]);
+    }
+
+    public function reject(string $reason, ?User $moderator = null): void
+    {
+        $this->update([
+            'status'            => 'rejected',
+            'moderation_reason' => $reason,
+            'moderated_by'      => $moderator?->id,
+            'moderated_at'      => now(),
+        ]);
+    }
+
+    public function flag(string $reason, ?User $moderator = null): void
+    {
+        $this->update([
+            'status'            => 'flagged',
+            'moderation_reason' => $reason,
+            'moderated_by'      => $moderator?->id,
+            'moderated_at'      => now(),
+        ]);
+    }
+
+    public function toggleFeatured(): void
+    {
+        $this->update(['is_featured' => ! $this->is_featured]);
+    }
+
+    public function getScoreAttribute(): int
+    {
+        return $this->upvotes - $this->downvotes;
+    }
+
+    public function getDurationFormattedAttribute(): string
+    {
+        $minutes = floor($this->duration / 60);
+        $seconds = $this->duration % 60;
+
+        return $minutes > 0
+            ? sprintf('%d:%02d', $minutes, $seconds)
+            : sprintf('%ds', $seconds);
     }
 }

@@ -4,97 +4,67 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Twitch Language Lines
+    | Twitch Service Language Lines
     |--------------------------------------------------------------------------
     |
-    | The following language lines are used for Twitch integration messages
-    | and errors. Modify them according to your application requirements.
+    | The following language lines are used by the Twitch service for various
+    | messages that we need to display to the user or log. You are free to
+    | modify these language lines according to your application's requirements.
     |
     */
 
-    // OAuth
-    'oauth' => [
-        'login_with_twitch'      => 'Login with Twitch',
-        'authorize'              => 'Authorize',
-        'authorizing'            => 'Authorizing...',
-        'authorization_required' => 'Twitch authorization required',
-        'authorization_failed'   => 'Authorization failed',
-        'token_expired'          => 'Your Twitch token has expired. Please login again.',
-        'token_invalid'          => 'Invalid Twitch token',
-        'logout_success'         => 'Successfully logged out from Twitch',
-        'login_success'          => 'Successfully signed in with Twitch',
+    // UI Labels
+    'ui' => [
+        'home' => 'Home',
     ],
 
-    // Login / Config helper
-    'login_config_missing' => 'Twitch API is not configured. Please set',
-    'or'                   => 'or',
-    'login_config_doc'     => 'See .env.example or the project README for configuration instructions.',
+    // OAuth Messages
+    'oauth_failed_invalid_state'  => 'OAuth failed: Invalid state or code.',
+    'oauth_failed_exchange_token' => 'OAuth failed: Unable to exchange code for token.',
+    'oauth_success_login'         => 'Successfully logged in with Twitch!',
+    'oauth_redirect_dashboard'    => 'Redirecting to dashboard...',
 
-    // Clips
-    'clips' => [
-        'title'           => 'Clips',
-        'create'          => 'Submit Clip',
-        'creating'        => 'Submitting clip...',
-        'created'         => 'Clip submitted successfully',
-        'create_failed'   => 'Failed to submit clip',
-        'not_found'       => 'Clip not found',
-        'loading'         => 'Loading clips...',
-        'no_clips'        => 'No clips available',
-        'view_count'      => 'Views',
-        'duration'        => 'Duration',
-        'created_at'      => 'Created at',
-        'broadcaster'     => 'Broadcaster',
-        'creator'         => 'Creator',
-        'watch_on_twitch' => 'Watch on Twitch',
-        'share'           => 'Share',
-    ],
+    // API Error Messages
+    'api_rate_limit_exceeded'  => 'Rate limit exceeded for Twitch API.',
+    'api_no_refresh_token'     => 'No refresh token available.',
+    'api_refresh_token_failed' => 'Failed to refresh access token: :error',
+    'api_invalid_config'       => 'Twitch client ID and secret must be configured.',
+    'api_request_failed'       => 'Failed to fetch :type from Twitch API: :error',
 
-    // Errors
-    'errors' => [
-        'api_error'         => 'Twitch API Error',
-        'rate_limit'        => 'Too many requests. Please try again in :seconds seconds.',
-        'connection_failed' => 'Connection to Twitch failed',
-        'invalid_request'   => 'Invalid request',
-        'unauthorized'      => 'Unauthorized',
-        'forbidden'         => 'Access denied',
-        'not_found'         => 'Resource not found',
-        'server_error'      => 'Twitch server error',
-        'timeout'           => 'Request timeout',
-        'unknown'           => 'Unknown error',
-    ],
+    // Validation Messages
+    'validation_code_required'   => 'Authorization code is required.',
+    'validation_code_string'     => 'Authorization code must be a string.',
+    'validation_code_min'        => 'Authorization code is too short.',
+    'validation_code_max'        => 'Authorization code is too long.',
+    'validation_state_required'  => 'State parameter is required.',
+    'validation_state_string'    => 'State must be a string.',
+    'validation_state_size'      => 'State parameter has invalid length.',
+    'validation_state_csrf'      => 'Invalid CSRF token.',
+    'validation_clip_id_invalid' => 'The :attribute is not a valid Twitch Clip ID.',
+    'validation_clip_id_string'  => 'The :attribute must be a string.',
 
-    // Privacy (GDPR)
-    'privacy' => [
-        'consent_required' => 'Consent for data processing required',
-        'data_usage'       => 'Your Twitch data will be processed according to our privacy policy.',
-        'revoke_access'    => 'Revoke access',
-        'revoke_confirm'   => 'Are you sure you want to revoke Twitch access?',
-        'data_retention'   => 'Data will be stored for :days days',
+    // Sanitizer Messages
+    'sanitizer_invalid_url'        => 'Invalid URL provided.',
+    'sanitizer_https_required'     => 'Only HTTPS URLs are allowed.',
+    'sanitizer_domain_not_allowed' => 'URL domain not allowed.',
+    'sanitizer_invalid_int'        => 'Invalid integer value provided.',
 
-        // Avatar handling / GDPR
-        'avatar_title'      => 'Avatar handling',
-        'avatar_download'   => 'With your consent we download and store your Twitch profile image (avatar) locally so we can control retention and deletion according to GDPR.',
-        'avatar_storage'    => 'Stored avatars are kept securely and remain stored until you delete them or delete your account.',
-        'consent_error'     => 'Please confirm that you consent to the processing of your data to continue.',
-        'short_intro'       => 'Privacy-first: Tokens are encrypted and retained for :days days',
-    ],
+    // Download Messages
+    'download_thumbnail_success' => 'Downloaded thumbnail from :url to :path',
+    'download_profile_success'   => 'Downloaded profile image from :url to :path',
+    'download_failed'            => 'Failed to download :type: :error',
 
-    // Login / Privacy helper texts
-    'login_title'          => 'Sign in',
-    'login_subtitle'       => 'Sign in with Twitch to submit and manage clips, personalize your experience, and participate in the community.',
-    'login_cta'            => 'Continue with Twitch',
-    'login_privacy_intro'  => 'When you sign in with Twitch we will store minimal necessary data and use it only to provide the service. You can revoke access at any time.',
-    'privacy_item_tokens'  => 'We store access and refresh tokens encrypted to maintain your session and support features like clip submission; tokens are kept until you log out or delete your account.',
-    'privacy_item_ip'      => 'IP anonymization is enabled',
-    'privacy_item_logging' => 'Request logging is enabled',
-    'privacy_yes'          => 'Yes',
-    'privacy_no'           => 'No',
-    'login_privacy_more'   => 'Read more in our privacy policy',
-    'login_privacy_note'   => 'We do not sell your data. Avatars are stored until you delete them or delete your account. Access and refresh tokens are stored encrypted until you log out or your account is deleted; tokens are replaced on each new login.',
+    // Token Messages
+    'token_expired'         => 'Access token has expired.',
+    'token_refresh_success' => 'Access token refreshed successfully.',
+    'token_refresh_failed'  => 'Failed to refresh access token.',
 
-    'login_cta_sub' => 'You will be redirected to Twitch to authorize; we only store access data encrypted and securely.',
-
-    // Config / helper
-    'login_need_config' => 'Twitch client configuration is missing. Please set TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET in your environment.',
+    // General Messages
+    'service_unavailable' => 'Twitch service is currently unavailable.',
+    'invalid_clip_id'     => 'Invalid clip ID format.',
+    'clip_not_found'      => 'Clip not found.',
+    'game_not_found'      => 'Game not found.',
+    'user_not_found'      => 'User not found.',
+    'video_not_found'     => 'Video not found.',
 
 ];

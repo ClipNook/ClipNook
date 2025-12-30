@@ -1,81 +1,53 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Services\Twitch;
 
-use App\Services\Twitch\Clips\ClipsService;
-use App\Services\Twitch\Contracts\ClipsInterface;
-use App\Services\Twitch\Contracts\HttpClientInterface;
-use App\Services\Twitch\Contracts\OAuthInterface;
-use App\Services\Twitch\Http\CurlHttpClient;
-use App\Services\Twitch\OAuth\OAuthService;
+use App\Actions\Twitch\ExchangeCodeForTokenAction;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\ServiceProvider;
 
 class TwitchServiceProvider extends ServiceProvider
 {
-    /**
-     * Register Twitch services
-     */
     public function register(): void
     {
-        // Register HTTP Client
-        $this->app->singleton(HttpClientInterface::class, function ($app) {
-            $config = config('services.twitch.rate_limit', []);
-
-            return new CurlHttpClient(
-                rateLimitEnabled: $config['enabled'] ?? true,
-                maxRequestsPerMinute: $config['max_requests'] ?? 800,
-                retryAfter: $config['retry_after'] ?? 60,
+        $this->app->singleton(TwitchApiClient::class, function ($app) {
+            return new TwitchApiClient(
+                clientId: config('twitch.client_id'),
+                clientSecret: config('twitch.client_secret'),
+                timeout: config('twitch.timeout', 30),
             );
         });
 
-        // Register OAuth Service
-        $this->app->singleton(OAuthInterface::class, function ($app) {
-            return new OAuthService(
-                httpClient: $app->make(HttpClientInterface::class),
-                config: config('services.twitch'),
+        $this->app->singleton(TwitchTokenManager::class, function ($app) {
+            return new TwitchTokenManager(
+                clientId: config('twitch.client_id'),
+                clientSecret: config('twitch.client_secret'),
+                cache: $app->make(Repository::class),
+                timeout: config('twitch.timeout', 30),
             );
         });
 
-        // Register Clips Service
-        $this->app->singleton(ClipsInterface::class, function ($app) {
-            $clipsConfig = config('services.twitch', []);
-            // Inject centralized rate_limit actions if not present to keep behavior consistent
-            $clipsConfig['rate_limit_actions'] = config('services.twitch.rate_limit.actions', []);
+        $this->app->singleton(TwitchDataSanitizer::class, function ($app) {
+            return new TwitchDataSanitizer;
+        });
 
-            return new ClipsService(
-                httpClient: $app->make(HttpClientInterface::class),
-                config: $clipsConfig,
+        $this->app->singleton(TwitchService::class, function ($app) {
+            return new TwitchService(
+                apiClient: $app->make(TwitchApiClient::class),
+                tokenManager: $app->make(TwitchTokenManager::class),
+                sanitizer: $app->make(TwitchDataSanitizer::class),
             );
         });
 
-        // Aliases for easier access
-        $this->app->alias(OAuthInterface::class, 'twitch.oauth');
-        $this->app->alias(ClipsInterface::class, 'twitch.clips');
+        $this->app->singleton(ExchangeCodeForTokenAction::class, function ($app) {
+            return new ExchangeCodeForTokenAction(
+                apiClient: $app->make(TwitchApiClient::class),
+            );
+        });
     }
 
-    /**
-     * Bootstrap Twitch services
-     */
     public function boot(): void
     {
         //
-    }
-
-    /**
-     * Get the services provided by the provider
-     *
-     * @return array<string>
-     */
-    public function provides(): array
-    {
-        return [
-            HttpClientInterface::class,
-            OAuthInterface::class,
-            ClipsInterface::class,
-            'twitch.oauth',
-            'twitch.clips',
-        ];
     }
 }

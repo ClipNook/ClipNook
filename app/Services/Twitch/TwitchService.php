@@ -1,0 +1,419 @@
+<?php
+
+namespace App\Services\Twitch;
+
+use App\Events\TwitchTokenRefreshed;
+use App\Services\Twitch\Contracts\TwitchApiInterface;
+use App\Services\Twitch\DTOs\ClipDTO;
+use App\Services\Twitch\DTOs\GameDTO;
+use App\Services\Twitch\DTOs\StreamerDTO;
+use App\Services\Twitch\DTOs\TokenDTO;
+use App\Services\Twitch\DTOs\VideoDTO;
+use App\Services\Twitch\Enums\RequestType;
+use App\Services\Twitch\Exceptions\TwitchApiException;
+use App\Services\Twitch\Traits\ApiCaching;
+use App\Services\Twitch\Traits\ApiLogging;
+use App\Services\Twitch\Traits\ApiRateLimiting;
+use Illuminate\Support\Facades\Http;
+
+class TwitchService implements TwitchApiInterface
+{
+    use ApiCaching, ApiLogging, ApiRateLimiting;
+
+    protected readonly string $clientId;
+
+    protected readonly string $clientSecret;
+
+    protected readonly int $cacheTtl;
+
+    protected ?string $accessToken = null;
+
+    protected ?string $refreshToken = null;
+
+    protected ?int $tokenExpiresAt = null;
+
+    public function __construct(
+        protected readonly TwitchApiClient $apiClient,
+        protected readonly TwitchTokenManager $tokenManager,
+        protected readonly TwitchDataSanitizer $sanitizer,
+    ) {
+        $this->clientId     = config('twitch.client_id');
+        $this->clientSecret = config('twitch.client_secret');
+        $this->cacheTtl     = config('twitch.cache_ttl', 3600);
+
+        $this->validateConfiguration();
+    }
+
+    protected function validateConfiguration(): void
+    {
+        if (empty($this->clientId) || empty($this->clientSecret)) {
+            throw new TwitchApiException(__('twitch.api_invalid_config'));
+        }
+    }
+
+    protected function saveTokensToSession(string $accessToken, ?string $refreshToken, ?int $expiresAt): void
+    {
+        session([
+            'twitch_access_token'     => $accessToken,
+            'twitch_refresh_token'    => $refreshToken,
+            'twitch_token_expires_at' => $expiresAt,
+        ]);
+        $this->accessToken    = $accessToken;
+        $this->refreshToken   = $refreshToken;
+        $this->tokenExpiresAt = $expiresAt;
+    }
+
+    protected function loadTokensFromSession(): void
+    {
+        $this->accessToken    = session('twitch_access_token');
+        $this->refreshToken   = session('twitch_refresh_token');
+        $this->tokenExpiresAt = session('twitch_token_expires_at');
+    }
+
+    protected function ensureValidToken(): void
+    {
+        if (! $this->accessToken || ($this->tokenExpiresAt && time() >= $this->tokenExpiresAt)) {
+            $this->refreshAccessToken();
+        }
+    }
+
+    public function setAccessToken(string $token): void
+    {
+        $this->saveTokensToSession($token, $this->refreshToken, $this->tokenExpiresAt);
+    }
+
+    public function setTokens(TokenDTO $token): void
+    {
+        $expiresAt = time() + $token->expiresIn - config('twitch.token_refresh_buffer', 300);
+        $this->saveTokensToSession($token->accessToken, $token->refreshToken, $expiresAt);
+    }
+
+    public function refreshAccessToken(): ?TokenDTO
+    {
+        if (! $this->refreshToken) {
+            throw new TwitchApiException(__('twitch.api_no_refresh_token'));
+        }
+
+        $data = $this->tokenManager->refreshUserToken($this->refreshToken);
+
+        $token = new TokenDTO(
+            accessToken: $data['access_token'],
+            refreshToken: $data['refresh_token'] ?? $this->refreshToken,
+            expiresIn: $data['expires_in'],
+            tokenType: $data['token_type'],
+            scope: $data['scope'] ?? null,
+            issuedAt: time(),
+        );
+
+        $this->setTokens($token);
+        $this->logApiCall('https://id.twitch.tv/oauth2/token', ['grant_type' => 'refresh_token'], ['success' => true]);
+
+        TwitchTokenRefreshed::dispatch(auth()->id() ?? 'guest', true);
+
+        return $token;
+    }
+
+    protected function makeApiRequest(string $endpoint, array $params, RequestType $type): ?array
+    {
+        $this->ensureValidToken();
+
+        $rateLimitKey = "twitch_api_{$type->value}";
+        if (! $this->checkActionRateLimit($type->value)) {
+            throw new TwitchApiException(__('twitch.api_rate_limit_exceeded'));
+        }
+
+        $cacheKey = "twitch_{$type->value}_".md5(json_encode($params));
+
+        return $this->getCachedResponse($cacheKey, function () use ($endpoint, $params) {
+            try {
+                // Extract relative endpoint from full URL if provided
+                $relativeEndpoint = $this->extractRelativeEndpoint($endpoint);
+                $data             = $this->apiClient->makeRequest($relativeEndpoint, $params, $this->accessToken);
+                $this->logApiCall($endpoint, $params, $data);
+
+                return $data['data'] ?? null;
+            } catch (TwitchApiException $e) {
+                if (str_contains($e->getMessage(), '401')) {
+                    // Token expired, try refresh once
+                    $this->refreshAccessToken();
+                    $relativeEndpoint = $this->extractRelativeEndpoint($endpoint);
+                    $data             = $this->apiClient->makeRequest($relativeEndpoint, $params, $this->accessToken);
+                    $this->logApiCall($endpoint, $params, $data);
+
+                    return $data['data'] ?? null;
+                }
+
+                $this->logApiCall($endpoint, $params, null, $e->getMessage());
+                throw $e;
+            }
+        }, $this->cacheTtl);
+    }
+
+    /**
+     * Extract relative endpoint from full Twitch API URL.
+     */
+    protected function extractRelativeEndpoint(string $endpoint): string
+    {
+        if (str_starts_with($endpoint, 'https://api.twitch.tv/helix/')) {
+            return substr($endpoint, strlen('https://api.twitch.tv/helix/'));
+        }
+
+        // If it's already relative, return as-is
+        return $endpoint;
+    }
+
+    public function getClip(string $clipId): ?ClipDTO
+    {
+        $data = $this->makeApiRequest('https://api.twitch.tv/helix/clips', ['id' => $clipId], RequestType::CLIP);
+
+        return $data ? new ClipDTO(
+            id: $data['id'],
+            url: $this->sanitizer->sanitizeUrl($data['url']),
+            embedUrl: $this->sanitizer->sanitizeUrl($data['embed_url']),
+            broadcasterId: $data['broadcaster_id'],
+            broadcasterName: $this->sanitizer->sanitizeText($data['broadcaster_name']),
+            creatorId: $data['creator_id'],
+            creatorName: $this->sanitizer->sanitizeText($data['creator_name']),
+            videoId: $data['video_id'],
+            gameId: $data['game_id'],
+            language: $data['language'],
+            title: $this->sanitizer->sanitizeText($data['title']),
+            viewCount: $this->sanitizer->sanitizeInt($data['view_count'], 0),
+            createdAt: $data['created_at'],
+            thumbnailUrl: $this->sanitizer->sanitizeUrl($data['thumbnail_url']),
+            duration: $data['duration'],
+            vodOffset: $data['vod_offset'] ?? null,
+            isFeatured: $data['is_featured'],
+        ) : null;
+    }
+
+    public function getGame(string $gameId): ?GameDTO
+    {
+        $data = $this->makeApiRequest('https://api.twitch.tv/helix/games', ['id' => $gameId], RequestType::GAME);
+
+        return $data ? new GameDTO(
+            id: $data['id'],
+            name: $this->sanitizer->sanitizeText($data['name']),
+            boxArtUrl: $this->sanitizer->sanitizeUrl($data['box_art_url']),
+            igdbId: $data['igdb_id'] ?? null,
+        ) : null;
+    }
+
+    public function getStreamer(string $userId): ?StreamerDTO
+    {
+        $data = $this->makeApiRequest('https://api.twitch.tv/helix/users', ['id' => $userId], RequestType::STREAMER);
+
+        if (! $data || ! is_array($data) || empty($data)) {
+            return null;
+        }
+
+        $userData = $data[0];
+
+        return new StreamerDTO(
+            id: $userData['id'],
+            login: $userData['login'],
+            displayName: $this->sanitizer->sanitizeText($userData['display_name']),
+            type: $userData['type'] ?? '',
+            broadcasterType: $userData['broadcaster_type'] ?? '',
+            description: $this->sanitizer->sanitizeText($userData['description'] ?? ''),
+            profileImageUrl: $this->sanitizer->sanitizeUrl($userData['profile_image_url']),
+            offlineImageUrl: $this->sanitizer->sanitizeUrl($userData['offline_image_url']),
+            viewCount: $this->sanitizer->sanitizeInt($userData['view_count'], 0),
+            createdAt: $userData['created_at'],
+            email: $userData['email'] ?? null,
+        );
+    }
+
+    public function getCurrentUser(): ?StreamerDTO
+    {
+        $data = $this->makeApiRequest('https://api.twitch.tv/helix/users', [], RequestType::STREAMER);
+
+        if (! $data || ! is_array($data) || empty($data)) {
+            return null;
+        }
+
+        $userData = $data[0];
+
+        return new StreamerDTO(
+            id: $userData['id'],
+            login: $userData['login'],
+            displayName: $this->sanitizer->sanitizeText($userData['display_name']),
+            type: $userData['type'] ?? '',
+            broadcasterType: $userData['broadcaster_type'] ?? '',
+            description: $this->sanitizer->sanitizeText($userData['description'] ?? ''),
+            profileImageUrl: $this->sanitizer->sanitizeUrl($userData['profile_image_url']),
+            offlineImageUrl: $this->sanitizer->sanitizeUrl($userData['offline_image_url']),
+            viewCount: $this->sanitizer->sanitizeInt($userData['view_count'], 0),
+            createdAt: $userData['created_at'],
+            email: $userData['email'] ?? null,
+        );
+    }
+
+    public function getClips(array $clipIds): array
+    {
+        $data = $this->makeApiRequest('https://api.twitch.tv/helix/clips', ['id' => $clipIds], RequestType::CLIP);
+
+        return array_map(fn ($item) => new ClipDTO(
+            id: $item['id'],
+            url: $item['url'],
+            embedUrl: $item['embed_url'],
+            broadcasterId: $item['broadcaster_id'],
+            broadcasterName: $item['broadcaster_name'],
+            creatorId: $item['creator_id'],
+            creatorName: $item['creator_name'],
+            videoId: $item['video_id'],
+            gameId: $item['game_id'],
+            language: $item['language'],
+            title: $item['title'],
+            viewCount: $item['view_count'],
+            createdAt: $item['created_at'],
+            thumbnailUrl: $item['thumbnail_url'],
+            duration: $item['duration'],
+            vodOffset: $item['vod_offset'] ?? null,
+            isFeatured: $item['is_featured'],
+        ), $data ?? []);
+    }
+
+    public function getGames(array $gameIds): array
+    {
+        $data = $this->makeApiRequest('https://api.twitch.tv/helix/games', ['id' => $gameIds], RequestType::GAME);
+
+        return array_map(fn ($item) => new GameDTO(
+            id: $item['id'],
+            name: $item['name'],
+            boxArtUrl: $item['box_art_url'],
+            igdbId: $item['igdb_id'] ?? null,
+        ), $data ?? []);
+    }
+
+    public function getStreamers(array $userIds): array
+    {
+        $data = $this->makeApiRequest('https://api.twitch.tv/helix/users', ['id' => $userIds], RequestType::STREAMER);
+
+        return array_map(fn ($item) => new StreamerDTO(
+            id: $item['id'],
+            login: $item['login'],
+            displayName: $item['display_name'],
+            type: $item['type'],
+            broadcasterType: $item['broadcaster_type'],
+            description: $item['description'],
+            profileImageUrl: $item['profile_image_url'],
+            offlineImageUrl: $item['offline_image_url'],
+            viewCount: $item['view_count'],
+            createdAt: $item['created_at'],
+        ), $data ?? []);
+    }
+
+    public function getVideo(string $videoId): ?VideoDTO
+    {
+        $data = $this->makeApiRequest('https://api.twitch.tv/helix/videos', ['id' => $videoId], RequestType::VIDEO);
+
+        return $data ? new VideoDTO(
+            id: $data['id'],
+            streamId: $data['stream_id'] ?? null,
+            userId: $data['user_id'],
+            userLogin: $data['user_login'],
+            userName: $data['user_name'],
+            title: $data['title'],
+            description: $data['description'],
+            createdAt: $data['created_at'],
+            publishedAt: $data['published_at'],
+            url: $data['url'],
+            thumbnailUrl: $data['thumbnail_url'],
+            viewable: $data['viewable'],
+            viewCount: $data['view_count'],
+            language: $data['language'],
+            type: $data['type'],
+            duration: $data['duration'],
+            mutedSegments: $data['muted_segments'] ?? null,
+        ) : null;
+    }
+
+    public function getVideos(array $videoIds): array
+    {
+        $data = $this->makeApiRequest('https://api.twitch.tv/helix/videos', ['id' => $videoIds], RequestType::VIDEO);
+
+        return array_map(fn ($item) => new VideoDTO(
+            id: $item['id'],
+            streamId: $item['stream_id'] ?? null,
+            userId: $item['user_id'],
+            userLogin: $item['user_login'],
+            userName: $item['user_name'],
+            title: $item['title'],
+            description: $item['description'],
+            createdAt: $item['created_at'],
+            publishedAt: $item['published_at'],
+            url: $item['url'],
+            thumbnailUrl: $item['thumbnail_url'],
+            viewable: $item['viewable'],
+            viewCount: $item['view_count'],
+            language: $item['language'],
+            type: $item['type'],
+            duration: $item['duration'],
+            mutedSegments: $item['muted_segments'] ?? null,
+        ), $data ?? []);
+    }
+
+    public function downloadThumbnail(string $url, string $savePath): bool
+    {
+        try {
+            $image = Http::get($url)->body();
+            Storage::disk('public')->put($savePath, $image);
+
+            return true;
+        } catch (\Exception $e) {
+            throw new TwitchApiException('Failed to download thumbnail: '.$e->getMessage());
+        }
+    }
+
+    public function downloadProfileImage(string $url, string $savePath): bool
+    {
+        try {
+            $image = Http::get($url)->body();
+            Storage::disk('public')->put($savePath, $image);
+
+            return true;
+        } catch (\Exception $e) {
+            throw new TwitchApiException('Failed to download profile image: '.$e->getMessage());
+        }
+    }
+
+    public function parseClipId(string $input): ?string
+    {
+        // Accepts full URL or just the ID
+        if (preg_match('/clip\/([\w-]+)/', $input, $matches)) {
+            return $matches[1];
+        }
+        if (preg_match('/clips\.twitch\.tv\/([\w-]+)/', $input, $matches)) {
+            return $matches[1];
+        }
+        if (preg_match('/^([\w-]+)$/', $input)) {
+            return $input;
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract user ID from Twitch URL.
+     */
+    public static function extractUserIdFromUrl(string $url): ?string
+    {
+        // Parse the URL
+        $parsedUrl = parse_url($url);
+
+        // Check if it's a twitch.tv domain
+        if (! isset($parsedUrl['host']) || ! str_contains($parsedUrl['host'], 'twitch.tv')) {
+            return null;
+        }
+
+        // Extract path and remove leading slash
+        $path = $parsedUrl['path'] ?? '';
+        $path = ltrim($path, '/');
+
+        // Get the first segment (username)
+        $segments = explode('/', $path);
+
+        return $segments[0] ?: null;
+    }
+}
