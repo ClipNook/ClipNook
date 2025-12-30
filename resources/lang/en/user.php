@@ -40,7 +40,6 @@ return [
         'email'              => 'Email',
         'intro'              => 'Introduction',
         'avatar'             => 'Avatar',
-        'accent_color'       => 'Accent Color',
         'available_for_jobs' => 'Available for Jobs',
         'allow_clip_sharing' => 'Allow Clip Sharing',
         'last_activity'      => 'Last Activity',
@@ -64,7 +63,6 @@ return [
         'avatar_required'   => 'Please select an avatar image.',
         'avatar_image'      => 'Avatar must be a valid image file.',
         'avatar_max'        => 'Avatar file size cannot exceed :max KB.',
-        'color_invalid'     => 'Please select a valid accent color.',
     ],
 
     // User Notifications

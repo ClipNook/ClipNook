@@ -46,7 +46,7 @@ class TwitchLoginRequest extends FormRequest
         $validated = $this->validated();
 
         return [
-            'scopes' => ['user:read:email'],
+            'scopes' => $validated['scopes'] ?? ['user:read:email'],
         ];
     }
 }

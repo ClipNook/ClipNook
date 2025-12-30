@@ -33,7 +33,7 @@ class AuthenticateTwitchUserAction
                 'twitch_access_token'     => $token->accessToken,
                 'twitch_refresh_token'    => $token->refreshToken,
                 'twitch_token_expires_at' => now()->addSeconds($token->expiresIn),
-                'scopes'                  => $preferences['scopes'] ?? [],
+                'scopes'                  => $grantedScopes,
                 'last_login_at'           => now(),
             ]
         );

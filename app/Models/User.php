@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -221,21 +222,29 @@ class User extends Authenticatable
         $this->update(['last_activity_at' => now()]);
     }
 
+    // Relationships
+
     /**
-     * Get the user's preferred accent color.
+     * Get the user's submitted clips.
      */
-    public function getAccentColorAttribute(): string
+    public function clips(): HasMany
     {
-        return $this->preferences['accent_color'] ?? 'purple';
+        return $this->hasMany(Clip::class);
     }
 
     /**
-     * Set the user's preferred accent color.
+     * Get the user's consent records.
      */
-    public function setAccentColorAttribute(string $color): void
+    public function consents(): HasMany
     {
-        $preferences                 = $this->preferences ?? [];
-        $preferences['accent_color'] = $color;
-        $this->preferences           = $preferences;
+        return $this->hasMany(UserConsent::class);
+    }
+
+    /**
+     * Get the user's activity logs.
+     */
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
     }
 }

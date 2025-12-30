@@ -24,9 +24,13 @@ class ValidOAuthState implements ValidationRule
             return;
         }
 
-        // Check if state matches CSRF token
-        if ($value !== csrf_token()) {
+        // Check if state matches stored OAuth state
+        $storedState = session('oauth_state');
+        if (! $storedState || ! hash_equals($storedState, $value)) {
             $fail(__('twitch.validation_state_csrf'));
         }
+
+        // Clear the state after validation
+        session()->forget('oauth_state');
     }
 }

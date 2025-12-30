@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('twitch_login')->nullable();
             $table->string('twitch_display_name')->nullable();
             $table->string('twitch_email')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
             $table->text('twitch_access_token')->nullable();
             $table->text('twitch_refresh_token')->nullable();
             $table->timestamp('twitch_token_expires_at')->nullable();

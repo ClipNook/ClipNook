@@ -29,7 +29,8 @@ class TwitchOAuthController extends Controller
     public function handleCallback(Request $request, TwitchService $twitchService, ExchangeCodeForTokenAction $action, AuthenticateTwitchUserAction $authAction)
     {
         $validated = $request->validate([
-            'code' => 'required|string',
+            'code'  => 'required|string',
+            'state' => ['required', 'string', new \App\Rules\ValidOAuthState],
         ]);
 
         $code = $validated['code'];
