@@ -10,17 +10,17 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class UserFactory extends Factory
 {
     /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
-
-    /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
      */
-    public function definition(): void
+    public function definition(): array
     {
-        //
+        return [
+            'twitch_id'           => $this->faker->unique()->randomNumber(7),
+            'twitch_login'        => $this->faker->userName(),
+            'twitch_display_name' => $this->faker->name(),
+            'twitch_email'        => $this->faker->email(),
+        ];
     }
 }

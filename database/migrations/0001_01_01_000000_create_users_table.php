@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
 
-            // Twitch OAuth fields (primary auth)
+            // Twitch OAuth Authentication Fields
             $table->string('twitch_id')->unique()->nullable();
             $table->string('twitch_login')->nullable();
             $table->string('twitch_display_name')->nullable();
@@ -22,65 +22,41 @@ return new class extends Migration
             $table->text('twitch_access_token')->nullable();
             $table->text('twitch_refresh_token')->nullable();
             $table->timestamp('twitch_token_expires_at')->nullable();
+            $table->json('scopes')->nullable();
 
-            // Avatar fields
+            // Description
+            $table->text('description')->nullable();
+
+            // Avatar Management
             $table->string('twitch_avatar')->nullable();
             $table->string('custom_avatar_path')->nullable();
-            $table->string('custom_avatar_thumbnail_path')->nullable();
             $table->string('avatar_source')->nullable();
             $table->boolean('avatar_disabled')->default(false);
             $table->timestamp('avatar_disabled_at')->nullable();
 
-            // Role flags
+            // User Roles and Permissions
             $table->boolean('is_viewer')->default(true);
             $table->boolean('is_cutter')->default(false);
             $table->boolean('is_streamer')->default(false);
             $table->boolean('is_moderator')->default(false);
             $table->boolean('is_admin')->default(false);
 
-            // Profile fields
-            $table->text('intro')->nullable();
-            $table->boolean('available_for_jobs')->default(false);
-            $table->boolean('allow_clip_sharing')->default(false);
+            // User Preferences
+            $table->json('preferences')->nullable();
 
-            // Preferences
-            $table->json('preferences')->default('{"accent_color": "purple"}');
-            $table->string('accent_color')->nullable();
-            $table->string('theme_preference')->default('system');
-            $table->string('locale')->default('de');
-            $table->string('timezone')->default('UTC');
+            // Activity Tracking
+            $table->timestamp('last_activity_at')->nullable();
+            $table->timestamp('last_login_at')->nullable();
 
-            // Standard Laravel fields
+            // Laravel Standard Fields
             $table->rememberToken();
             $table->timestamps();
 
+            // Indexes for Performance
             $table->index(['is_streamer', 'is_cutter', 'is_admin'], 'idx_users_roles');
             $table->index('twitch_id', 'idx_users_twitch_id');
             $table->index('created_at', 'idx_users_created_at');
             $table->index('updated_at', 'idx_users_updated_at');
-        });
-
-        Schema::create('streamer_profiles', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->text('intro')->nullable();
-            $table->string('stream_schedule')->nullable();
-            $table->string('preferred_games')->nullable();
-            $table->string('stream_quality')->default('720p');
-            $table->boolean('has_overlay')->default(false);
-            $table->timestamps();
-        });
-
-        Schema::create('cutter_profiles', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->decimal('hourly_rate', 8, 2)->nullable();
-            $table->string('response_time')->default('24');
-            $table->json('skills')->nullable();
-            $table->boolean('is_available')->default(false);
-            $table->string('portfolio_url')->nullable();
-            $table->integer('experience_years')->nullable();
-            $table->timestamps();
         });
 
         Schema::create('sessions', function (Blueprint $table) {
@@ -98,7 +74,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('users');
     }
 };

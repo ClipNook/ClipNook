@@ -1,6 +1,20 @@
 <?php
 
+use App\Http\Controllers\TwitchOAuthController;
 use Illuminate\Support\Facades\Route;
 
 // Home
 Route::get('/', fn () => view('home'))->name('home');
+
+// Twitch OAuth
+Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () { //
+    Route::middleware('guest')->group(function () {
+        Route::get('/login', fn () => view('auth.login'))->name('login');
+        Route::post('/twitch/login', [TwitchOAuthController::class, 'redirectToTwitch'])->name('twitch.login');
+        Route::get('/twitch/callback', [TwitchOAuthController::class, 'handleCallback'])->name('twitch.callback');
+    });
+
+    Route::middleware('auth')->group(function () {
+        Route::post('/twitch/logout', [TwitchOAuthController::class, 'logout'])->name('twitch.logout');
+    });
+});
