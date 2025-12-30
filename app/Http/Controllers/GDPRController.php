@@ -93,7 +93,7 @@ class GDPRController extends Controller
             'description' => 'User requested account deletion',
             'metadata'    => [
                 'reason'     => $reason,
-                'ip_address' => request()->ip(),
+                'ip_address' => pseudonymize_ip(request()->ip()),
                 'user_agent' => request()->userAgent(),
             ],
         ]);
@@ -199,7 +199,7 @@ class GDPRController extends Controller
                 'metadata'    => [
                     'consent_type' => $consentData['type'],
                     'consented'    => $consentData['consented'],
-                    'ip_address'   => request()->ip(),
+                    'ip_address'   => pseudonymize_ip(request()->ip()),
                 ],
             ]);
         }

@@ -99,14 +99,22 @@ if (! function_exists('mask_ip')) {
 }
 
 // =============================================================================
-// USER AGENT HASHING
+// IP PSEUDONYMIZATION (GDPR COMPLIANT)
 // =============================================================================
-if (! function_exists('hash_user_agent')) {
+if (! function_exists('pseudonymize_ip')) {
     /**
-     * Return a deterministic SHA-256 hash of a User-Agent string for privacy-safe storage.
+     * Pseudonymize IP address with keyed hash (GDPR compliant).
+     * Uses HMAC-SHA256 with app key for deterministic, irreversible pseudonymization.
+     * This allows for rate limiting and analytics while maintaining privacy.
      */
-    function hash_user_agent(?string $ua): ?string
+    function pseudonymize_ip(?string $ip): ?string
     {
-        return empty($ua) ? null : hash('sha256', $ua);
+        if (empty($ip)) {
+            return null;
+        }
+
+        $salt = config('app.key');
+
+        return hash_hmac('sha256', $ip, $salt);
     }
 }
