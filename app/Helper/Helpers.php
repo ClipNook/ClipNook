@@ -17,9 +17,7 @@ if (! function_exists('mask_email')) {
      *  - visible_domain_end: int (default: 1)
      *  - mask_domain_before_tld: bool (default: true)
      *
-     * @param  string|null  $email
      * @param  array<string,mixed>  $options
-     * @return string
      */
     function mask_email(?string $email, array $options = []): string
     {
@@ -27,17 +25,17 @@ if (! function_exists('mask_email')) {
             return '';
         }
 
-        $maskChar = $options['mask_char'] ?? '•';
-        $visibleLocalStart = isset($options['visible_local']) ? max(0, (int) $options['visible_local']) : ($options['visible_local_start'] ?? 1);
-        $visibleLocalEnd = array_key_exists('visible_local_end', $options) ? (int) $options['visible_local_end'] : (isset($options['visible_local']) ? 0 : 1);
-        $visibleDomainStart = $options['visible_domain_start'] ?? 1;
-        $visibleDomainEnd = $options['visible_domain_end'] ?? 1;
+        $maskChar            = $options['mask_char'] ?? '•';
+        $visibleLocalStart   = isset($options['visible_local']) ? max(0, (int) $options['visible_local']) : ($options['visible_local_start'] ?? 1);
+        $visibleLocalEnd     = array_key_exists('visible_local_end', $options) ? (int) $options['visible_local_end'] : (isset($options['visible_local']) ? 0 : 1);
+        $visibleDomainStart  = $options['visible_domain_start'] ?? 1;
+        $visibleDomainEnd    = $options['visible_domain_end'] ?? 1;
         $maskDomainBeforeTld = $options['mask_domain_before_tld'] ?? true;
 
         [$local, $domain] = array_pad(explode('@', $email, 2), 2, '');
 
         // Mask local part
-        $localLen = mb_strlen($local);
+        $localLen    = mb_strlen($local);
         $localMasked = $localLen <= ($visibleLocalStart + $visibleLocalEnd)
             ? str_repeat($maskChar, max(1, $localLen))
             : mb_substr($local, 0, $visibleLocalStart)
@@ -46,9 +44,9 @@ if (! function_exists('mask_email')) {
 
         // Mask domain part
         if ($maskDomainBeforeTld && ($lastDot = mb_strrpos($domain, '.')) !== false) {
-            $domainName = mb_substr($domain, 0, $lastDot);
-            $tld = mb_substr($domain, $lastDot);
-            $domainLen = mb_strlen($domainName);
+            $domainName       = mb_substr($domain, 0, $lastDot);
+            $tld              = mb_substr($domain, $lastDot);
+            $domainLen        = mb_strlen($domainName);
             $domainMaskedName = $domainLen <= ($visibleDomainStart + $visibleDomainEnd)
                 ? str_repeat($maskChar, max(1, $domainLen))
                 : mb_substr($domainName, 0, $visibleDomainStart)
@@ -56,7 +54,7 @@ if (! function_exists('mask_email')) {
                     .mb_substr($domainName, -$visibleDomainEnd);
             $domainMasked = $domainMaskedName.$tld;
         } else {
-            $domainLen = mb_strlen($domain);
+            $domainLen    = mb_strlen($domain);
             $domainMasked = $domainLen <= ($visibleDomainStart + $visibleDomainEnd)
                 ? $domain
                 : mb_substr($domain, 0, $visibleDomainStart)
@@ -76,9 +74,6 @@ if (! function_exists('mask_ip')) {
      * Mask an IP address for privacy-safe logging.
      * IPv4: last octet replaced with '0'. IPv6: keep first 4 groups, append '::'.
      * Returns null for empty input or invalid IP.
-     *
-     * @param  string|null  $ip
-     * @return string|null
      */
     function mask_ip(?string $ip): ?string
     {
@@ -89,13 +84,16 @@ if (! function_exists('mask_ip')) {
             $parts = explode('.', $ip);
             if (count($parts) === 4) {
                 $parts[3] = '0';
+
                 return implode('.', $parts);
             }
         }
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
             $parts = explode(':', $ip);
+
             return implode(':', array_slice($parts, 0, 4)).'::';
         }
+
         return null;
     }
 }
@@ -106,53 +104,9 @@ if (! function_exists('mask_ip')) {
 if (! function_exists('hash_user_agent')) {
     /**
      * Return a deterministic SHA-256 hash of a User-Agent string for privacy-safe storage.
-     *
-     * @param  string|null  $ua
-     * @return string|null
      */
     function hash_user_agent(?string $ua): ?string
     {
         return empty($ua) ? null : hash('sha256', $ua);
-    }
-}
-
-// =============================================================================
-// UI LINK RESOLVER
-// =============================================================================
-if (! function_exists('ui_resolve_link')) {
-    /**
-     * Resolve a navigation item into an href string.
-     * Accepts an array with keys 'route' (+ optional 'params') or 'href'.
-     * Falls back to '#' when resolution fails; never throws.
-     *
-     * @param  array<string,mixed>  $item
-     * @return string
-     */
-    function ui_resolve_link(array $item): string
-    {
-        $link = '#';
-        if (! empty($item['route'])) {
-            try {
-                $link = \Illuminate\Support\Facades\Route::has($item['route'])
-                    ? route($item['route'], $item['params'] ?? [])
-                    : '#';
-            } catch (\Throwable) {
-                $link = '#';
-            }
-        } elseif (! empty($item['href'])) {
-            $href = (string) $item['href'];
-            if (str_starts_with($href, 'http://') || str_starts_with($href, 'https://') || str_starts_with($href, '#')) {
-                $link = $href;
-            } else {
-                try {
-                    $link = \Illuminate\Support\Facades\Route::has($href)
-                        ? route($href)
-                        : $href;
-                } catch (\Throwable) {
-                    $link = $href;
-                }
-            }
-        }
-        return $link;
     }
 }

@@ -2,23 +2,12 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use Concerns\HasAvatar;
-    use Concerns\HasNotifications;
-    use Concerns\HasPreferences;
-    use Concerns\HasProfile;
-
-    // Custom traits for modular functionality
-    use Concerns\HasRoles;
-    use Concerns\HasTimestamps;
-
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
@@ -35,14 +24,10 @@ class User extends Authenticatable
         'twitch_avatar',
         'avatar_disabled',
         'avatar_disabled_at',
+        'custom_avatar_path',
         'twitch_access_token',
         'twitch_refresh_token',
         'twitch_token_expires_at',
-
-        // Avatar fields
-        'custom_avatar_path',
-        'custom_avatar_thumbnail_path',
-        'avatar_source',
 
         // Role flags
         'is_viewer',
@@ -51,17 +36,8 @@ class User extends Authenticatable
         'is_moderator',
         'is_admin',
 
-        // Profile fields
-        'intro',
-        'available_for_jobs',
-        'allow_clip_sharing',
-
         // Preferences
         'preferences',
-        'accent_color',
-        'theme_preference',
-        'locale',
-        'timezone',
     ];
 
     /**
@@ -81,7 +57,6 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at'       => 'datetime',
         'twitch_token_expires_at' => 'datetime',
 
         // Use Eloquent's encrypted cast for tokens (Laravel encrypted cast)
@@ -99,25 +74,8 @@ class User extends Authenticatable
         'avatar_disabled'         => 'boolean',
         'avatar_disabled_at'      => 'datetime',
 
-        // Profile fields
-        'available_for_jobs'      => 'boolean',
-        'allow_clip_sharing'      => 'boolean',
-        'intro'                   => 'string',
-
         // Preferences
         'preferences'             => 'array',
-        'theme_preference'        => 'string',
-        'timezone'                => 'string',
-    ];
-
-    /**
-     * Append computed attributes when model is serialized (optional)
-     *
-     * @var array<int, string>
-     */
-    protected $appends = [
-        'display_name',
-        'avatar_url',
     ];
 
     /**
@@ -130,64 +88,5 @@ class User extends Authenticatable
         static::deleting(function (self $user) {
             $user->deleteAvatar();
         });
-
-        // Clear caches when user is updated
-        static::updating(function (self $user) {
-            $user->clearProfileCompletionCache();
-            $user->clearPreferencesCache();
-        });
-    }
-
-    /**
-     * Returns the preferred display name (Twitch display name > Twitch login).
-     */
-    public function getDisplayNameAttribute(): ?string
-    {
-        return $this->twitch_display_name ?? $this->twitch_login ?? null;
-    }
-
-    public function getThemeAttribute()
-    {
-        return $this->theme_preference ?? 'system';
-    }
-
-    /**
-     * Checks if the user is connected to Twitch.
-     */
-    public function isTwitchConnected(): bool
-    {
-        return ! empty($this->twitch_id);
-    }
-
-    /**
-     * One-to-one relationship to the StreamerProfile model.
-     */
-    public function streamerProfile(): HasOne
-    {
-        return $this->hasOne(StreamerProfile::class);
-    }
-
-    /**
-     * One-to-one relationship to the CutterProfile model.
-     */
-    public function cutterProfile(): HasOne
-    {
-        return $this->hasOne(CutterProfile::class);
-    }
-
-    /**
-     * Clips where user is the broadcaster (streamer)
-     */
-    public function clips(): \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(Clip::class, 'broadcaster_id');
-    }
-
-    /**
-     * Clips submitted by the user
-     */
-    public function submittedClips(): \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(Clip::class, 'submitted_by_id');
     }
 }

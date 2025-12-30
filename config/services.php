@@ -64,7 +64,6 @@ return [
         'privacy' => [
             'log_requests'      => env('TWITCH_LOG_REQUESTS', false),
             'anonymize_ip'      => env('TWITCH_ANONYMIZE_IP', true),
-            'data_retention'    => (int) env('TWITCH_DATA_RETENTION_DAYS', 30),
             // Store avatars locally to comply with privacy requirements
             'store_avatars'     => env('TWITCH_STORE_AVATARS', true),
             // Maximum allowed avatar size in bytes (default 2MB)
