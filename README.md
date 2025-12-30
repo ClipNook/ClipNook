@@ -62,6 +62,8 @@ php artisan serve
 - **Styling**: Tailwind CSS 4
 - **Database**: Eloquent ORM with migrations
 - **Authentication**: Laravel Sanctum (API tokens)
+- **Performance Monitoring**: Configurable metrics and thresholds
+- **Security**: Advanced rate limiting, login monitoring, security headers
 - **Testing**: Pest 4
 - **Code Quality**: Laravel Pint
 - **External APIs**: Twitch Helix API
@@ -74,10 +76,19 @@ app/
 │   ├── Clip/         # Clip-related business logic
 │   └── GDPR/         # GDPR compliance actions
 ├── Http/Controllers/ # HTTP controllers
+├── Http/Middleware/  # Custom middleware (SecurityHeaders, CacheResponse)
 ├── Models/           # Eloquent models
 ├── Notifications/    # Email/SMS notifications
 ├── Policies/         # Authorization policies
-└── Services/         # External service integrations
+├── Services/         # External service integrations
+│   ├── Monitoring/   # Performance monitoring services
+│   └── Security/     # Security services (Rate limiting, Login monitoring)
+└── Helper/           # Utility classes
+
+config/
+├── app.php          # Application configuration
+├── performance.php  # Performance and security settings
+└── ...             # Other Laravel configs
 
 database/
 ├── factories/        # Model factories for testing
@@ -94,9 +105,15 @@ routes/
 ├── web.php          # Web routes
 └── console.php      # Artisan commands
 
+storage/
+├── app/             # Application storage
+├── framework/       # Laravel framework files
+└── logs/           # Application logs
+
 tests/
 ├── Feature/         # Feature tests
-└── Unit/           # Unit tests
+├── Unit/           # Unit tests
+└── Browser/        # Browser/E2E tests (future)
 ```
 
 ### Design Patterns
@@ -105,6 +122,34 @@ tests/
 - **Repository Pattern**: Data access abstracted through Eloquent models
 - **Policy-based Authorization**: Fine-grained access control
 - **Event-driven Architecture**: Laravel events for decoupled components
+- **Configurable Security**: Environment-based security settings
+- **Performance Monitoring**: Built-in metrics and alerting
+
+## 🛡️ Security Features
+
+### Advanced Rate Limiting
+- Configurable request limits per time window
+- Burst protection for sudden traffic spikes
+- Redis or file-based storage options
+- Automatic cleanup of expired entries
+
+### Login Monitoring
+- Suspicious activity detection
+- Configurable lockout periods
+- Failed attempt tracking and alerting
+- Admin notifications for security events
+
+### Security Headers
+- Content Security Policy (CSP) with environment-specific rules
+- HTTP Strict Transport Security (HSTS)
+- XSS and clickjacking protection
+- Configurable security policies
+
+### Performance Monitoring
+- Slow query detection and logging
+- Configurable performance thresholds
+- Metrics retention and cleanup
+- Real-time performance insights
 
 ## 🔧 Configuration
 
@@ -131,6 +176,40 @@ TWITCH_CLIENT_ID=your_twitch_client_id
 TWITCH_CLIENT_SECRET=your_twitch_client_secret
 TWITCH_REDIRECT_URI=http://localhost/auth/twitch/callback
 
+# Performance Monitoring
+PERFORMANCE_SLOW_QUERY_THRESHOLD=1000
+PERFORMANCE_METRICS_RETENTION_HOURS=24
+PERFORMANCE_MAX_ENTRIES=1000
+PERFORMANCE_STORAGE_PATH=storage/logs/performance
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_SIZE=60
+RATE_LIMIT_MAX_REQUESTS=60
+RATE_LIMIT_BURST_LIMIT=10
+RATE_LIMIT_STORAGE_PATH=storage/app/rate_limits
+
+# Login Monitoring
+LOGIN_LOCKOUT_TIME=3600
+LOGIN_MAX_ATTEMPTS=5
+LOGIN_ATTEMPT_WINDOW=3600
+LOGIN_STORAGE_PATH=storage/app/login_attempts
+
+# Response Caching
+RESPONSE_CACHE_DEFAULT_TTL=300
+
+# Security Headers & CSP
+SECURITY_HSTS_MAX_AGE=31536000
+SECURITY_HSTS_INCLUDE_SUBDOMAINS=true
+SECURITY_HSTS_PRELOAD=false
+SECURITY_CSP_REPORT_URI=
+SECURITY_CSP_REPORT_ONLY=false
+SECURITY_CSP_ADDITIONAL_SCRIPT_SRC=
+SECURITY_CSP_ADDITIONAL_STYLE_SRC=
+SECURITY_CSP_ADDITIONAL_FONT_SRC=
+SECURITY_CSP_ADDITIONAL_IMG_SRC=
+SECURITY_CSP_ADDITIONAL_CONNECT_SRC=
+SECURITY_CSP_ADDITIONAL_FORM_ACTION_SRC=
+
 # Mail (optional)
 MAIL_MAILER=smtp
 MAIL_HOST=mailpit
@@ -151,7 +230,16 @@ QUEUE_CONNECTION=database
 2. Set redirect URI to: `http://your-domain/auth/twitch/callback`
 3. Copy Client ID and Client Secret to your `.env` file
 
-## 📚 API Documentation
+## 📚 Documentation
+
+- **[Configuration Guide](doc/configuration.md)** - Complete configuration reference
+- **[Security Features](doc/security.md)** - Security implementation details
+- **[Performance Guide](doc/performance.md)** - Performance monitoring and optimization
+- **[API Documentation](doc/api-usage.md)** - API endpoints and usage
+- **[Authentication](doc/authentication.md)** - OAuth and authentication setup
+- **[Deployment](doc/deployment.md)** - Production deployment guide
+- **[Testing](doc/testing.md)** - Testing strategies and examples
+- **[Troubleshooting](doc/troubleshooting.md)** - Common issues and solutions
 
 ### Authentication
 
@@ -361,6 +449,9 @@ If you'd like to support our mission, please consider donating to charitable org
 - GDPR compliance (data export, deletion, consent management)
 - Twitch OAuth integration
 - Laravel Sanctum authentication
+- Advanced security features (rate limiting, login monitoring, security headers)
+- Performance monitoring and metrics
+- Configurable application settings
 - Comprehensive test suite
 - Database schema and migrations
 - Code formatting and quality tools
@@ -371,12 +462,14 @@ If you'd like to support our mission, please consider donating to charitable org
 - Advanced search and filtering
 - Clip embedding and playback
 - User dashboard
+- API documentation improvements
 
 ### 📋 Planned
 - Docker containerization
-- API rate limiting
 - Advanced moderation tools
 - Social features (comments, likes)
+- Browser testing suite
+- Performance optimization tools
 
 ---
 

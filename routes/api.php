@@ -2,14 +2,18 @@
 
 use App\Http\Controllers\ClipController;
 use App\Http\Controllers\GDPRController;
+use App\Http\Controllers\HealthCheckController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/status', function () {
     return response()->json(['status' => 'ok']);
 });
 
+// Health check endpoint (public)
+Route::get('/health', HealthCheckController::class);
+
 // Clip management routes
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'cache.response'])->group(function () {
     Route::apiResource('clips', ClipController::class);
     Route::get('clips/pending/moderation', [ClipController::class, 'pending']);
     Route::get('users/{user}/clips', [ClipController::class, 'userClips']);

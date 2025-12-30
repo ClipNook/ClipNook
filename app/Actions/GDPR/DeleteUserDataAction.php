@@ -21,7 +21,7 @@ class DeleteUserDataAction
                 'description' => 'User account data deleted/anonymized',
                 'metadata'    => [
                     'deletion_type' => $softDelete ? 'soft_delete' : 'hard_delete',
-                    'ip_address'    => request()->ip(),
+                    'ip_address'    => pseudonymize_ip(request()->ip()),
                     'user_agent'    => request()->userAgent(),
                 ],
             ]);
