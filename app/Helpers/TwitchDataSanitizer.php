@@ -16,8 +16,8 @@ class TwitchDataSanitizer
         // Remove HTML tags
         $text = strip_tags($text);
 
-        // Escape special characters
-        $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+        // Decode HTML entities to prevent double encoding
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
 
         // Limit length to prevent abuse
         return \Illuminate\Support\Str::limit($text, config('twitch.security.max_text_length', 1000));

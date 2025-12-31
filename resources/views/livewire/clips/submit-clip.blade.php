@@ -152,7 +152,7 @@
                                     <i class="fas fa-heading text-purple-400 text-sm" aria-hidden="true"></i>
                                     <label class="text-xs font-medium text-gray-400 uppercase">{{ __('clips.title_label') }}</label>
                                 </div>
-                                <p class="text-white font-medium text-sm">{{ $clipInfo['title'] }}</p>
+                                <p class="text-white font-medium text-sm" title="{{ $clipInfo['title'] }}">{{ \Illuminate\Support\Str::limit($clipInfo['title'], 50) }}</p>
                             </div>
 
                             <div class="bg-gray-800 rounded-md p-4 border border-gray-700">
