@@ -33,7 +33,3 @@ class DataSanitizationException extends ValidationException
         return new self(['domain' => ['Domain not allowed']], "Domain not allowed: {$domain}");
     }
 }
-
-use Exception;
-
-class DataSanitizationException extends Exception {}

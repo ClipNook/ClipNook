@@ -18,3 +18,8 @@ Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () { //
         Route::post('/twitch/logout', [TwitchOAuthController::class, 'logout'])->name('twitch.logout');
     });
 });
+
+// Clips
+Route::middleware('auth')->group(function () {
+    Route::get('/clips/submit', fn () => view('clips.submit'))->name('clips.submit');
+});

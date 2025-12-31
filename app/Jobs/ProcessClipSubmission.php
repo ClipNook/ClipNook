@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Clip;
 use App\Models\User;
+use App\Services\Twitch\TwitchGameService;
 use App\Services\Twitch\TwitchService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,8 +33,11 @@ class ProcessClipSubmission implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(TwitchService $twitchService): void
+    public function handle(TwitchService $twitchService, TwitchGameService $gameService): void
     {
+        // Set the authenticated user for token access
+        auth()->login($this->user);
+
         try {
             // Validate the clip exists and get its data from Twitch
             $clipData = $twitchService->getClip($this->twitchClipId);
@@ -60,12 +64,12 @@ class ProcessClipSubmission implements ShouldQueue
             }
 
             // Find the broadcaster user
-            $broadcaster = User::where('twitch_id', $clipData['broadcaster_id'])->first();
+            $broadcaster = User::where('twitch_id', $clipData->broadcasterId)->first();
             if (! $broadcaster) {
                 Log::warning('Broadcaster not registered', [
                     'user_id'               => $this->user->id,
                     'twitch_clip_id'        => $this->twitchClipId,
-                    'broadcaster_twitch_id' => $clipData['broadcaster_id'],
+                    'broadcaster_twitch_id' => $clipData->broadcasterId,
                 ]);
 
                 return;
@@ -85,20 +89,28 @@ class ProcessClipSubmission implements ShouldQueue
             DB::beginTransaction();
 
             try {
+                // Get or create game if available
+                $game = null;
+                if ($clipData->gameId) {
+                    $game = $gameService->getOrCreateGame($clipData->gameId);
+                }
+
                 // Create the clip
                 $clip = Clip::create([
-                    'submitter_id'      => $this->user->id,
-                    'submitted_at'      => now(),
-                    'twitch_clip_id'    => $this->twitchClipId,
-                    'title'             => $clipData['title'],
-                    'description'       => $clipData['description'] ?? null,
-                    'url'               => $clipData['url'],
-                    'thumbnail_url'     => $clipData['thumbnail_url'],
-                    'duration'          => $clipData['duration'],
-                    'view_count'        => $clipData['view_count'],
-                    'created_at_twitch' => $clipData['created_at'],
-                    'broadcaster_id'    => $broadcaster->id,
-                    'tags'              => $this->extractTags($clipData),
+                    'submitter_id'         => $this->user->id,
+                    'submitted_at'         => now(),
+                    'twitch_clip_id'       => $this->twitchClipId,
+                    'title'                => $clipData->title,
+                    'description'          => null, // DTO has no description
+                    'url'                  => $clipData->url,
+                    'thumbnail_url'        => $clipData->thumbnailUrl,
+                    'local_thumbnail_path' => null, // Will be set after download
+                    'duration'             => $clipData->duration,
+                    'view_count'           => $clipData->viewCount,
+                    'created_at_twitch'    => $clipData->createdAt,
+                    'broadcaster_id'       => $broadcaster->id,
+                    'game_id'              => $game?->id,
+                    'tags'                 => $this->extractTags($clipData),
                 ]);
 
                 Log::info('Clip created via job', [
@@ -108,6 +120,15 @@ class ProcessClipSubmission implements ShouldQueue
                 ]);
 
                 DB::commit();
+
+                // Dispatch thumbnail download job
+                if ($clipData->thumbnailUrl) {
+                    $thumbnailPath = 'clips/thumbnails/'.$clip->id.'.jpg';
+                    \App\Jobs\DownloadTwitchImage::dispatch($clipData->thumbnailUrl, $thumbnailPath, 'thumbnail');
+
+                    // Update clip with local path
+                    $clip->update(['local_thumbnail_path' => $thumbnailPath]);
+                }
 
                 // Dispatch event for notifications and further processing
                 \App\Events\ClipSubmitted::dispatch($clip, $this->user);
@@ -135,23 +156,18 @@ class ProcessClipSubmission implements ShouldQueue
     /**
      * Extract tags from clip data.
      */
-    private function extractTags(array $clipData): array
+    private function extractTags(\App\Services\Twitch\DTOs\ClipDTO $clipData): array
     {
         $tags = [];
 
-        // Extract game name if available
-        if (isset($clipData['game_name'])) {
-            $tags[] = $clipData['game_name'];
-        }
-
         // Extract broadcaster name
-        if (isset($clipData['broadcaster_name'])) {
-            $tags[] = $clipData['broadcaster_name'];
+        if ($clipData->broadcasterName) {
+            $tags[] = $clipData->broadcasterName;
         }
 
         // Extract language if available
-        if (isset($clipData['language'])) {
-            $tags[] = $clipData['language'];
+        if ($clipData->language) {
+            $tags[] = $clipData->language;
         }
 
         return array_unique($tags);

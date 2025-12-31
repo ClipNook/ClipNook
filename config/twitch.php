@@ -58,7 +58,7 @@ return [
 
     // Security Settings
     'security' => [
-        'allowed_domains' => ['twitch.tv', 'static-cdn.jtvnw.net', 'clips.twitch.tv'],
+        'allowed_domains' => ['twitch.tv', 'www.twitch.tv', 'static-cdn.jtvnw.net', 'clips.twitch.tv'],
         'max_text_length' => (int) env('TWITCH_MAX_TEXT_LENGTH', 1000),
         'max_view_count'  => (int) env('TWITCH_MAX_VIEW_COUNT', 100000000), // 100M
         'require_https'   => env('TWITCH_REQUIRE_HTTPS', true),

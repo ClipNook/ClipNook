@@ -32,7 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Append to the 'web' group so the locale is applied to all regular HTTP routes
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\TrackLastActivity::class);
-        $middleware->appendToGroup('web', \App\Http\Middleware\SecurityHeaders::class);
+        // $middleware->appendToGroup('web', \App\Http\Middleware\SecurityHeaders::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\PerformanceMonitoring::class);
 
         // Add Sanctum middleware to API routes

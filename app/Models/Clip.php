@@ -20,6 +20,7 @@ class Clip extends Model
         'description',
         'url',
         'thumbnail_url',
+        'local_thumbnail_path',
         'duration',
         'view_count',
         'created_at_twitch',

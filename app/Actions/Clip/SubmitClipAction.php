@@ -54,9 +54,9 @@ class SubmitClipAction
         }
 
         // Find the broadcaster user
-        $broadcaster = User::where('twitch_id', $clipData['broadcaster_id'])->first();
+        $broadcaster = User::where('twitch_id', $clipData->broadcasterId)->first();
         if (! $broadcaster) {
-            throw BroadcasterNotRegisteredException::forTwitchId($clipData['broadcaster_id']);
+            throw BroadcasterNotRegisteredException::forTwitchId($clipData->broadcasterId);
         }
 
         // Check if user can submit clips for this broadcaster

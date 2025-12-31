@@ -11,6 +11,7 @@ class Game extends Model
         'twitch_game_id',
         'name',
         'box_art_url',
+        'local_box_art_path',
         'igdb_id',
     ];
 
