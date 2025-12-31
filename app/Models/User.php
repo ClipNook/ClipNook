@@ -62,6 +62,14 @@ class User extends Authenticatable
         'is_streamer',
         'is_moderator',
         'is_admin',
+
+        // Notification Settings
+        'notifications_email',
+        'notifications_web',
+        'notifications_ntfy',
+        'ntfy_server_url',
+        'ntfy_topic',
+        'ntfy_auth_token',
     ];
 
     /**
@@ -86,6 +94,7 @@ class User extends Authenticatable
         // Encrypted fields
         'twitch_access_token'     => 'encrypted',
         'twitch_refresh_token'    => 'encrypted',
+        'ntfy_auth_token'         => 'encrypted',
 
         // Description
         'description'              => 'string',
@@ -97,6 +106,9 @@ class User extends Authenticatable
         'is_streamer'             => 'boolean',
         'is_moderator'            => 'boolean',
         'is_admin'                => 'boolean',
+        'notifications_email'     => 'boolean',
+        'notifications_web'       => 'boolean',
+        'notifications_ntfy'      => 'boolean',
 
         // JSON
         'preferences'             => 'array',

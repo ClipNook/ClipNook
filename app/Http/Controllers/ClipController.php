@@ -10,6 +10,7 @@ use App\Http\Requests\Clip\SubmitClipRequest;
 use App\Http\Requests\Clip\UpdateClipRequest;
 use App\Models\Clip;
 use App\Models\User;
+use App\Services\Cache\QueryCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,7 +30,8 @@ use Illuminate\Support\Facades\Log;
 class ClipController extends Controller
 {
     public function __construct(
-        private SubmitClipAction $submitClipAction
+        private SubmitClipAction $submitClipAction,
+        private QueryCacheService $queryCache
     ) {}
 
     /**
@@ -66,9 +68,16 @@ class ClipController extends Controller
                 });
             }
 
-            $clips = $query->paginate(20);
+            $clips = $this->queryCache->remember(
+                prefix: 'clips:index',
+                query: $query,
+                ttl: 300, // 5 minutes
+                tags: ['clips', 'public']
+            );
 
-            return response()->json($clips);
+            return response()->json([
+                'data' => $clips,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve clips.',

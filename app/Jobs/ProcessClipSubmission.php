@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Clip;
 use App\Models\User;
-use App\Services\Twitch\TwitchApiClient;
+use App\Services\Twitch\TwitchService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -32,11 +32,11 @@ class ProcessClipSubmission implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(TwitchApiClient $twitchApiClient): void
+    public function handle(TwitchService $twitchService): void
     {
         try {
             // Validate the clip exists and get its data from Twitch
-            $clipData = $twitchApiClient->getClip($this->twitchClipId);
+            $clipData = $twitchService->getClip($this->twitchClipId);
 
             if (! $clipData) {
                 Log::warning('Clip not found on Twitch', [

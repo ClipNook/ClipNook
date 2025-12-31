@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Clip;
-use App\Services\Twitch\TwitchApiClient;
+use App\Services\Twitch\TwitchService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -20,11 +20,11 @@ class UpdateClipMetadata implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(TwitchApiClient $twitchApiClient): void
+    public function handle(TwitchService $twitchService): void
     {
         try {
             // Get updated clip data from Twitch
-            $clipData = $twitchApiClient->getClip($this->clip->twitch_clip_id);
+            $clipData = $twitchService->getClip($this->clip->twitch_clip_id);
 
             if (! $clipData) {
                 Log::warning('Clip not found on Twitch during metadata update', [

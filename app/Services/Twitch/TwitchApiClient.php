@@ -56,4 +56,14 @@ class TwitchApiClient
 
         return $response->json();
     }
+
+    /**
+     * Get game information by ID
+     */
+    public function getGame(string $gameId, ?string $accessToken = null): ?array
+    {
+        $response = $this->makeRequest('games', ['id' => $gameId], $accessToken);
+
+        return $response['data'][0] ?? null;
+    }
 }

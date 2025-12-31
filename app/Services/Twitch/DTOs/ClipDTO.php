@@ -13,7 +13,7 @@ readonly class ClipDTO
         public string $creatorId,
         public string $creatorName,
         public string $videoId,
-        public string $gameId,
+        public ?string $gameId,
         public string $language,
         public string $title,
         public int $viewCount,

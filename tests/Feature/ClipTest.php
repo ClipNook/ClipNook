@@ -32,20 +32,31 @@ test('user can submit a clip', function () {
         'email_verified_at' => now(),
     ]);
 
-    // Mock the Twitch API response
-    $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
+    // Mock the TwitchService
+    $mockClipData = new \App\Services\Twitch\DTOs\ClipDTO(
+        id: 'TestClip123',
+        url: 'https://clips.twitch.tv/TestClip123',
+        embedUrl: 'https://clips.twitch.tv/embed?clip=TestClip123',
+        broadcasterId: '12345',
+        broadcasterName: 'TestBroadcaster',
+        creatorId: '12345',
+        creatorName: 'TestCreator',
+        videoId: '123456789',
+        gameId: null,
+        language: 'en',
+        title: 'Test Clip',
+        viewCount: 100,
+        createdAt: now()->toISOString(),
+        thumbnailUrl: 'https://clips.twitch.tv/TestClip123.jpg',
+        duration: 30,
+        vodOffset: null,
+        isFeatured: false,
+    );
+
+    $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) use ($mockClipData) {
         $mock->shouldReceive('getClip')
-            ->andReturn([
-                'title'            => 'Test Clip',
-                'url'              => 'https://clips.twitch.tv/test',
-                'thumbnail_url'    => 'https://clips.twitch.tv/test.jpg',
-                'duration'         => 30,
-                'view_count'       => 100,
-                'created_at'       => now()->toISOString(),
-                'broadcaster_id'   => '12345',
-                'broadcaster_name' => 'TestBroadcaster',
-                'game_name'        => 'TestGame',
-            ]);
+            ->with('TestClip123')
+            ->andReturn($mockClipData);
     });
 
     $this->actingAs($user)
@@ -70,19 +81,31 @@ test('user cannot submit clip they do not own', function () {
         'twitch_id' => '99999',
     ]);
 
-    // Mock the Twitch API response with different broadcaster
-    $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
+    // Mock the TwitchService with different broadcaster
+    $mockClipData = new \App\Services\Twitch\DTOs\ClipDTO(
+        id: 'TestClip123',
+        url: 'https://clips.twitch.tv/TestClip123',
+        embedUrl: 'https://clips.twitch.tv/embed?clip=TestClip123',
+        broadcasterId: '99999',
+        broadcasterName: 'OtherBroadcaster',
+        creatorId: '99999',
+        creatorName: 'OtherCreator',
+        videoId: '123456789',
+        gameId: null,
+        language: 'en',
+        title: 'Test Clip',
+        viewCount: 100,
+        createdAt: now()->toISOString(),
+        thumbnailUrl: 'https://clips.twitch.tv/TestClip123.jpg',
+        duration: 30,
+        vodOffset: null,
+        isFeatured: false,
+    );
+
+    $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) use ($mockClipData) {
         $mock->shouldReceive('getClip')
-            ->andReturn([
-                'title'            => 'Test Clip',
-                'url'              => 'https://clips.twitch.tv/test',
-                'thumbnail_url'    => 'https://clips.twitch.tv/test.jpg',
-                'duration'         => 30,
-                'view_count'       => 100,
-                'created_at'       => now()->toISOString(),
-                'broadcaster_id'   => '99999', // Different broadcaster
-                'broadcaster_name' => 'OtherBroadcaster',
-            ]);
+            ->with('TestClip123')
+            ->andReturn($mockClipData);
     });
 
     $this->actingAs($user)
@@ -177,20 +200,31 @@ test('broadcaster can submit their own clips', function () {
         'email_verified_at' => now(),
     ]);
 
-    // Mock the Twitch API response
-    $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
+    // Mock the TwitchService
+    $mockClipData = new \App\Services\Twitch\DTOs\ClipDTO(
+        id: 'TestClip123',
+        url: 'https://clips.twitch.tv/TestClip123',
+        embedUrl: 'https://clips.twitch.tv/embed?clip=TestClip123',
+        broadcasterId: '12345',
+        broadcasterName: 'TestBroadcaster',
+        creatorId: '12345',
+        creatorName: 'TestCreator',
+        videoId: '123456789',
+        gameId: null,
+        language: 'en',
+        title: 'Test Clip',
+        viewCount: 100,
+        createdAt: now()->toISOString(),
+        thumbnailUrl: 'https://clips.twitch.tv/TestClip123.jpg',
+        duration: 30,
+        vodOffset: null,
+        isFeatured: false,
+    );
+
+    $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) use ($mockClipData) {
         $mock->shouldReceive('getClip')
-            ->andReturn([
-                'title'            => 'Test Clip',
-                'url'              => 'https://clips.twitch.tv/test',
-                'thumbnail_url'    => 'https://clips.twitch.tv/test.jpg',
-                'duration'         => 30,
-                'view_count'       => 100,
-                'created_at'       => now()->toISOString(),
-                'broadcaster_id'   => '12345', // Same as user
-                'broadcaster_name' => 'TestBroadcaster',
-                'game_name'        => 'TestGame',
-            ]);
+            ->with('TestClip123')
+            ->andReturn($mockClipData);
     });
 
     $this->actingAs($broadcaster)
@@ -211,20 +245,31 @@ test('user cannot submit clips for unregistered broadcaster', function () {
         'email_verified_at' => now(),
     ]);
 
-    // Mock the Twitch API response with unregistered broadcaster
-    $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
+    // Mock the TwitchService with unregistered broadcaster
+    $mockClipData = new \App\Services\Twitch\DTOs\ClipDTO(
+        id: 'TestClip123',
+        url: 'https://clips.twitch.tv/TestClip123',
+        embedUrl: 'https://clips.twitch.tv/embed?clip=TestClip123',
+        broadcasterId: '88888',
+        broadcasterName: 'UnregisteredBroadcaster',
+        creatorId: '88888',
+        creatorName: 'UnregisteredCreator',
+        videoId: '123456789',
+        gameId: null,
+        language: 'en',
+        title: 'Test Clip',
+        viewCount: 100,
+        createdAt: now()->toISOString(),
+        thumbnailUrl: 'https://clips.twitch.tv/TestClip123.jpg',
+        duration: 30,
+        vodOffset: null,
+        isFeatured: false,
+    );
+
+    $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) use ($mockClipData) {
         $mock->shouldReceive('getClip')
-            ->andReturn([
-                'title'            => 'Test Clip',
-                'url'              => 'https://clips.twitch.tv/test',
-                'thumbnail_url'    => 'https://clips.twitch.tv/test.jpg',
-                'duration'         => 30,
-                'view_count'       => 100,
-                'created_at'       => now()->toISOString(),
-                'broadcaster_id'   => '88888', // Unregistered broadcaster
-                'broadcaster_name' => 'UnregisteredBroadcaster',
-                'game_name'        => 'TestGame',
-            ]);
+            ->with('TestClip123')
+            ->andReturn($mockClipData);
     });
 
     $this->actingAs($user)
@@ -249,20 +294,31 @@ test('user can submit clips when broadcaster allows public submissions', functio
         'allow_public_clip_submissions' => true,
     ]);
 
-    // Mock the Twitch API response
-    $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
+    // Mock the TwitchService
+    $mockClipData = new \App\Services\Twitch\DTOs\ClipDTO(
+        id: 'TestClip123',
+        url: 'https://clips.twitch.tv/TestClip123',
+        embedUrl: 'https://clips.twitch.tv/embed?clip=TestClip123',
+        broadcasterId: '12345',
+        broadcasterName: 'TestBroadcaster',
+        creatorId: '12345',
+        creatorName: 'TestCreator',
+        videoId: '123456789',
+        gameId: null,
+        language: 'en',
+        title: 'Test Clip',
+        viewCount: 100,
+        createdAt: now()->toISOString(),
+        thumbnailUrl: 'https://clips.twitch.tv/TestClip123.jpg',
+        duration: 30,
+        vodOffset: null,
+        isFeatured: false,
+    );
+
+    $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) use ($mockClipData) {
         $mock->shouldReceive('getClip')
-            ->andReturn([
-                'title'            => 'Test Clip',
-                'url'              => 'https://clips.twitch.tv/test',
-                'thumbnail_url'    => 'https://clips.twitch.tv/test.jpg',
-                'duration'         => 30,
-                'view_count'       => 100,
-                'created_at'       => now()->toISOString(),
-                'broadcaster_id'   => '12345',
-                'broadcaster_name' => 'TestBroadcaster',
-                'game_name'        => 'TestGame',
-            ]);
+            ->with('TestClip123')
+            ->andReturn($mockClipData);
     });
 
     $this->actingAs($user)
@@ -284,20 +340,31 @@ test('user can submit clips when granted specific permission', function () {
     // Grant specific permission
     $broadcaster->grantClipSubmissionPermission($user);
 
-    // Mock the Twitch API response
-    $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
+    // Mock the TwitchService
+    $mockClipData = new \App\Services\Twitch\DTOs\ClipDTO(
+        id: 'TestClip123',
+        url: 'https://clips.twitch.tv/TestClip123',
+        embedUrl: 'https://clips.twitch.tv/embed?clip=TestClip123',
+        broadcasterId: '12345',
+        broadcasterName: 'TestBroadcaster',
+        creatorId: '12345',
+        creatorName: 'TestCreator',
+        videoId: '123456789',
+        gameId: null,
+        language: 'en',
+        title: 'Test Clip',
+        viewCount: 100,
+        createdAt: now()->toISOString(),
+        thumbnailUrl: 'https://clips.twitch.tv/TestClip123.jpg',
+        duration: 30,
+        vodOffset: null,
+        isFeatured: false,
+    );
+
+    $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) use ($mockClipData) {
         $mock->shouldReceive('getClip')
-            ->andReturn([
-                'title'            => 'Test Clip',
-                'url'              => 'https://clips.twitch.tv/test',
-                'thumbnail_url'    => 'https://clips.twitch.tv/test.jpg',
-                'duration'         => 30,
-                'view_count'       => 100,
-                'created_at'       => now()->toISOString(),
-                'broadcaster_id'   => '12345',
-                'broadcaster_name' => 'TestBroadcaster',
-                'game_name'        => 'TestGame',
-            ]);
+            ->with('TestClip123')
+            ->andReturn($mockClipData);
     });
 
     $this->actingAs($user)
@@ -318,20 +385,31 @@ test('user cannot submit clips without permission', function () {
 
     // Broadcaster does NOT allow public submissions and user has no specific permission
 
-    // Mock the Twitch API response
-    $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
+    // Mock the TwitchService
+    $mockClipData = new \App\Services\Twitch\DTOs\ClipDTO(
+        id: 'TestClip123',
+        url: 'https://clips.twitch.tv/TestClip123',
+        embedUrl: 'https://clips.twitch.tv/embed?clip=TestClip123',
+        broadcasterId: '12345',
+        broadcasterName: 'TestBroadcaster',
+        creatorId: '12345',
+        creatorName: 'TestCreator',
+        videoId: '123456789',
+        gameId: null,
+        language: 'en',
+        title: 'Test Clip',
+        viewCount: 100,
+        createdAt: now()->toISOString(),
+        thumbnailUrl: 'https://clips.twitch.tv/TestClip123.jpg',
+        duration: 30,
+        vodOffset: null,
+        isFeatured: false,
+    );
+
+    $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) use ($mockClipData) {
         $mock->shouldReceive('getClip')
-            ->andReturn([
-                'title'            => 'Test Clip',
-                'url'              => 'https://clips.twitch.tv/test',
-                'thumbnail_url'    => 'https://clips.twitch.tv/test.jpg',
-                'duration'         => 30,
-                'view_count'       => 100,
-                'created_at'       => now()->toISOString(),
-                'broadcaster_id'   => '12345',
-                'broadcaster_name' => 'TestBroadcaster',
-                'game_name'        => 'TestGame',
-            ]);
+            ->with('TestClip123')
+            ->andReturn($mockClipData);
     });
 
     $this->actingAs($user)
@@ -415,19 +493,31 @@ test('broadcaster can always perform all actions on their clips', function () {
 test('returns proper error when broadcaster is not registered', function () {
     $user = User::factory()->create(['twitch_id' => '99999', 'email_verified_at' => now()]);
 
-    // Mock the Twitch API response with a broadcaster that doesn't exist
-    $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
+    // Mock the TwitchService with a broadcaster that doesn't exist
+    $mockClipData = new \App\Services\Twitch\DTOs\ClipDTO(
+        id: 'TestClip123',
+        url: 'https://clips.twitch.tv/TestClip123',
+        embedUrl: 'https://clips.twitch.tv/embed?clip=TestClip123',
+        broadcasterId: 'nonexistent123',
+        broadcasterName: 'NonExistentBroadcaster',
+        creatorId: 'nonexistent123',
+        creatorName: 'NonExistentCreator',
+        videoId: '123456789',
+        gameId: null,
+        language: 'en',
+        title: 'Test Clip',
+        viewCount: 100,
+        createdAt: now()->toISOString(),
+        thumbnailUrl: 'https://clips.twitch.tv/TestClip123.jpg',
+        duration: 30,
+        vodOffset: null,
+        isFeatured: false,
+    );
+
+    $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) use ($mockClipData) {
         $mock->shouldReceive('getClip')
-            ->andReturn([
-                'title'            => 'Test Clip',
-                'url'              => 'https://clips.twitch.tv/test',
-                'thumbnail_url'    => 'https://clips.twitch.tv/test.jpg',
-                'duration'         => 30,
-                'view_count'       => 100,
-                'created_at'       => now()->toISOString(),
-                'broadcaster_id'   => 'nonexistent123', // This broadcaster doesn't exist
-                'broadcaster_name' => 'NonExistentBroadcaster',
-            ]);
+            ->with('TestClip123')
+            ->andReturn($mockClipData);
     });
 
     $this->actingAs($user)
@@ -445,9 +535,11 @@ test('returns proper error when clip not found on twitch', function () {
     $broadcaster = User::factory()->streamer()->create(['twitch_id' => '12345']);
     $user        = User::factory()->create(['twitch_id' => '99999', 'email_verified_at' => now()]);
 
-    // Mock Twitch service to return null
-    $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
-        $mock->shouldReceive('getClip')->andReturn(null);
+    // Mock TwitchService to return null
+    $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) {
+        $mock->shouldReceive('getClip')
+            ->with('NonExistentClip')
+            ->andReturn(null);
     });
 
     $this->actingAs($user)
@@ -470,19 +562,31 @@ test('returns proper error when user lacks permission', function () {
         'allow_public_clip_submissions' => false,
     ]);
 
-    // Mock the Twitch API response
-    $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
+    // Mock the TwitchService
+    $mockClipData = new \App\Services\Twitch\DTOs\ClipDTO(
+        id: 'TestClip123',
+        url: 'https://clips.twitch.tv/TestClip123',
+        embedUrl: 'https://clips.twitch.tv/embed?clip=TestClip123',
+        broadcasterId: '12345',
+        broadcasterName: 'TestBroadcaster',
+        creatorId: '12345',
+        creatorName: 'TestCreator',
+        videoId: '123456789',
+        gameId: null,
+        language: 'en',
+        title: 'Test Clip',
+        viewCount: 100,
+        createdAt: now()->toISOString(),
+        thumbnailUrl: 'https://clips.twitch.tv/TestClip123.jpg',
+        duration: 30,
+        vodOffset: null,
+        isFeatured: false,
+    );
+
+    $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) use ($mockClipData) {
         $mock->shouldReceive('getClip')
-            ->andReturn([
-                'title'            => 'Test Clip',
-                'url'              => 'https://clips.twitch.tv/test',
-                'thumbnail_url'    => 'https://clips.twitch.tv/test.jpg',
-                'duration'         => 30,
-                'view_count'       => 100,
-                'created_at'       => now()->toISOString(),
-                'broadcaster_id'   => '12345',
-                'broadcaster_name' => 'TestBroadcaster',
-            ]);
+            ->with('TestClip123')
+            ->andReturn($mockClipData);
     });
 
     $this->actingAs($user)

@@ -25,6 +25,7 @@ class Clip extends Model
         // User Relationships
         'submitter_id',
         'broadcaster_id',
+        'game_id',
 
         // Moderation
         'status',
@@ -73,6 +74,11 @@ class Clip extends Model
     public function moderator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'moderated_by');
+    }
+
+    public function game(): BelongsTo
+    {
+        return $this->belongsTo(Game::class);
     }
 
     // Scopes
