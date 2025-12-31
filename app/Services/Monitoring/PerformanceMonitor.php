@@ -2,26 +2,16 @@
 
 namespace App\Services\Monitoring;
 
+use App\Services\Cache\CacheBackendManager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 
 class PerformanceMonitor
 {
-    private function isRedisAvailable(): bool
-    {
-        if (! class_exists('Redis')) {
-            return false;
-        }
-
-        try {
-            Redis::ping();
-
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
+    public function __construct(
+        private CacheBackendManager $cacheBackend,
+    ) {}
 
     private function getStoragePath(string $filename): string
     {
@@ -51,17 +41,18 @@ class PerformanceMonitor
 
     public function recordCacheHit(bool $hit): void
     {
-        if ($this->isRedisAvailable()) {
-            Redis::incr($hit ? 'cache:hits' : 'cache:misses');
-
-            return;
-        }
-
-        // Fallback: Use file-based storage
-        $key        = $hit ? 'cache_hits' : 'cache_misses';
-        $data       = $this->readJsonFile('counters');
-        $data[$key] = ($data[$key] ?? 0) + 1;
-        $this->writeJsonFile('counters', $data);
+        $this->cacheBackend->withRedis(
+            function () use ($hit) {
+                Redis::incr($hit ? 'cache:hits' : 'cache:misses');
+            },
+            function () use ($hit) {
+                // Fallback: Use file-based storage
+                $key        = $hit ? 'cache_hits' : 'cache_misses';
+                $data       = $this->readJsonFile('counters');
+                $data[$key] = ($data[$key] ?? 0) + 1;
+                $this->writeJsonFile('counters', $data);
+            }
+        );
     }
 
     public function recordDatabaseQuery(string $query, float $time): void
@@ -104,14 +95,21 @@ class PerformanceMonitor
 
     public function getCacheHitRate(): float
     {
-        if ($this->isRedisAvailable()) {
-            $hits   = Redis::get('cache:hits') ?? 0;
-            $misses = Redis::get('cache:misses') ?? 0;
-        } else {
-            $data   = $this->readJsonFile('counters');
-            $hits   = $data['cache_hits'] ?? 0;
-            $misses = $data['cache_misses'] ?? 0;
-        }
+        [$hits, $misses] = $this->cacheBackend->withRedis(
+            function () {
+                $hits   = Redis::get('cache:hits') ?? 0;
+                $misses = Redis::get('cache:misses') ?? 0;
+
+                return [(int) $hits, (int) $misses];
+            },
+            function () {
+                $data   = $this->readJsonFile('counters');
+                $hits   = $data['cache_hits'] ?? 0;
+                $misses = $data['cache_misses'] ?? 0;
+
+                return [$hits, $misses];
+            }
+        );
 
         $total = $hits + $misses;
 
@@ -131,29 +129,32 @@ class PerformanceMonitor
 
     public function getMetrics(string $name, int $hours = 1): array
     {
-        if ($this->isRedisAvailable()) {
-            $key     = "metrics:{$name}:*";
-            $since   = now()->subHours($hours)->timestamp;
-            $keys    = Redis::keys($key);
-            $metrics = [];
-            foreach ($keys as $k) {
-                $data = Redis::zrangebyscore($k, $since, '+inf');
-                foreach ($data as $item) {
-                    $metrics[] = json_decode($item, true);
+        return $this->cacheBackend->withRedis(
+            function () use ($name, $hours) {
+                $key     = "metrics:{$name}:*";
+                $since   = now()->subHours($hours)->timestamp;
+                $keys    = Redis::keys($key);
+                $metrics = [];
+                foreach ($keys as $k) {
+                    $data = Redis::zrangebyscore($k, $since, '+inf');
+                    foreach ($data as $item) {
+                        $metrics[] = json_decode($item, true);
+                    }
                 }
+
+                return $metrics;
+            },
+            function () use ($name, $hours) {
+                // Fallback: Use file-based storage
+                $filename   = "metrics_{$name}";
+                $allMetrics = $this->readJsonFile($filename);
+                $since      = now()->subHours($hours)->timestamp;
+
+                return array_filter($allMetrics, function ($metric) use ($since) {
+                    return $metric['timestamp'] >= $since;
+                });
             }
-
-            return $metrics;
-        }
-
-        // Fallback: Use file-based storage
-        $filename   = "metrics_{$name}";
-        $allMetrics = $this->readJsonFile($filename);
-        $since      = now()->subHours($hours)->timestamp;
-
-        return array_filter($allMetrics, function ($metric) use ($since) {
-            return $metric['timestamp'] >= $since;
-        });
+        );
     }
 
     public function recordMetric(string $name, float $value, array $tags = []): void
@@ -165,37 +166,38 @@ class PerformanceMonitor
             'tags'      => $tags,
         ];
 
-        if ($this->isRedisAvailable()) {
-            $key = "metrics:{$name}:".implode(':', $tags);
-            Redis::zadd($key, $timestamp, json_encode($metric));
-            // Keep only last 24 hours
-            Redis::zremrangebyscore($key, '-inf', $timestamp - 86400);
+        $this->cacheBackend->withRedis(
+            function () use ($name, $tags, $timestamp, $metric) {
+                $key = "metrics:{$name}:".implode(':', $tags);
+                Redis::zadd($key, $timestamp, json_encode($metric));
+                // Keep only last 24 hours
+                Redis::zremrangebyscore($key, '-inf', $timestamp - 86400);
+            },
+            function () use ($name, $timestamp, $metric) {
+                // Fallback: Use file-based storage
+                $filename = "metrics_{$name}";
+                $metrics  = $this->readJsonFile($filename);
 
-            return;
-        }
+                // Add new metric
+                $metrics[] = $metric;
 
-        // Fallback: Use file-based storage
-        $filename = "metrics_{$name}";
-        $metrics  = $this->readJsonFile($filename);
+                // Keep only last configured hours and limit to configured max entries
+                $retentionHours = config('performance.metrics_retention_hours', 24);
+                $maxEntries     = config('performance.metrics_max_entries', 1000);
+                $cutoff         = $timestamp - ($retentionHours * 3600);
+                $metrics        = array_filter($metrics, function ($m) use ($cutoff) {
+                    return $m['timestamp'] >= $cutoff;
+                });
 
-        // Add new metric
-        $metrics[] = $metric;
+                // Sort by timestamp and keep only recent entries
+                usort($metrics, function ($a, $b) {
+                    return $b['timestamp'] <=> $a['timestamp'];
+                });
 
-        // Keep only last configured hours and limit to configured max entries
-        $retentionHours = config('performance.metrics_retention_hours', 24);
-        $maxEntries     = config('performance.metrics_max_entries', 1000);
-        $cutoff         = $timestamp - ($retentionHours * 3600);
-        $metrics        = array_filter($metrics, function ($m) use ($cutoff) {
-            return $m['timestamp'] >= $cutoff;
-        });
+                $metrics = array_slice($metrics, 0, $maxEntries);
 
-        // Sort by timestamp and keep only recent entries
-        usort($metrics, function ($a, $b) {
-            return $b['timestamp'] <=> $a['timestamp'];
-        });
-
-        $metrics = array_slice($metrics, 0, $maxEntries);
-
-        $this->writeJsonFile($filename, $metrics);
+                $this->writeJsonFile($filename, $metrics);
+            }
+        );
     }
 }
