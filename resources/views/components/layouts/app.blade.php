@@ -29,6 +29,7 @@
                     </div>
                     <nav class="hidden md:flex space-x-8">
                         <a href="{{ route('home') }}" class="text-gray-300 hover:text-white transition-colors">Home</a>
+                        <a href="{{ route('clips.list') }}" class="text-gray-300 hover:text-white transition-colors">Clip Library</a>
                         @auth
                             <a href="{{ route('clips.submit') }}" class="text-gray-300 hover:text-white transition-colors">Submit Clip</a>
                             <form method="POST" action="{{ route('auth.twitch.logout') }}" class="inline">
