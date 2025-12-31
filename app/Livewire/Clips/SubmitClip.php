@@ -13,7 +13,7 @@ use Livewire\Component;
 
 class SubmitClip extends Component
 {
-    #[Validate('required|string|regex:/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]+)$/')]
+    #[Validate('required|string|regex:/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]{1,100})$/')]
     public string $twitchClipId = '';
 
     public bool $isSubmitting = false;
@@ -63,7 +63,8 @@ class SubmitClip extends Component
         } catch (ClipPermissionException $e) {
             $this->errorMessage = 'You do not have permission to submit clips for this broadcaster.';
         } catch (ValidationException $e) {
-            $this->errorMessage = $e->getMessage();
+            $errors             = $e->errors();
+            $this->errorMessage = $errors['twitch_clip_id'][0] ?? $e->getMessage();
         } catch (\Exception $e) {
             $this->errorMessage = 'An unexpected error occurred. Please try again later.';
             report($e);

@@ -12,6 +12,7 @@ use App\Models\Clip;
 use App\Models\User;
 use App\Services\Twitch\TwitchGameService;
 use App\Services\Twitch\TwitchService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -40,12 +41,21 @@ class SubmitClipAction
      */
     public function execute(User $user, string $twitchClipId): bool
     {
+        // Check if clip is already being processed
+        $cacheKey = "processing_clip_{$twitchClipId}";
+        if (Cache::has($cacheKey)) {
+            throw ValidationException::withMessages(['twitch_clip_id' => ['This clip is currently being processed. Please wait a moment and try again.']]);
+        }
+
         // Basic validation - check if clip exists on Twitch
         $clipData = $this->twitchService->getClip($twitchClipId);
 
         if (! $clipData) {
             throw ClipNotFoundException::forId($twitchClipId);
         }
+
+        // Additional validation rules
+        $this->validateClipRules($clipData);
 
         // Check if clip already exists
         $existingClip = Clip::where('twitch_clip_id', $twitchClipId)->first();
@@ -63,6 +73,12 @@ class SubmitClipAction
         if (! $user->canSubmitClipsFor($broadcaster)) {
             throw ClipPermissionException::cannotSubmitForBroadcaster($broadcaster->id);
         }
+
+        // Additional validation rules
+        $this->validateClipRules($clipData);
+
+        // Mark clip as being processed
+        Cache::put($cacheKey, true, now()->addMinutes(10)); // Expire after 10 minutes
 
         // Dispatch the background job for processing
         ProcessClipSubmission::dispatch($user, $twitchClipId);
@@ -149,22 +165,32 @@ class SubmitClipAction
     }
 
     /**
-     * Extract tags from clip data
+     * Validate additional clip submission rules
      */
-    private function extractTags(\App\Services\Twitch\DTOs\ClipDTO $clipData): array
+    private function validateClipRules(\App\Services\Twitch\DTOs\ClipDTO $clipData): void
     {
-        $tags = [];
+        $rules = config('twitch.validation_rules', [
+            'max_clip_age_days' => 7,
+            'max_view_count'    => 100000,
+            'max_duration'      => 60,
+        ]);
 
-        // Extract broadcaster name
-        if ($clipData->broadcasterName) {
-            $tags[] = $clipData->broadcasterName;
+        // Clip must not be older than configured days
+        $clipAge = now()->diffInDays($clipData->createdAt);
+        if ($clipAge > $rules['max_clip_age_days']) {
+            $message = __('twitch.clip_too_old', ['days' => $rules['max_clip_age_days']]);
+            throw ValidationException::withMessages(['twitch_clip_id' => [$message]]);
         }
 
-        // Extract language if available
-        if ($clipData->language) {
-            $tags[] = $clipData->language;
+        // Clip must have reasonable view count
+        if ($clipData->viewCount > $rules['max_view_count']) {
+            throw ValidationException::withMessages(['twitch_clip_id' => [__('twitch.too_many_views')]]);
         }
 
-        return array_unique($tags);
+        // Clip duration must be reasonable
+        if ($clipData->duration > $rules['max_duration']) {
+            $message = __('twitch.clip_too_long', ['seconds' => $rules['max_duration']]);
+            throw ValidationException::withMessages(['twitch_clip_id' => [$message]]);
+        }
     }
 }

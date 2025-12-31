@@ -69,4 +69,9 @@ return [
     'user_not_found'      => 'User not found.',
     'video_not_found'     => 'Video not found.',
 
+    // Validation Messages
+    'clip_too_old'     => 'Clip is older than :days days and cannot be submitted.',
+    'too_many_views'   => 'Clip has too many views to be submitted.',
+    'clip_too_long'    => 'Clip is too long (max :seconds seconds).',
+
 ];
