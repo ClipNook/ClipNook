@@ -1,21 +1,21 @@
 <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
     <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">Submit a Twitch Clip</h2>
-        <p class="text-gray-600">Share your favorite Twitch clips with the community. Just paste the clip ID or the full Twitch URL.</p>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ __('clips.ui_title') }}</h2>
+        <p class="text-gray-600">{{ __('clips.ui_description') }}</p>
     </div>
 
     <form wire:submit="submit" class="space-y-4">
         <!-- Clip ID Input -->
         <div>
             <label for="twitchClipId" class="block text-sm font-medium text-gray-700 mb-1">
-                Twitch Clip ID
+                {{ __('clips.clip_id_label') }}
             </label>
             <div class="relative">
                 <input
                     type="text"
                     id="twitchClipId"
                     wire:model="twitchClipId"
-                    placeholder="e.g., PluckyInventiveCarrotPastaThat or https://twitch.tv/.../clip/..."
+                    placeholder="{{ __('clips.clip_id_placeholder') }}"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('twitchClipId') border-red-500 @enderror"
                     autocomplete="off"
                 >
@@ -30,7 +30,7 @@
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
             <p class="mt-1 text-sm text-gray-500">
-                You can paste either the clip ID (e.g., <code class="bg-gray-100 px-1 py-0.5 rounded">PluckyInventiveCarrotPastaThat</code>) or the full Twitch URL.
+                {{ __('clips.clip_id_help', ['example' => 'PluckyInventiveCarrotPastaThat']) }}
             </p>
         </div>
 
@@ -46,8 +46,8 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span wire:loading.remove>Submit Clip</span>
-                <span wire:loading>Submitting...</span>
+                <span wire:loading.remove>{{ __('clips.submit_button') }}</span>
+                <span wire:loading>{{ __('clips.submitting_button') }}</span>
             </button>
 
             <div class="text-sm text-gray-500">
@@ -55,7 +55,7 @@
                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                     </svg>
-                    Secure & Private
+                    {{ __('clips.secure_private') }}
                 </span>
             </div>
         </div>
@@ -95,12 +95,12 @@
 
     <!-- Help Section -->
     <div class="mt-8 border-t border-gray-200 pt-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-3">How to find a Clip ID</h3>
+        <h3 class="text-lg font-medium text-gray-900 mb-3">{{ __('clips.help_title') }}</h3>
         <div class="bg-gray-50 rounded-lg p-4">
             <ol class="list-decimal list-inside space-y-2 text-sm text-gray-700">
-                <li>Go to a Twitch clip URL (e.g., <code class="bg-gray-100 px-1 py-0.5 rounded">https://clips.twitch.tv/PluckyInventiveCarrotPastaThat</code>)</li>
-                <li>The clip ID is the last part of the URL: <strong>PluckyInventiveCarrotPastaThat</strong></li>
-                <li>Paste just the ID (no full URL) in the field above</li>
+                <li>{{ __('clips.help_step_1', ['example_url' => 'https://clips.twitch.tv/PluckyInventiveCarrotPastaThat']) }}</li>
+                <li>{{ __('clips.help_step_2', ['example_id' => 'PluckyInventiveCarrotPastaThat']) }}</li>
+                <li>{{ __('clips.help_step_3') }}</li>
             </ol>
         </div>
     </div>

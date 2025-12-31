@@ -44,7 +44,7 @@ class SubmitClipAction
         // Check if clip is already being processed
         $cacheKey = "processing_clip_{$twitchClipId}";
         if (Cache::has($cacheKey)) {
-            throw ValidationException::withMessages(['twitch_clip_id' => ['This clip is currently being processed. Please wait a moment and try again.']]);
+            throw ValidationException::withMessages(['twitch_clip_id' => [__('clips.clip_processing')]]);
         }
 
         // Basic validation - check if clip exists on Twitch
@@ -60,7 +60,7 @@ class SubmitClipAction
         // Check if clip already exists
         $existingClip = Clip::where('twitch_clip_id', $twitchClipId)->first();
         if ($existingClip) {
-            throw ValidationException::withMessages(['twitch_clip_id' => ['This clip has already been submitted.']]);
+            throw ValidationException::withMessages(['twitch_clip_id' => [__('clips.clip_already_submitted')]]);
         }
 
         // Find the broadcaster user

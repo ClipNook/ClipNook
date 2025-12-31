@@ -17,4 +17,13 @@ return [
     'password' => 'The provided password is incorrect.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
 
+    // Login Page
+    'login_title'                     => 'Login with Twitch',
+    'welcome_title'                   => 'Welcome to :app_name',
+    'welcome_subtitle'                => 'Manage your Twitch clips with ease',
+    'required_permission_title'       => 'Required Permission',
+    'required_permission_description' => ':app_name requires access to your email address for account verification, password resets, and important notifications.',
+    'login_button'                    => 'Login with Twitch',
+    'privacy_notice'                  => 'By logging in, you agree to our :terms and :privacy.',
+
 ];
