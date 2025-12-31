@@ -37,6 +37,7 @@ return [
     'duration_label'      => 'Duration',
     'load_player_button'  => 'Load Player',
     'gdpr_warning'        => 'By loading the player, external content from Twitch will be embedded. This may involve data transmission to third parties according to Twitch\'s privacy policy.',
+    'gdpr_explanation'    => 'You can submit the clip without loading the player, or preview it first.',
     'confirm_load'        => 'I understand and want to load the player.',
     'reset_button'        => 'Check Another Clip',
     'submit_clip_button'  => 'Submit This Clip',
@@ -62,4 +63,18 @@ return [
     // Message Titles
     'success_title'  => 'Successfully Submitted!',
     'error_title'    => 'Error Occurred',
+
+    // Page Titles and Descriptions
+    'submit_page_title'    => 'Submit a Clip',
+    'submit_page_subtitle' => 'Share your favorite Twitch clips with the community',
+    'library_page_title'   => 'Clip Library',
+    'library_page_subtitle' => 'Discover and explore submitted clips',
+
+    // Feature Cards
+    'feature_secure_title'        => 'Secure',
+    'feature_secure_description'  => 'All clips are processed securely with privacy in mind.',
+    'feature_fast_title'          => 'Fast',
+    'feature_fast_description'    => 'Quick submission process with background processing.',
+    'feature_community_title'     => 'Community',
+    'feature_community_description' => 'Share clips with fellow Twitch enthusiasts.',
 ];

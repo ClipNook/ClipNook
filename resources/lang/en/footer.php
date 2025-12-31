@@ -12,8 +12,12 @@ return [
 	|
 	*/
 
+	'description' => 'Share and discover your favorite Twitch clips with the community.',
+	'quick_links' => 'Quick Links',
+	'community' => 'Community',
+	'github' => 'GitHub',
+	'twitch' => 'Twitch',
 	'copyright' => '© :year :app_name. All rights reserved.',
-	'github' => 'View on GitHub',
-	'open_source' => 'Open Source Software',
-	'powered_by' => 'Powered by :software',
+	'privacy' => 'Privacy',
+	'terms' => 'Terms',
 ];

@@ -1,58 +1,63 @@
 <x-layouts.app title="{{ __('auth.login_title') }}">
-    <div class="min-h-screen bg-gray-900 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-950">
         <div class="max-w-md mx-auto w-full">
             <!-- Header Section -->
             <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-white mb-2">
+                <h1 class="text-3xl font-bold text-white mb-2 leading-tight">
                     {{ __('auth.welcome_title', ['app_name' => config('app.name')]) }}
                 </h1>
-                <p class="text-lg text-gray-300">
+                <p class="text-lg text-gray-300 leading-relaxed">
                     {{ __('auth.welcome_subtitle') }}
                 </p>
             </div>
 
             <!-- Login Card -->
-            <div class="bg-gray-800 rounded-lg shadow-2xl border border-gray-700 overflow-hidden">
+            <div class="bg-gray-900 rounded-lg border border-gray-800 shadow-sm overflow-hidden">
                 <div class="p-8">
                     <form method="POST" action="{{ route('auth.twitch.login') }}" class="space-y-6">
                         @csrf
 
                         <!-- General Errors -->
                         @if ($errors->any())
-                            <div class="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-md">
-                                <ul class="list-disc list-inside">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
+                            <div class="p-4 bg-red-900/50 border border-red-700 text-red-200 rounded-md">
+                                <div class="flex items-start">
+                                    <i class="fas fa-exclamation-triangle mr-3 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+                                    <div class="flex-1">
+                                        <ul class="list-disc list-inside space-y-1">
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         @endif
 
                         <!-- Info Section -->
-                        <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
-                            <h3 class="text-sm font-medium text-gray-200 mb-2 flex items-center">
-                                <i class="fas fa-info-circle mr-2 text-blue-400"></i>
+                        <div class="bg-gray-800 rounded-md p-4 border border-gray-700">
+                            <h3 class="text-sm font-medium text-white mb-2 flex items-center">
+                                <i class="fas fa-info-circle mr-2 text-purple-400" aria-hidden="true"></i>
                                 {{ __('auth.required_permission_title') }}
                             </h3>
-                            <p class="text-xs text-gray-400">
+                            <p class="text-xs text-gray-400 leading-relaxed">
                                 {{ __('auth.required_permission_description', ['app_name' => config('app.name')]) }}
                             </p>
                         </div>
 
                         <!-- Submit Button -->
                         <div>
-                            <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 focus:ring-offset-gray-800 transition-colors">
-                                <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                                </svg>
-                                {{ __('auth.login_button') }}
+                            <button type="submit"
+                                    class="w-full inline-flex justify-center items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                                    aria-label="{{ __('auth.login_button') }}">
+                                <i class="fas fa-sign-in-alt mr-2" aria-hidden="true"></i>
+                                <span>{{ __('auth.login_button') }}</span>
                             </button>
                         </div>
 
                         <!-- Privacy Notice -->
                         <div class="text-center">
-                            <p class="text-xs text-gray-500">
-                                {{ __('auth.privacy_notice', ['terms' => '<a href="#" class="text-purple-400 hover:text-purple-300">Terms of Service</a>', 'privacy' => '<a href="#" class="text-purple-400 hover:text-purple-300">Privacy Policy</a>']) }}
+                            <p class="text-xs text-gray-500 leading-relaxed">
+                                {{ __('auth.privacy_notice', ['terms' => '<a href="#" class="text-purple-400 hover:text-purple-300 underline focus:outline-none focus:ring-2 focus:ring-purple-500">Terms of Service</a>', 'privacy' => '<a href="#" class="text-purple-400 hover:text-purple-300 underline focus:outline-none focus:ring-2 focus:ring-purple-500">Privacy Policy</a>']) }}
                             </p>
                         </div>
                     </form>

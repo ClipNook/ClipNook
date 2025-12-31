@@ -11,5 +11,3 @@ abstract class ServiceException extends AppException
 {
     //
 }
-
-class ServiceException extends Exception {}

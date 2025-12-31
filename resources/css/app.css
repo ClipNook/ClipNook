@@ -1,33 +1,24 @@
 /* @vite-ignore */
 /** Import: Fonts **/
 @import "@fontsource-variable/roboto";
-/* Import Font Awesome CSS */
 @import "@fortawesome/fontawesome-free/css/all.css";
-/* Import flag-icons CSS */
 @import "flag-icons/css/flag-icons.min.css";
-/** Import: Tailwind CSS **/
 @import "tailwindcss";
-/* Blade View Source Tracking */
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
-/* Adds pointer cursor to buttons and base styles using palette variables */
+/* ============================================
+   Modern Professional Design System
+   Pure Tailwind CSS with @apply
+   ============================================ */
+
 @layer base {
+    /* Remove all glow, grow, and gradient effects */
     button:not(:disabled),
     [role="button"]:not(:disabled) {
         cursor: pointer;
     }
-}
-/* Custom Variants */
-@custom-variant dark (&:where(.dark, .dark *));
-
-/* Custom Theme Variables */
-@theme {
-    /* Primary typography */
-    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
-        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-        "Noto Color Emoji";
-    --font-roboto: "Roboto Variable", var(--font-sans);
 }

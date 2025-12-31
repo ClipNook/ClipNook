@@ -78,7 +78,13 @@ class SubmitClip extends Component
     public function loadPlayer()
     {
         $this->confirmedGdpr = true;
-        $this->showPlayer    = true;
+        $this->showPlayer = true;
+    }
+
+    public function confirmAndSubmit()
+    {
+        $this->confirmedGdpr = true;
+        $this->submit();
     }
 
     public function resetClip()
@@ -112,10 +118,7 @@ class SubmitClip extends Component
         $this->isSubmitting = true;
 
         try {
-            // Extract clip ID from URL if needed
             $clipId = $this->clipInfo['id'];
-
-            // Execute the submission
             app(SubmitClipAction::class)->execute(auth()->user(), $clipId);
 
             RateLimiter::hit($key);
@@ -143,7 +146,6 @@ class SubmitClip extends Component
 
     public function handleClipSubmitted()
     {
-        // Could trigger UI updates, refresh lists, etc.
         $this->dispatch('refresh-clip-list');
     }
 
@@ -155,12 +157,10 @@ class SubmitClip extends Component
 
     private function extractClipId(string $input): string
     {
-        // If it's a full URL, extract the clip ID
         if (preg_match('/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]+)$/', $input, $matches)) {
             return $matches[1];
         }
 
-        // Fallback: return as-is (shouldn't happen due to validation)
         return $input;
     }
 

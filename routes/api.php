@@ -12,11 +12,19 @@ Route::get('/status', function () {
 // Health check endpoint (public)
 Route::get('/health', HealthCheckController::class);
 
+// Public clip routes (no auth required)
+Route::middleware('cache.response')->group(function () {
+    Route::get('clips/featured', [ClipController::class, 'featured']);
+    Route::get('clips/recent', [ClipController::class, 'recent']);
+    Route::get('clips/search', [ClipController::class, 'search']);
+});
+
 // Clip management routes
 Route::middleware(['auth:sanctum', 'cache.response'])->group(function () {
     Route::apiResource('clips', ClipController::class);
     Route::get('clips/pending/moderation', [ClipController::class, 'pending']);
     Route::get('users/{user}/clips', [ClipController::class, 'userClips']);
+    Route::get('users/{user}/stats', [ClipController::class, 'stats']);
 });
 
 // GDPR compliance routes
