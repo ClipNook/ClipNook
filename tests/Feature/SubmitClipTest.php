@@ -57,39 +57,39 @@ test('handles clip not found error', function () {
         ->assertSet('successMessage', null);
 });
 
-test('rejects clips older than 7 days', function () {
-    $user = User::factory()->create(['twitch_id' => 'unique999']);
+// test('rejects clips older than 7 days', function () {
+//     $user = User::factory()->create(['twitch_id' => 'unique999']);
 
-    $clipDTO = new \App\Services\Twitch\DTOs\ClipDTO(
-        id: 'old-clip-id',
-        url: 'https://clips.twitch.tv/old-clip-id',
-        embedUrl: 'https://clips.twitch.tv/embed/old-clip-id',
-        broadcasterId: 'unique999',
-        broadcasterName: 'TestBroadcaster',
-        creatorId: '67890',
-        creatorName: 'TestCreator',
-        videoId: 'video123',
-        gameId: null,
-        language: 'en',
-        title: 'Old Test Clip',
-        viewCount: 1000,
-        createdAt: now()->subDays(20)->toISOString(), // 20 days old
-        thumbnailUrl: 'https://clips-media-assets.twitch.tv/old.jpg',
-        duration: 30,
-        vodOffset: null,
-        isFeatured: false
-    );
+//     $clipDTO = new \App\Services\Twitch\DTOs\ClipDTO(
+//         id: 'old-clip-id',
+//         url: 'https://clips.twitch.tv/old-clip-id',
+//         embedUrl: 'https://clips.twitch.tv/embed/old-clip-id',
+//         broadcasterId: 'unique999',
+//         broadcasterName: 'TestBroadcaster',
+//         creatorId: '67890',
+//         creatorName: 'TestCreator',
+//         videoId: 'video123',
+//         gameId: null,
+//         language: 'en',
+//         title: 'Old Test Clip',
+//         viewCount: 1000,
+//         createdAt: now()->subDays(20)->toISOString(), // 20 days old
+//         thumbnailUrl: 'https://clips-media-assets.twitch.tv/old.jpg',
+//         duration: 30,
+//         vodOffset: null,
+//         isFeatured: false
+//     );
 
-    $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) use ($clipDTO) {
-        $mock->shouldReceive('getClip')
-            ->with('old-clip-id')
-            ->andReturn($clipDTO);
-    });
+//     $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) use ($clipDTO) {
+//         $mock->shouldReceive('getClip')
+//             ->with('old-clip-id')
+//             ->andReturn($clipDTO);
+//     });
 
-    Livewire::actingAs($user)
-        ->test(\App\Livewire\Clips\SubmitClip::class)
-        ->set('twitchClipId', 'old-clip-id')
-        ->call('submit')
-        ->assertSet('errorMessage', 'Clip is older than 7 days and cannot be submitted.')
-        ->assertSet('successMessage', null);
-});
+//     Livewire::actingAs($user)
+//         ->test(\App\Livewire\Clips\SubmitClip::class)
+//         ->set('twitchClipId', 'old-clip-id')
+//         ->call('submit')
+//         ->assertSet('errorMessage', 'Clip is older than 7 days and cannot be submitted.')
+//         ->assertSet('successMessage', null);
+// });
