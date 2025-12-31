@@ -92,9 +92,6 @@
                         <div class="flex flex-col space-y-2">
                             <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a>
                             <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a>
-                            <p class="text-xs text-gray-500">
-                                {{ __('footer.license', ['license' => 'MIT']) }}
-                            </p>
                         </div>
                     </div>
                 </div>

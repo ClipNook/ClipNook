@@ -14,7 +14,6 @@ return [
 
 	'copyright' => '© :year :app_name. All rights reserved.',
 	'github' => 'View on GitHub',
-	'license' => 'Licensed under :license',
 	'open_source' => 'Open Source Software',
 	'powered_by' => 'Powered by :software',
 ];
