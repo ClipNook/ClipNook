@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('url'); // Twitch clip URL
             $table->string('thumbnail_url')->nullable();
+            $table->string('local_thumbnail_path')->nullable();
             $table->integer('duration'); // Duration in seconds
             $table->integer('view_count')->default(0);
             $table->timestamp('created_at_twitch'); // When created on Twitch

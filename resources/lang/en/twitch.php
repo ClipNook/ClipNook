@@ -55,9 +55,11 @@ return [
     'download_failed'            => 'Failed to download :type: :error',
 
     // Token Messages
-    'token_expired'         => 'Access token has expired.',
-    'token_refresh_success' => 'Access token refreshed successfully.',
-    'token_refresh_failed'  => 'Failed to refresh access token.',
+    'token_expired'            => 'Access token has expired.',
+    'token_refresh_success'    => 'Access token refreshed successfully.',
+    'token_refresh_failed'     => 'Failed to refresh access token.',
+    'authentication_required'  => 'User authentication required.',
+    'token_expired_no_refresh' => 'Access token has expired and no refresh token is available. Please re-authenticate with Twitch.',
 
     // General Messages
     'service_unavailable' => 'Twitch service is currently unavailable.',

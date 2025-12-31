@@ -33,6 +33,10 @@ class DownloadTwitchImage implements ShouldQueue
     public function handle(DownloadInterface $downloader): void
     {
         try {
+            // Ensure directory exists
+            $directory = dirname($this->savePath);
+            \Illuminate\Support\Facades\Storage::disk('public')->makeDirectory($directory);
+
             if ($this->type === 'thumbnail') {
                 $downloader->downloadThumbnail($this->url, $this->savePath);
                 Log::info(__('twitch.download_thumbnail_success', ['url' => $this->url, 'path' => $this->savePath]));

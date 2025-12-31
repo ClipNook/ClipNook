@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Twitch;
 
 use App\Events\TwitchTokenRefreshed;
+use App\Services\Twitch\Contracts\DownloadInterface;
 use App\Services\Twitch\Contracts\TwitchApiInterface;
 use App\Services\Twitch\DTOs\ApiLogEntryDTO;
 use App\Services\Twitch\DTOs\ClipDTO;
@@ -20,7 +21,7 @@ use App\Services\Twitch\Traits\ApiRateLimiting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
-class TwitchService implements TwitchApiInterface
+class TwitchService implements DownloadInterface, TwitchApiInterface
 {
     use ApiCaching, ApiLogging, ApiRateLimiting;
 
@@ -74,9 +75,32 @@ class TwitchService implements TwitchApiInterface
         $this->tokenExpiresAt = session('twitch_token_expires_at');
     }
 
+    protected function loadTokensFromUser(): void
+    {
+        $user = auth()->user();
+
+        if ($user && $user->twitch_access_token) {
+            $this->accessToken    = $user->twitch_access_token;
+            $this->refreshToken   = $user->twitch_refresh_token;
+            $this->tokenExpiresAt = $user->twitch_token_expires_at?->timestamp;
+        }
+    }
+
     protected function ensureValidToken(): void
     {
-        if (! $this->accessToken || ($this->tokenExpiresAt && time() >= $this->tokenExpiresAt)) {
+        // Load tokens from authenticated user if not already loaded
+        if (! $this->accessToken && ! $this->refreshToken) {
+            $this->loadTokensFromUser();
+        }
+
+        if (! $this->accessToken) {
+            throw TwitchApiException::authenticationRequired(__('twitch.authentication_required'));
+        }
+
+        if ($this->tokenExpiresAt && time() >= $this->tokenExpiresAt) {
+            if (! $this->refreshToken) {
+                throw TwitchApiException::authenticationRequired(__('twitch.token_expired_no_refresh'));
+            }
             $this->refreshAccessToken();
         }
     }
@@ -115,6 +139,16 @@ class TwitchService implements TwitchApiInterface
             params: ['grant_type' => 'refresh_token'],
             response: ['success' => true]
         ));
+
+        // Update user tokens in database
+        $user = auth()->user();
+        if ($user) {
+            $user->update([
+                'twitch_access_token'     => $token->accessToken,
+                'twitch_refresh_token'    => $token->refreshToken,
+                'twitch_token_expires_at' => now()->addSeconds($token->expiresIn),
+            ]);
+        }
 
         TwitchTokenRefreshed::dispatch(auth()->id() ?? 'guest', true);
 
@@ -186,24 +220,27 @@ class TwitchService implements TwitchApiInterface
     {
         $data = $this->makeApiRequest('https://api.twitch.tv/helix/clips', ['id' => $clipId], RequestType::CLIP);
 
-        return $data ? new ClipDTO(
-            id: $data['id'],
-            url: $this->sanitizer->sanitizeUrl($data['url']),
-            embedUrl: $this->sanitizer->sanitizeUrl($data['embed_url']),
-            broadcasterId: $data['broadcaster_id'],
-            broadcasterName: $this->sanitizer->sanitizeText($data['broadcaster_name']),
-            creatorId: $data['creator_id'],
-            creatorName: $this->sanitizer->sanitizeText($data['creator_name']),
-            videoId: $data['video_id'],
-            gameId: $data['game_id'],
-            language: $data['language'],
-            title: $this->sanitizer->sanitizeText($data['title']),
-            viewCount: $this->sanitizer->sanitizeInt($data['view_count'], 0),
-            createdAt: $data['created_at'],
-            thumbnailUrl: $this->sanitizer->sanitizeUrl($data['thumbnail_url']),
-            duration: $data['duration'],
-            vodOffset: $data['vod_offset'] ?? null,
-            isFeatured: $data['is_featured'],
+        // Twitch API returns an array even for single items, take the first one
+        $clipData = $data && is_array($data) && count($data) > 0 ? $data[0] : null;
+
+        return $clipData ? new ClipDTO(
+            id: $clipData['id'],
+            url: $this->sanitizer->sanitizeUrl($clipData['url']),
+            embedUrl: $this->sanitizer->sanitizeUrl($clipData['embed_url']),
+            broadcasterId: $clipData['broadcaster_id'],
+            broadcasterName: $this->sanitizer->sanitizeText($clipData['broadcaster_name']),
+            creatorId: $clipData['creator_id'],
+            creatorName: $this->sanitizer->sanitizeText($clipData['creator_name']),
+            videoId: $clipData['video_id'],
+            gameId: $clipData['game_id'],
+            language: $clipData['language'],
+            title: $this->sanitizer->sanitizeText($clipData['title']),
+            viewCount: $this->sanitizer->sanitizeInt($clipData['view_count'], 0),
+            createdAt: $clipData['created_at'],
+            thumbnailUrl: $this->sanitizer->sanitizeUrl($clipData['thumbnail_url']),
+            duration: $clipData['duration'],
+            vodOffset: $clipData['vod_offset'] ?? null,
+            isFeatured: $clipData['is_featured'],
         ) : null;
     }
 
@@ -211,11 +248,14 @@ class TwitchService implements TwitchApiInterface
     {
         $data = $this->makeApiRequest('https://api.twitch.tv/helix/games', ['id' => $gameId], RequestType::GAME);
 
-        return $data ? new GameDTO(
-            id: $data['id'],
-            name: $this->sanitizer->sanitizeText($data['name']),
-            boxArtUrl: $this->sanitizer->sanitizeUrl($data['box_art_url']),
-            igdbId: $data['igdb_id'] ?? null,
+        // Twitch API returns an array even for single items, take the first one
+        $gameData = $data && is_array($data) && count($data) > 0 ? $data[0] : null;
+
+        return $gameData ? new GameDTO(
+            id: $gameData['id'],
+            name: $this->sanitizer->sanitizeText($gameData['name']),
+            boxArtUrl: $this->sanitizer->sanitizeUrl($gameData['box_art_url']),
+            igdbId: $gameData['igdb_id'] ?? null,
         ) : null;
     }
 

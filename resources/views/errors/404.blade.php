@@ -2,4 +2,4 @@
     
     {{ __('error.404.text') }}
 
-</x-layouts.app
+</x-layouts.app>

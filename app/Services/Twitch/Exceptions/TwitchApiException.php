@@ -33,6 +33,19 @@ class TwitchApiException extends TwitchException
     }
 
     /**
+     * Create exception for authentication required.
+     */
+    public static function authenticationRequired(string $reason = ''): self
+    {
+        $message = 'User authentication required';
+        if ($reason) {
+            $message .= ": {$reason}";
+        }
+
+        return new self($message);
+    }
+
+    /**
      * Create exception for rate limit exceeded.
      */
     public static function rateLimitExceeded(int $retryAfter = 0): self
