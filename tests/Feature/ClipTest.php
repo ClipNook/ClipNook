@@ -66,6 +66,10 @@ test('user cannot submit clip they do not own', function () {
         'email_verified_at' => now(),
     ]);
 
+    $broadcaster = User::factory()->streamer()->create([
+        'twitch_id' => '99999',
+    ]);
+
     // Mock the Twitch API response with different broadcaster
     $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
         $mock->shouldReceive('getClip')
@@ -85,8 +89,10 @@ test('user cannot submit clip they do not own', function () {
         ->postJson('/api/clips', [
             'twitch_clip_id' => 'TestClip123',
         ])
-        ->assertStatus(422)
-        ->assertJsonValidationErrors(['twitch_clip_id']);
+        ->assertStatus(403)
+        ->assertJson([
+            'error' => 'permission_denied',
+        ]);
 });
 
 test('moderator can approve clips', function () {
@@ -225,8 +231,10 @@ test('user cannot submit clips for unregistered broadcaster', function () {
         ->postJson('/api/clips', [
             'twitch_clip_id' => 'TestClip123',
         ])
-        ->assertStatus(422)
-        ->assertJsonValidationErrors(['twitch_clip_id']);
+        ->assertStatus(400)
+        ->assertJson([
+            'error' => 'broadcaster_not_registered',
+        ]);
 });
 
 test('user can submit clips when broadcaster allows public submissions', function () {
@@ -330,8 +338,10 @@ test('user cannot submit clips without permission', function () {
         ->postJson('/api/clips', [
             'twitch_clip_id' => 'TestClip123',
         ])
-        ->assertStatus(422)
-        ->assertJsonValidationErrors(['twitch_clip_id']);
+        ->assertStatus(403)
+        ->assertJson([
+            'error' => 'permission_denied',
+        ]);
 });
 
 test('user with edit permission can edit clips', function () {
@@ -400,4 +410,87 @@ test('broadcaster can always perform all actions on their clips', function () {
     expect($broadcaster->canEditClipsFor($broadcaster))->toBeTrue();
     expect($broadcaster->canDeleteClipsFor($broadcaster))->toBeTrue();
     expect($broadcaster->canModerateClipsFor($broadcaster))->toBeTrue();
+});
+
+test('returns proper error when broadcaster is not registered', function () {
+    $user = User::factory()->create(['twitch_id' => '99999', 'email_verified_at' => now()]);
+
+    // Mock the Twitch API response with a broadcaster that doesn't exist
+    $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
+        $mock->shouldReceive('getClip')
+            ->andReturn([
+                'title'            => 'Test Clip',
+                'url'              => 'https://clips.twitch.tv/test',
+                'thumbnail_url'    => 'https://clips.twitch.tv/test.jpg',
+                'duration'         => 30,
+                'view_count'       => 100,
+                'created_at'       => now()->toISOString(),
+                'broadcaster_id'   => 'nonexistent123', // This broadcaster doesn't exist
+                'broadcaster_name' => 'NonExistentBroadcaster',
+            ]);
+    });
+
+    $this->actingAs($user)
+        ->postJson('/api/clips', [
+            'twitch_clip_id' => 'TestClip123',
+        ])
+        ->assertStatus(400)
+        ->assertJson([
+            'error'   => 'broadcaster_not_registered',
+            'message' => 'Broadcaster with Twitch ID nonexistent123 is not registered on this platform',
+        ]);
+});
+
+test('returns proper error when clip not found on twitch', function () {
+    $broadcaster = User::factory()->streamer()->create(['twitch_id' => '12345']);
+    $user        = User::factory()->create(['twitch_id' => '99999', 'email_verified_at' => now()]);
+
+    // Mock Twitch service to return null
+    $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
+        $mock->shouldReceive('getClip')->andReturn(null);
+    });
+
+    $this->actingAs($user)
+        ->postJson('/api/clips', [
+            'twitch_clip_id' => 'NonExistentClip',
+        ])
+        ->assertStatus(404)
+        ->assertJson([
+            'error'   => 'clip_not_found',
+            'message' => 'Clip NonExistentClip not found on Twitch',
+        ]);
+});
+
+test('returns proper error when user lacks permission', function () {
+    $broadcaster = User::factory()->streamer()->create(['twitch_id' => '12345']);
+    $user        = User::factory()->create(['twitch_id' => '99999', 'email_verified_at' => now()]);
+
+    // Disable public submissions and don't give specific permission
+    $broadcaster->broadcasterSettings()->create([
+        'allow_public_clip_submissions' => false,
+    ]);
+
+    // Mock the Twitch API response
+    $this->mock(\App\Services\Twitch\TwitchApiClient::class, function ($mock) {
+        $mock->shouldReceive('getClip')
+            ->andReturn([
+                'title'            => 'Test Clip',
+                'url'              => 'https://clips.twitch.tv/test',
+                'thumbnail_url'    => 'https://clips.twitch.tv/test.jpg',
+                'duration'         => 30,
+                'view_count'       => 100,
+                'created_at'       => now()->toISOString(),
+                'broadcaster_id'   => '12345',
+                'broadcaster_name' => 'TestBroadcaster',
+            ]);
+    });
+
+    $this->actingAs($user)
+        ->postJson('/api/clips', [
+            'twitch_clip_id' => 'TestClip123',
+        ])
+        ->assertStatus(403)
+        ->assertJson([
+            'error' => 'permission_denied',
+        ]);
 });

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Clip\SubmitClipAction;
+use App\Exceptions\BroadcasterNotRegisteredException;
+use App\Exceptions\ClipNotFoundException;
+use App\Exceptions\ClipPermissionException;
 use App\Http\Requests\Clip\SubmitClipRequest;
 use App\Http\Requests\Clip\UpdateClipRequest;
 use App\Models\Clip;
@@ -11,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Controller for managing clip operations.
@@ -77,24 +81,59 @@ class ClipController extends Controller
      * Submit a new clip from Twitch.
      *
      * @param  SubmitClipRequest  $request  The validated request containing twitch_clip_id
-     * @return JsonResponse The created clip data
+     * @return JsonResponse Success response with job dispatch confirmation
      */
     public function store(SubmitClipRequest $request): JsonResponse
     {
         try {
-            $clip = $this->submitClipAction->execute(
+            // Use synchronous execution in testing environment for immediate feedback
+            if (config('app.use_sync_clip_submission', false)) {
+                $clip = $this->submitClipAction->executeSync(
+                    Auth::user(),
+                    $request->string('twitch_clip_id')
+                );
+
+                return response()->json([
+                    'message' => 'Clip submitted successfully and is pending moderation.',
+                    'clip'    => $clip->load('submitter:id,twitch_display_name,twitch_login'),
+                ], 201);
+            }
+
+            // Use asynchronous job dispatching in production
+            $this->submitClipAction->execute(
                 Auth::user(),
                 $request->string('twitch_clip_id')
             );
 
             return response()->json([
-                'message' => 'Clip submitted successfully and is pending moderation.',
-                'clip'    => $clip->load('submitter:id,twitch_display_name,twitch_login'),
-            ], 201);
-        } catch (\Exception $e) {
+                'message' => 'Clip submitted successfully and is being processed in the background.',
+                'status'  => 'processing',
+            ], 202);
+        } catch (BroadcasterNotRegisteredException $e) {
             return response()->json([
-                'error'   => 'Failed to submit clip.',
-                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
+                'message' => $e->getMessage(),
+                'error'   => 'broadcaster_not_registered',
+            ], 400);
+        } catch (ClipNotFoundException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'error'   => 'clip_not_found',
+            ], 404);
+        } catch (ClipPermissionException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'error'   => 'permission_denied',
+            ], 403);
+        } catch (\Exception $e) {
+            Log::error('Clip submission failed', [
+                'error'        => $e->getMessage(),
+                'user_id'      => Auth::id(),
+                'request_data' => $request->all(),
+            ]);
+
+            return response()->json([
+                'message' => 'An unexpected error occurred while submitting the clip.',
+                'error'   => 'internal_error',
             ], 500);
         }
     }
