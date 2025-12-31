@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -144,6 +145,9 @@ class ProcessClipSubmission implements ShouldQueue
             }
 
         } catch (\Exception $e) {
+            // Clear processing cache on failure
+            Cache::forget("processing_clip_{$this->twitchClipId}");
+
             Log::error('Clip submission job failed', [
                 'user_id'        => $this->user->id,
                 'twitch_clip_id' => $this->twitchClipId,
@@ -151,6 +155,9 @@ class ProcessClipSubmission implements ShouldQueue
             ]);
             throw $e;
         }
+
+        // Clear processing cache on success
+        Cache::forget("processing_clip_{$this->twitchClipId}");
     }
 
     /**

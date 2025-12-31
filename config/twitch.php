@@ -69,4 +69,11 @@ return [
 
     // Debug Mode
     'debug' => env('TWITCH_DEBUG', false),
+
+    // Clip Submission Validation Rules
+    'validation_rules' => [
+        'max_clip_age_days' => (int) env('TWITCH_MAX_CLIP_AGE_DAYS', 7),
+        'max_view_count'    => (int) env('TWITCH_MAX_VIEW_COUNT', 100000),
+        'max_duration'      => (int) env('TWITCH_MAX_DURATION', 60),
+    ],
 ];

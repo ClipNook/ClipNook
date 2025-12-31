@@ -315,19 +315,19 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
 
         return array_map(fn ($item) => new ClipDTO(
             id: $item['id'],
-            url: $item['url'],
-            embedUrl: $item['embed_url'],
+            url: $this->sanitizer->sanitizeUrl($item['url']),
+            embedUrl: $this->sanitizer->sanitizeUrl($item['embed_url']),
             broadcasterId: $item['broadcaster_id'],
-            broadcasterName: $item['broadcaster_name'],
+            broadcasterName: $this->sanitizer->sanitizeText($item['broadcaster_name']),
             creatorId: $item['creator_id'],
-            creatorName: $item['creator_name'],
+            creatorName: $this->sanitizer->sanitizeText($item['creator_name']),
             videoId: $item['video_id'],
             gameId: $item['game_id'],
             language: $item['language'],
-            title: $item['title'],
-            viewCount: $item['view_count'],
+            title: $this->sanitizer->sanitizeText($item['title']),
+            viewCount: $this->sanitizer->sanitizeInt($item['view_count'], 0),
             createdAt: $item['created_at'],
-            thumbnailUrl: $item['thumbnail_url'],
+            thumbnailUrl: $this->sanitizer->sanitizeUrl($item['thumbnail_url']),
             duration: $item['duration'],
             vodOffset: $item['vod_offset'] ?? null,
             isFeatured: $item['is_featured'],
@@ -340,8 +340,8 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
 
         return array_map(fn ($item) => new GameDTO(
             id: $item['id'],
-            name: $item['name'],
-            boxArtUrl: $item['box_art_url'],
+            name: $this->sanitizer->sanitizeText($item['name']),
+            boxArtUrl: $this->sanitizer->sanitizeUrl($item['box_art_url']),
             igdbId: $item['igdb_id'] ?? null,
         ), $data ?? []);
     }
@@ -353,13 +353,13 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
         return array_map(fn ($item) => new StreamerDTO(
             id: $item['id'],
             login: $item['login'],
-            displayName: $item['display_name'],
+            displayName: $this->sanitizer->sanitizeText($item['display_name']),
             type: $item['type'],
             broadcasterType: $item['broadcaster_type'],
-            description: $item['description'],
-            profileImageUrl: $item['profile_image_url'],
-            offlineImageUrl: $item['offline_image_url'],
-            viewCount: $item['view_count'],
+            description: $this->sanitizer->sanitizeText($item['description']),
+            profileImageUrl: $this->sanitizer->sanitizeUrl($item['profile_image_url']),
+            offlineImageUrl: $this->sanitizer->sanitizeUrl($item['offline_image_url']),
+            viewCount: $this->sanitizer->sanitizeInt($item['view_count'], 0),
             createdAt: $item['created_at'],
         ), $data ?? []);
     }
@@ -417,7 +417,18 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
     public function downloadThumbnail(string $url, string $savePath): bool
     {
         try {
-            $image = Http::get($url)->body();
+            // Validate URL is HTTPS and from trusted domain
+            if (! $this->isValidImageUrl($url)) {
+                throw new \InvalidArgumentException('Invalid or untrusted image URL');
+            }
+
+            $image = Http::timeout(10)->retry(3, 100)->get($url)->body();
+
+            // Check file size (max 5MB)
+            if (strlen($image) > 5242880) {
+                throw new \Exception('Image too large');
+            }
+
             Storage::disk('public')->put($savePath, $image);
 
             return true;
@@ -429,13 +440,49 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
     public function downloadProfileImage(string $url, string $savePath): bool
     {
         try {
-            $image = Http::get($url)->body();
+            // Validate URL is HTTPS and from trusted domain
+            if (! $this->isValidImageUrl($url)) {
+                throw new \InvalidArgumentException('Invalid or untrusted image URL');
+            }
+
+            $image = Http::timeout(10)->retry(3, 100)->get($url)->body();
+
+            // Check file size (max 5MB)
+            if (strlen($image) > 5242880) {
+                throw new \Exception('Image too large');
+            }
+
             Storage::disk('public')->put($savePath, $image);
 
             return true;
         } catch (\Exception $e) {
             throw TwitchApiException::profileImageDownloadFailed($e->getMessage());
         }
+    }
+
+    /**
+     * Validate if URL is HTTPS and from trusted Twitch domains
+     */
+    protected function isValidImageUrl(string $url): bool
+    {
+        $parsed = parse_url($url);
+
+        // Must be HTTPS
+        if (($parsed['scheme'] ?? '') !== 'https') {
+            return false;
+        }
+
+        // Must be from trusted domains
+        $trustedDomains = ['static-cdn.jtvnw.net', 'clips-media-assets2.twitch.tv'];
+        $host           = $parsed['host'] ?? '';
+
+        foreach ($trustedDomains as $domain) {
+            if (str_ends_with($host, $domain)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function parseClipId(string $input): ?string
