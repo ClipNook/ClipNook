@@ -1,275 +1,408 @@
-<div class="min-h-screen bg-gray-950 text-white">
-    <div class="max-w-4xl mx-auto px-4 py-8">
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-3">
-                <i class="fas fa-video text-purple-400"></i>
-                {{ __('clips.ui_title') }}
-            </h1>
-            <p class="text-gray-400 text-lg">{{ __('clips.ui_description') }}</p>
-        </div>
-
-        <!-- Progress Steps -->
-        <div class="mb-8">
-            <div class="flex items-center justify-center">
-                <div class="flex items-center space-x-2">
-                    <!-- Step 1 -->
-                    <div class="flex flex-col items-center">
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 {{ !$clipInfo ? 'border-purple-400 bg-purple-400 text-white' : 'border-green-500 bg-green-500 text-white' }}">
-                            <i class="fas fa-search text-sm"></i>
-                        </div>
-                        <span class="text-xs mt-2 text-center {{ !$clipInfo ? 'text-purple-400 font-medium' : 'text-green-500' }}">{{ __('clips.step_check') }}</span>
+<div class="space-y-8">
+    <!-- Progress Indicator -->
+    <div class="mb-8">
+        <div class="flex items-center justify-center">
+            <div class="flex items-center space-x-4">
+                <!-- Step 1 -->
+                <div class="flex flex-col items-center">
+                    <div class="w-10 h-10 rounded-md flex items-center justify-center transition-colors duration-200 {{ $clipInfo ? 'bg-green-600 text-white' : 'bg-purple-600 text-white' }}">
+                        <i class="fas fa-search text-sm" aria-hidden="true"></i>
                     </div>
+                    <span class="text-xs text-gray-400 mt-2">{{ __('clips.step_check') }}</span>
+                </div>
 
-                    <!-- Connector -->
-                    <div class="w-12 h-0.5 {{ $clipInfo ? 'bg-green-500' : 'bg-gray-600' }}"></div>
+                <!-- Connector -->
+                <div class="w-12 h-0.5 transition-colors duration-200 {{ $clipInfo ? 'bg-green-500' : 'bg-gray-600' }}"></div>
 
-                    <!-- Step 2 -->
-                    <div class="flex flex-col items-center">
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 {{ $clipInfo && !$showPlayer ? 'border-purple-400 bg-purple-400 text-white' : ($showPlayer ? 'border-green-500 bg-green-500 text-white' : 'border-gray-600 text-gray-400') }}">
-                            <i class="fas fa-info-circle text-sm"></i>
-                        </div>
-                        <span class="text-xs mt-2 text-center {{ $clipInfo && !$showPlayer ? 'text-purple-400 font-medium' : ($showPlayer ? 'text-green-500' : 'text-gray-400') }}">{{ __('clips.step_info') }}</span>
+                <!-- Step 2 -->
+                <div class="flex flex-col items-center">
+                    <div class="w-10 h-10 rounded-md flex items-center justify-center transition-colors duration-200 {{ $clipInfo && !$showPlayer ? 'bg-purple-600 text-white' : ($showPlayer ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400') }}">
+                        <i class="fas fa-info-circle text-sm" aria-hidden="true"></i>
                     </div>
+                    <span class="text-xs text-gray-400 mt-2">{{ __('clips.step_info') }}</span>
+                </div>
 
-                    <!-- Connector -->
-                    <div class="w-12 h-0.5 {{ $showPlayer ? 'bg-green-500' : 'bg-gray-600' }}"></div>
+                <!-- Connector -->
+                <div class="w-12 h-0.5 transition-colors duration-200 {{ $showPlayer ? 'bg-green-500' : 'bg-gray-600' }}"></div>
 
-                    <!-- Step 3 -->
-                    <div class="flex flex-col items-center">
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 {{ $showPlayer ? 'border-purple-400 bg-purple-400 text-white' : 'border-gray-600 text-gray-400' }}">
-                            <i class="fas fa-paper-plane text-sm"></i>
-                        </div>
-                        <span class="text-xs mt-2 text-center {{ $showPlayer ? 'text-purple-400 font-medium' : 'text-gray-400' }}">{{ __('clips.step_submit') }}</span>
+                <!-- Step 3 -->
+                <div class="flex flex-col items-center">
+                    <div class="w-10 h-10 rounded-md flex items-center justify-center transition-colors duration-200 {{ $showPlayer ? 'bg-purple-600 text-white' : 'bg-gray-600 text-gray-400' }}">
+                        <i class="fas fa-play-circle text-sm" aria-hidden="true"></i>
                     </div>
+                    <span class="text-xs text-gray-400 mt-2">{{ __('clips.step_submit') }}</span>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Step 1: Clip ID Input -->
-        @if(!$clipInfo)
-        <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
-            <form wire:submit.prevent="checkClip" class="space-y-6">
-                <div>
-                    <label for="twitchClipId" class="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                        <i class="fas fa-link text-purple-400"></i>
-                        {{ __('clips.clip_id_label') }}
-                    </label>
-                    <div class="relative">
-                        <input
-                            type="text"
-                            id="twitchClipId"
-                            wire:model="twitchClipId"
-                            placeholder="{{ __('clips.clip_id_placeholder') }}"
-                            class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent @error('twitchClipId') border-red-500 @enderror"
-                            autocomplete="off"
-                            aria-describedby="twitchClipId-help"
-                        >
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                            <i class="fas fa-search text-gray-500"></i>
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column - Input & Info -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Step 1: Clip ID Input -->
+            @if(!$clipInfo)
+                <div class="bg-gray-900 rounded-md p-6 border border-gray-800">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 bg-purple-600 rounded-md flex items-center justify-center">
+                            <i class="fas fa-link text-white text-sm" aria-hidden="true"></i>
                         </div>
+                        <h2 class="text-xl font-semibold text-white">{{ __('clips.clip_id_label') }}</h2>
                     </div>
-                    @error('twitchClipId')
-                        <p class="mt-1 text-sm text-red-400 flex items-center gap-2" role="alert">
-                            <i class="fas fa-exclamation-circle"></i>
-                            {{ $message }}
-                        </p>
-                    @enderror
-                    <p id="twitchClipId-help" class="mt-2 text-sm text-gray-400">
-                        {{ __('clips.clip_id_help', ['example' => 'PluckyInventiveCarrotPastaThat']) }}
-                    </p>
-                </div>
 
-                <div class="flex items-center justify-between pt-4">
-                    <button
-                        type="submit"
-                        wire:loading.attr="disabled"
-                        class="inline-flex items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <i wire:loading class="fas fa-spinner fa-spin mr-2"></i>
-                        <i wire:loading.remove class="fas fa-search mr-2"></i>
-                        <span wire:loading.remove>{{ __('clips.check_clip_button') }}</span>
-                        <span wire:loading>{{ __('clips.checking_button') }}</span>
-                    </button>
+                    <form wire:submit.prevent="checkClip" class="space-y-4">
+                        <div class="space-y-3">
+                            <div class="relative">
+                                <input
+                                    type="text"
+                                    id="twitchClipId"
+                                    wire:model="twitchClipId"
+                                    placeholder="{{ __('clips.clip_id_placeholder') }}"
+                                    class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200"
+                                    autocomplete="off"
+                                    aria-describedby="twitchClipId-help"
+                                >
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <i class="fas fa-search text-gray-400" aria-hidden="true"></i>
+                                </div>
+                            </div>
 
-                    <div class="text-sm text-gray-400 flex items-center gap-2">
-                        <i class="fas fa-shield-alt text-green-400"></i>
-                        {{ __('clips.secure_private') }}
-                    </div>
-                </div>
-            </form>
-        </div>
+                            @error('twitchClipId')
+                                <div class="flex items-center gap-2 text-red-400 bg-red-900/50 border border-red-700 rounded-md p-3">
+                                    <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+                                    <span>{{ $message }}</span>
+                                </div>
+                            @enderror
 
-        <!-- Help Section -->
-        <div class="mt-8 bg-gray-900 rounded-lg p-6 border border-gray-800">
-            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <i class="fas fa-question-circle text-purple-400"></i>
-                {{ __('clips.help_title') }}
-            </h3>
-            <ol class="space-y-3 text-gray-300">
-                <li class="flex items-start gap-3">
-                    <span class="flex-shrink-0 w-6 h-6 bg-purple-600 text-white text-xs rounded-full flex items-center justify-center font-medium">1</span>
-                    <span>{{ __('clips.help_step_1', ['example_url' => 'https://clips.twitch.tv/PluckyInventiveCarrotPastaThat']) }}</span>
-                </li>
-                <li class="flex items-start gap-3">
-                    <span class="flex-shrink-0 w-6 h-6 bg-purple-600 text-white text-xs rounded-full flex items-center justify-center font-medium">2</span>
-                    <span>{{ __('clips.help_step_2', ['example_id' => 'PluckyInventiveCarrotPastaThat']) }}</span>
-                </li>
-                <li class="flex items-start gap-3">
-                    <span class="flex-shrink-0 w-6 h-6 bg-purple-600 text-white text-xs rounded-full flex items-center justify-center font-medium">3</span>
-                    <span>{{ __('clips.help_step_3') }}</span>
-                </li>
-            </ol>
-        </div>
-        @endif
+                            <p id="twitchClipId-help" class="text-gray-400 text-sm">
+                                {{ __('clips.clip_id_help', ['example' => 'PluckyInventiveCarrotPastaThat']) }}
+                            </p>
+                        </div>
 
-        <!-- Step 2: Clip Info Display -->
-        @if($clipInfo && !$showPlayer)
-        <div class="space-y-6">
-            <!-- Clip Info Card -->
-            <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
-                <h3 class="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                    <i class="fas fa-info-circle text-purple-400"></i>
-                    {{ __('clips.clip_info_title') }}
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-gray-800 rounded-md p-4 border border-gray-700">
-                        <label class="block text-sm font-medium text-gray-400 mb-1">{{ __('clips.title_label') }}</label>
-                        <p class="text-white font-medium">{{ $clipInfo['title'] }}</p>
-                    </div>
-                    <div class="bg-gray-800 rounded-md p-4 border border-gray-700">
-                        <label class="block text-sm font-medium text-gray-400 mb-1">{{ __('clips.broadcaster_label') }}</label>
-                        <p class="text-white font-medium">{{ $clipInfo['broadcasterName'] }}</p>
-                    </div>
-                    <div class="bg-gray-800 rounded-md p-4 border border-gray-700">
-                        <label class="block text-sm font-medium text-gray-400 mb-1">{{ __('clips.view_count_label') }}</label>
-                        <p class="text-white font-medium">{{ number_format($clipInfo['viewCount']) }}</p>
-                    </div>
-                    <div class="bg-gray-800 rounded-md p-4 border border-gray-700">
-                        <label class="block text-sm font-medium text-gray-400 mb-1">{{ __('clips.duration_label') }}</label>
-                        <p class="text-white font-medium">{{ round($clipInfo['duration'], 1) }}s</p>
-                    </div>
-                    <div class="bg-gray-800 rounded-md p-4 border border-gray-700 md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-400 mb-1">{{ __('clips.created_at_label') }}</label>
-                        <p class="text-white font-medium">{{ \Carbon\Carbon::parse($clipInfo['createdAt'])->format('M j, Y \a\t g:i A') }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- GDPR Warning -->
-            <div class="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-6">
-                <div class="flex items-start gap-3">
-                    <i class="fas fa-exclamation-triangle text-yellow-400 mt-1"></i>
-                    <div class="flex-1">
-                        <h4 class="text-yellow-400 font-medium mb-3">{{ __('clips.gdpr_warning') }}</h4>
-                        <p class="text-sm text-gray-300 mb-4">{{ __('clips.gdpr_explanation') }}</p>
-                        <div class="flex gap-3">
+                        <div class="flex items-center justify-between pt-2">
                             <button
-                                wire:click="confirmAndSubmit"
+                                type="submit"
                                 wire:loading.attr="disabled"
-                                class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-gray-950 disabled:opacity-50 disabled:cursor-not-allowed"
+                                class="inline-flex items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                                aria-label="{{ __('clips.check_clip_button') }}"
                             >
-                                <i wire:loading class="fas fa-spinner fa-spin mr-2"></i>
-                                <i wire:loading.remove class="fas fa-paper-plane mr-2"></i>
+                                <i wire:loading class="fas fa-spinner fa-spin mr-2" aria-hidden="true"></i>
+                                <i wire:loading.remove class="fas fa-search mr-2" aria-hidden="true"></i>
+                                <span wire:loading.remove>{{ __('clips.check_clip_button') }}</span>
+                                <span wire:loading>{{ __('clips.checking_button') }}</span>
+                            </button>
+
+                            <div class="flex items-center gap-2 text-gray-400">
+                                <i class="fas fa-shield-alt text-green-400" aria-hidden="true"></i>
+                                <span class="text-sm">{{ __('clips.secure_private') }}</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Help Card -->
+                <div class="bg-gray-900 rounded-md p-6 border border-gray-800">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center">
+                            <i class="fas fa-question-circle text-white text-sm" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white">{{ __('clips.help_title') }}</h3>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3 p-3 bg-gray-800 rounded-md border border-gray-700">
+                            <div class="w-6 h-6 bg-purple-600 rounded flex items-center justify-center text-white font-medium text-xs flex-shrink-0">1</div>
+                            <div class="flex-1">
+                                <p class="text-gray-300 text-sm">{{ __('clips.help_step_1', ['example_url' => 'https://clips.twitch.tv/PluckyInventiveCarrotPastaThat']) }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3 p-3 bg-gray-800 rounded-md border border-gray-700">
+                            <div class="w-6 h-6 bg-purple-600 rounded flex items-center justify-center text-white font-medium text-xs flex-shrink-0">2</div>
+                            <div class="flex-1">
+                                <p class="text-gray-300 text-sm">{{ __('clips.help_step_2', ['example_id' => 'PluckyInventiveCarrotPastaThat']) }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3 p-3 bg-gray-800 rounded-md border border-gray-700">
+                            <div class="w-6 h-6 bg-purple-600 rounded flex items-center justify-center text-white font-medium text-xs flex-shrink-0">3</div>
+                            <div class="flex-1">
+                                <p class="text-gray-300 text-sm">{{ __('clips.help_step_3') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Step 2: Clip Info Display -->
+            @if($clipInfo && !$showPlayer)
+                <div class="space-y-6">
+                    <!-- Clip Info Card -->
+                    <div class="bg-gray-900 rounded-md p-6 border border-gray-800">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-8 h-8 bg-green-600 rounded-md flex items-center justify-center">
+                                <i class="fas fa-info-circle text-white text-sm" aria-hidden="true"></i>
+                            </div>
+                            <h2 class="text-xl font-semibold text-white">{{ __('clips.clip_info_title') }}</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-gray-800 rounded-md p-4 border border-gray-700">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i class="fas fa-heading text-purple-400 text-sm" aria-hidden="true"></i>
+                                    <label class="text-xs font-medium text-gray-400 uppercase">{{ __('clips.title_label') }}</label>
+                                </div>
+                                <p class="text-white font-medium text-sm">{{ $clipInfo['title'] }}</p>
+                            </div>
+
+                            <div class="bg-gray-800 rounded-md p-4 border border-gray-700">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i class="fas fa-user text-purple-400 text-sm" aria-hidden="true"></i>
+                                    <label class="text-xs font-medium text-gray-400 uppercase">{{ __('clips.broadcaster_label') }}</label>
+                                </div>
+                                <p class="text-white font-medium text-sm">{{ $clipInfo['broadcasterName'] }}</p>
+                            </div>
+
+                            <div class="bg-gray-800 rounded-md p-4 border border-gray-700">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i class="fas fa-eye text-purple-400 text-sm" aria-hidden="true"></i>
+                                    <label class="text-xs font-medium text-gray-400 uppercase">{{ __('clips.view_count_label') }}</label>
+                                </div>
+                                <p class="text-white font-medium text-sm">{{ number_format($clipInfo['viewCount']) }}</p>
+                            </div>
+
+                            <div class="bg-gray-800 rounded-md p-4 border border-gray-700">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i class="fas fa-clock text-purple-400 text-sm" aria-hidden="true"></i>
+                                    <label class="text-xs font-medium text-gray-400 uppercase">{{ __('clips.duration_label') }}</label>
+                                </div>
+                                <p class="text-white font-medium text-sm">{{ round($clipInfo['duration'], 1) }}s</p>
+                            </div>
+
+                            <div class="bg-gray-800 rounded-md p-4 border border-gray-700 md:col-span-2">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i class="fas fa-calendar text-purple-400 text-sm" aria-hidden="true"></i>
+                                    <label class="text-xs font-medium text-gray-400 uppercase">{{ __('clips.created_at_label') }}</label>
+                                </div>
+                                <p class="text-white font-medium text-sm">{{ \Carbon\Carbon::parse($clipInfo['createdAt'])->format('M j, Y \a\t g:i A') }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="bg-gray-900 rounded-md p-6 border border-gray-800">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <button
+                                wire:click="submit"
+                                wire:loading.attr="disabled"
+                                class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                                aria-label="{{ __('clips.submit_clip_button') }}"
+                            >
+                                <i wire:loading class="fas fa-spinner fa-spin mr-2" aria-hidden="true"></i>
+                                <i wire:loading.remove class="fas fa-paper-plane mr-2" aria-hidden="true"></i>
                                 <span wire:loading.remove>{{ __('clips.submit_clip_button') }}</span>
                                 <span wire:loading>{{ __('clips.submitting_button') }}</span>
                             </button>
+
+                            <div class="flex items-center gap-2 text-gray-400">
+                                <i class="fas fa-info-circle text-blue-400" aria-hidden="true"></i>
+                                <span class="text-sm">{{ __('clips.submit_info') }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Optional Player Preview -->
+                    <div class="bg-gray-900 rounded-md p-6 border border-gray-800">
+                        <div class="text-center">
+                            <div class="mb-4">
+                                <i class="fas fa-play-circle text-purple-400 text-2xl mb-2" aria-hidden="true"></i>
+                                <h3 class="text-lg font-semibold text-white mb-2">{{ __('clips.player_ready') }}</h3>
+                                <p class="text-gray-400 text-sm">{{ __('clips.preview_optional') }}</p>
+                            </div>
+                            <livewire:twitch-player-consent />
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Step 3: Player and Final Submit -->
+            @if($showPlayer)
+                <div class="space-y-6">
+                    <!-- Player Card -->
+                    <div class="bg-gray-900 rounded-md p-6 border border-gray-800">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-8 h-8 bg-purple-600 rounded-md flex items-center justify-center">
+                                <i class="fas fa-play-circle text-white text-sm" aria-hidden="true"></i>
+                            </div>
+                            <h2 class="text-xl font-semibold text-white">{{ __('clips.clip_preview') }}</h2>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div wire:loading.delay class="aspect-video bg-gray-800 rounded-md border border-gray-700 flex items-center justify-center">
+                            <div class="text-center">
+                                <i class="fas fa-spinner fa-spin text-purple-400 text-2xl mb-2" aria-hidden="true"></i>
+                                <p class="text-gray-300 font-medium">{{ __('clips.loading_player') }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Player Container -->
+                        <div wire:loading.remove class="relative aspect-video bg-gray-800 rounded-md border border-gray-700 overflow-hidden">
+                            <!-- Play Button Overlay -->
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                                <button
+                                    onclick="loadTwitchPlayer()"
+                                    class="w-16 h-16 bg-white/90 hover:bg-white rounded-full flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white"
+                                    aria-label="{{ __('clips.click_to_play') }}"
+                                >
+                                    <i class="fas fa-play text-gray-900 text-lg ml-0.5" aria-hidden="true"></i>
+                                </button>
+                            </div>
+
+                            <!-- Player iframe (hidden until clicked) -->
+                            <iframe
+                                id="twitch-player-iframe"
+                                src="{{ $clipInfo['embedUrl'] }}&parent={{ request()->getHost() }}"
+                                height="100%"
+                                width="100%"
+                                allowfullscreen
+                                class="w-full h-full absolute inset-0 opacity-0 transition-opacity duration-300"
+                                title="Twitch Clip Preview"
+                                loading="lazy"
+                            ></iframe>
+
+                            <!-- Click to play overlay text -->
+                            <div class="absolute bottom-4 left-4 right-4 text-center">
+                                <p class="text-white/80 text-sm bg-black/50 rounded px-3 py-1 inline-block">
+                                    <i class="fas fa-mouse-pointer mr-1" aria-hidden="true"></i>
+                                    {{ __('clips.click_to_play') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Player Info -->
+                        <div class="mt-4 flex items-center justify-between text-xs text-gray-400 bg-gray-800 rounded px-3 py-2">
+                            <div class="flex items-center gap-1">
+                                <i class="fas fa-external-link-alt text-purple-400" aria-hidden="true"></i>
+                                <span>{{ __('clips.external_content') }}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <i class="fas fa-shield-alt text-green-400" aria-hidden="true"></i>
+                                <span>Twitch.tv</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Final Action Buttons -->
+                    <div class="bg-gray-900 rounded-md p-6 border border-gray-800">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                             <button
-                                wire:click="loadPlayer"
-                                class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-gray-950"
+                                wire:click="submit"
+                                wire:loading.attr="disabled"
+                                class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                                aria-label="{{ __('clips.submit_clip_button') }}"
                             >
-                                <i class="fas fa-play mr-2"></i>
-                                {{ __('clips.load_player_button') }}
+                                <i wire:loading class="fas fa-spinner fa-spin mr-2" aria-hidden="true"></i>
+                                <i wire:loading.remove class="fas fa-paper-plane mr-2" aria-hidden="true"></i>
+                                <span wire:loading.remove>{{ __('clips.submit_clip_button') }}</span>
+                                <span wire:loading>{{ __('clips.submitting_button') }}</span>
+                            </button>
+
+                            <button
+                                wire:click="resetClip"
+                                class="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                                aria-label="{{ __('clips.reset_button') }}"
+                            >
+                                <i class="fas fa-arrow-left mr-2" aria-hidden="true"></i>
+                                {{ __('clips.reset_button') }}
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="flex justify-start">
-                <button
-                    wire:click="resetClip"
-                    class="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-950"
-                >
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    {{ __('clips.reset_button') }}
-                </button>
-            </div>
+            @endif
         </div>
-        @endif
 
-        <!-- Step 3: Player and Submit -->
-        @if($showPlayer)
+        <!-- Right Column - Features -->
         <div class="space-y-6">
-            <!-- Player Card -->
-            <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
-                <h3 class="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                    <i class="fas fa-play-circle text-purple-400"></i>
-                    {{ __('clips.clip_preview') }}
+            <!-- Feature Cards -->
+            <div class="bg-gray-900 rounded-md p-6 border border-gray-800">
+                <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <i class="fas fa-star text-yellow-400" aria-hidden="true"></i>
+                    {{ __('clips.features_title') }}
                 </h3>
-                <div class="aspect-video bg-gray-800 rounded-md overflow-hidden">
-                    <iframe
-                        src="{{ $clipInfo['embedUrl'] }}&parent={{ request()->getHost() }}"
-                        height="100%"
-                        width="100%"
-                        allowfullscreen
-                        class="w-full h-full"
-                        title="Twitch Clip Preview"
-                    ></iframe>
-                </div>
-            </div>
 
-            <!-- Action Buttons -->
-            <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
-                <div class="flex items-center justify-between">
-                    <button
-                        wire:click="submit"
-                        wire:loading.attr="disabled"
-                        class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <i wire:loading class="fas fa-spinner fa-spin mr-2"></i>
-                        <i wire:loading.remove class="fas fa-paper-plane mr-2"></i>
-                        <span wire:loading.remove>{{ __('clips.submit_clip_button') }}</span>
-                        <span wire:loading>{{ __('clips.submitting_button') }}</span>
-                    </button>
+                <div class="space-y-3">
+                    <div class="flex items-start gap-3 p-3 bg-gray-800 rounded-md border border-gray-700">
+                        <i class="fas fa-shield-alt text-green-400 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+                        <div>
+                            <h4 class="font-medium text-white text-sm">{{ __('clips.feature_secure_title') }}</h4>
+                            <p class="text-gray-400 text-xs">{{ __('clips.feature_secure_description') }}</p>
+                        </div>
+                    </div>
 
-                    <button
-                        wire:click="resetClip"
-                        class="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-950"
-                    >
-                        <i class="fas fa-arrow-left mr-2"></i>
-                        {{ __('clips.reset_button') }}
-                    </button>
+                    <div class="flex items-start gap-3 p-3 bg-gray-800 rounded-md border border-gray-700">
+                        <i class="fas fa-rocket text-blue-400 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+                        <div>
+                            <h4 class="font-medium text-white text-sm">{{ __('clips.feature_fast_title') }}</h4>
+                            <p class="text-gray-400 text-xs">{{ __('clips.feature_fast_description') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 p-3 bg-gray-800 rounded-md border border-gray-700">
+                        <i class="fas fa-users text-purple-400 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+                        <div>
+                            <h4 class="font-medium text-white text-sm">{{ __('clips.feature_community_title') }}</h4>
+                            <p class="text-gray-400 text-xs">{{ __('clips.feature_community_description') }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        @endif
+    </div>
 
-        <!-- Success Message -->
-        @if($successMessage)
-        <div class="bg-green-900/20 border border-green-600/30 rounded-lg p-6" role="alert">
+    <!-- Success Message -->
+    @if($successMessage)
+        <div class="mt-6 bg-green-900/50 border border-green-700 rounded-md p-4" role="alert">
             <div class="flex items-start gap-3">
-                <i class="fas fa-check-circle text-green-400 mt-1"></i>
+                <div class="w-6 h-6 bg-green-600 rounded flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-check-circle text-white text-sm" aria-hidden="true"></i>
+                </div>
                 <div class="flex-1">
                     <h3 class="text-green-400 font-medium mb-1">{{ __('clips.success_title') }}</h3>
-                    <p class="text-green-100">{{ $successMessage }}</p>
+                    <p class="text-green-200 text-sm">{{ $successMessage }}</p>
                 </div>
             </div>
         </div>
-        @endif
+    @endif
 
-        <!-- Error Message -->
-        @if($errorMessage)
-        <div class="bg-red-900/20 border border-red-600/30 rounded-lg p-6" role="alert">
+    <!-- Error Message -->
+    @if($errorMessage)
+        <div class="mt-6 bg-red-900/50 border border-red-700 rounded-md p-4" role="alert">
             <div class="flex items-start gap-3">
-                <i class="fas fa-exclamation-triangle text-red-400 mt-1"></i>
+                <div class="w-6 h-6 bg-red-600 rounded flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-white text-sm" aria-hidden="true"></i>
+                </div>
                 <div class="flex-1">
                     <h3 class="text-red-400 font-medium mb-1">{{ __('clips.error_title') }}</h3>
-                    <p class="text-red-100">{{ $errorMessage }}</p>
+                    <p class="text-red-200 text-sm">{{ $errorMessage }}</p>
                 </div>
             </div>
         </div>
-        @endif
-    </div>
+    @endif
 </div>
+
+<script>
+function loadTwitchPlayer() {
+    const iframe = document.getElementById('twitch-player-iframe');
+    const playButton = iframe.previousElementSibling.querySelector('button');
+    const overlayText = iframe.nextElementSibling;
+
+    if (iframe && playButton && overlayText) {
+        // Hide play button and overlay text
+        playButton.style.display = 'none';
+        overlayText.style.display = 'none';
+
+        // Show iframe with fade-in effect
+        iframe.style.opacity = '1';
+    }
+}
+</script>

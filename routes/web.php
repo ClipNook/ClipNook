@@ -21,6 +21,6 @@ Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () {
 
 // Clips
 Route::group(['prefix' => 'clips', 'as' => 'clips.'], function () {
-    Route::get('/', fn () => view('clips.index'))->name('list');
+    Route::get('/', fn () => view('clips.list'))->name('list');
     Route::get('/submit', fn () => view('clips.submit'))->middleware('auth')->name('submit');
 });

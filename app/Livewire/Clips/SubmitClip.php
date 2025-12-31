@@ -29,10 +29,9 @@ class SubmitClip extends Component
 
     public bool $showPlayer = false;
 
-    public bool $confirmedGdpr = false;
-
     protected $listeners = [
         'clip-submitted' => 'handleClipSubmitted',
+        'twitch-player-loaded' => 'handlePlayerLoaded',
     ];
 
     public function checkClip()
@@ -77,22 +76,14 @@ class SubmitClip extends Component
 
     public function loadPlayer()
     {
-        $this->confirmedGdpr = true;
         $this->showPlayer = true;
-    }
-
-    public function confirmAndSubmit()
-    {
-        $this->confirmedGdpr = true;
-        $this->submit();
     }
 
     public function resetClip()
     {
-        $this->clipInfo      = null;
-        $this->showPlayer    = false;
-        $this->confirmedGdpr = false;
-        $this->twitchClipId  = '';
+        $this->clipInfo    = null;
+        $this->showPlayer  = false;
+        $this->twitchClipId = '';
         $this->resetMessages();
     }
 
@@ -142,6 +133,11 @@ class SubmitClip extends Component
         } finally {
             $this->isSubmitting = false;
         }
+    }
+
+    public function handlePlayerLoaded()
+    {
+        $this->showPlayer = true;
     }
 
     public function handleClipSubmitted()

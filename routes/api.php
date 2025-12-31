@@ -11,28 +11,3 @@ Route::get('/status', function () {
 
 // Health check endpoint (public)
 Route::get('/health', HealthCheckController::class);
-
-// Public clip routes (no auth required)
-Route::middleware('cache.response')->group(function () {
-    Route::get('clips/featured', [ClipController::class, 'featured']);
-    Route::get('clips/recent', [ClipController::class, 'recent']);
-    Route::get('clips/search', [ClipController::class, 'search']);
-});
-
-// Clip management routes
-Route::middleware(['auth:sanctum', 'cache.response'])->group(function () {
-    Route::apiResource('clips', ClipController::class);
-    Route::get('clips/pending/moderation', [ClipController::class, 'pending']);
-    Route::get('users/{user}/clips', [ClipController::class, 'userClips']);
-    Route::get('users/{user}/stats', [ClipController::class, 'stats']);
-});
-
-// GDPR compliance routes
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('gdpr/data-export', [GDPRController::class, 'exportData']);
-    Route::post('gdpr/account/delete-request', [GDPRController::class, 'requestDeletion']);
-    Route::delete('gdpr/account/confirm', [GDPRController::class, 'confirmDeletion']);
-    Route::get('gdpr/consents', [GDPRController::class, 'getConsents']);
-    Route::post('gdpr/consents', [GDPRController::class, 'updateConsents']);
-    Route::get('gdpr/retention-info', [GDPRController::class, 'getRetentionInfo']);
-});

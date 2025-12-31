@@ -37,10 +37,17 @@ return [
     'duration_label'      => 'Duration',
     'load_player_button'  => 'Load Player',
     'gdpr_warning'        => 'By loading the player, external content from Twitch will be embedded. This may involve data transmission to third parties according to Twitch\'s privacy policy.',
-    'gdpr_explanation'    => 'You can submit the clip without loading the player, or preview it first.',
+    'gdpr_explanation'    => 'You can consent to load the player to preview the clip.',
+    'consent_button'      => 'Load Player',
     'confirm_load'        => 'I understand and want to load the player.',
     'reset_button'        => 'Check Another Clip',
     'submit_clip_button'  => 'Submit This Clip',
+    'submit_info'         => 'No external content loaded',
+    'preview_optional'    => 'Want to preview the clip first?',
+    'loading_player'      => 'Loading player...',
+    'player_ready'        => 'Player ready to load',
+    'click_to_play'       => 'Click to play clip',
+    'external_content'    => 'External content from Twitch',
 
     // Rate Limiting Messages
     'rate_limit_exceeded' => 'Too many submissions. Try again in :seconds seconds.',
