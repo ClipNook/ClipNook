@@ -42,6 +42,9 @@ npm run build
 
 # Start the development server
 php artisan serve
+
+# Start queue worker (in separate terminal for background jobs)
+php artisan queue:work
 ```
 
 ## 📋 Requirements
@@ -61,6 +64,7 @@ php artisan serve
 - **Frontend**: Livewire 3 + Alpine.js
 - **Styling**: Tailwind CSS 4
 - **Database**: Eloquent ORM with migrations
+- **Queues**: Laravel Queue system with database/Redis drivers
 - **Authentication**: Laravel Sanctum (API tokens)
 - **Performance Monitoring**: Configurable metrics and thresholds
 - **Security**: Advanced rate limiting, login monitoring, security headers
@@ -222,6 +226,17 @@ MAIL_FROM_NAME="${APP_NAME}"
 
 # Queue (optional)
 QUEUE_CONNECTION=database
+QUEUE_TIMEOUT=90
+QUEUE_TRIES=3
+QUEUE_MAX_JOBS=1000
+QUEUE_MEMORY=128
+QUEUE_SLEEP=3
+
+# Redis (for queues and caching)
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+REDIS_DB=0
 ```
 
 ### Twitch OAuth Setup
@@ -334,7 +349,21 @@ php artisan test --filter="user can submit a clip"
 - **Unit Tests**: Test individual classes and methods
 - **Feature Tests**: Test complete user workflows
 - **API Tests**: Test HTTP endpoints and responses
+- **Queue Tests**: Test background job processing
 - **Browser Tests**: E2E testing with Pest browser testing
+
+### Queue Testing
+
+```bash
+# Run queue-related tests
+php artisan test --filter="queue"
+
+# Test job dispatching
+php artisan test --filter="job"
+
+# Test queue worker processing
+php artisan queue:work --once --queue=testing
+```
 
 ## 🛠️ Development
 
@@ -390,15 +419,296 @@ npm run watch
 - [ ] Set `APP_ENV=production` and `APP_DEBUG=false`
 - [ ] Configure production database
 - [ ] Set up proper mail configuration
-- [ ] Configure queue worker: `php artisan queue:work`
+- [ ] **Configure queue workers** (see Queue Configuration below)
 - [ ] Set up SSL certificate
 - [ ] Configure proper file permissions
 - [ ] Run `php artisan config:cache` and `php artisan route:cache`
 - [ ] Set up monitoring and logging
+- [ ] Configure backup strategy
+- [ ] Set up log rotation
+- [ ] Configure firewall and security groups
+
+### Queue Configuration
+
+ClipNook uses Laravel's queue system for processing background jobs like email notifications, clip processing, and GDPR data exports.
+
+#### Basic Queue Setup
+
+```bash
+# Run queue worker (basic)
+php artisan queue:work
+
+# Run with specific connection
+php artisan queue:work --queue=high,default
+
+# Run in background with process manager
+php artisan queue:work --daemon --sleep=3 --tries=3
+```
+
+#### Supervisor Configuration
+
+For production, use Supervisor to manage queue workers:
+
+```ini
+# /etc/supervisor/conf.d/clipnook-worker.conf
+[program:clipnook-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /path/to/clipnook/artisan queue:work --queue=high,default --sleep=3 --tries=3 --max-jobs=1000 --timeout=90
+directory=/path/to/clipnook
+autostart=true
+autorestart=true
+user=www-data
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/path/to/clipnook/storage/logs/worker.log
+```
+
+```bash
+# Reload supervisor configuration
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start clipnook-worker:*
+```
+
+#### Queue Monitoring
+
+```bash
+# Check queue status
+php artisan queue:status
+
+# List failed jobs
+php artisan queue:failed
+
+# Retry failed jobs
+php artisan queue:retry all
+
+# Clear failed jobs
+php artisan queue:flush
+
+# Monitor queue metrics (if using Laravel Horizon)
+php artisan horizon:status
+```
+
+#### Queue Configuration Options
+
+```bash
+# Environment variables
+QUEUE_CONNECTION=database  # database, redis, sqs, etc.
+QUEUE_TIMEOUT=90          # Job timeout in seconds
+QUEUE_TRIES=3             # Max retry attempts
+QUEUE_MAX_JOBS=1000       # Max jobs per worker
+QUEUE_MEMORY=128          # Memory limit per worker
+QUEUE_SLEEP=3             # Sleep time between jobs
+
+# For Redis queues (recommended for production)
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+REDIS_DB=0
+```
+
+### Web Server Configuration
+
+#### Nginx
+
+```nginx
+# /etc/nginx/sites-available/clipnook
+server {
+    listen 80;
+    server_name your-domain.com;
+    root /path/to/clipnook/public;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php;
+
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.5-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    # Cache static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
+```
+
+#### Apache
+
+```apache
+# /etc/apache2/sites-available/clipnook.conf
+<VirtualHost *:80>
+    ServerName your-domain.com
+    DocumentRoot /path/to/clipnook/public
+
+    <Directory /path/to/clipnook/public>
+        AllowOverride All
+        Require all granted
+
+        php_value upload_max_filesize 100M
+        php_value post_max_size 100M
+        php_value memory_limit 256M
+        php_value max_execution_time 300
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/clipnook_error.log
+    CustomLog ${APACHE_LOG_DIR}/clipnook_access.log combined
+</VirtualHost>
+```
+
+### SSL Configuration
+
+```bash
+# Using Certbot (Let's Encrypt)
+sudo certbot --nginx -d your-domain.com
+
+# Manual certificate installation
+# Place certificates in /etc/ssl/certs/ and /etc/ssl/private/
+```
+
+### Performance Optimization
+
+```bash
+# Cache configuration and routes
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Clear caches
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+# Optimize autoloader
+composer install --optimize-autoloader --no-dev
+
+# Pre-compile assets
+npm run build
+```
+
+### Monitoring & Logging
+
+```bash
+# Laravel Telescope (optional debugging tool)
+php artisan telescope:install
+php artisan migrate
+
+# Log monitoring
+tail -f storage/logs/laravel.log
+
+# Performance monitoring
+php artisan performance:metrics
+```
+
+### Backup Strategy
+
+```bash
+# Database backup
+mysqldump -u username -p database_name > backup.sql
+
+# File backup
+tar -czf backup.tar.gz /path/to/clipnook/storage/app
+
+# Automated backups with cron
+# Add to crontab: 0 2 * * * /path/to/backup-script.sh
+```
 
 ### Docker (Future)
 
 Docker support planned for future releases.
+
+## 🔧 Maintenance
+
+### Regular Tasks
+
+```bash
+# Clear expired cache entries
+php artisan cache:clear
+
+# Clean old log files
+php artisan log:clear
+
+# Clear old performance metrics
+php artisan performance:cleanup
+
+# Update dependencies
+composer update
+npm update
+
+# Run database maintenance
+php artisan migrate
+php artisan db:monitor
+```
+
+### Troubleshooting
+
+#### Common Issues
+
+**Queue workers not processing jobs:**
+```bash
+# Check supervisor status
+sudo supervisorctl status
+
+# Restart workers
+sudo supervisorctl restart clipnook-worker:*
+
+# Check queue status
+php artisan queue:status
+```
+
+**High memory usage:**
+```bash
+# Restart PHP-FPM
+sudo systemctl restart php8.5-fpm
+
+# Clear application cache
+php artisan cache:clear
+```
+
+**Slow performance:**
+```bash
+# Check slow queries
+php artisan performance:metrics
+
+# Optimize database
+php artisan db:monitor
+
+# Check queue backlog
+php artisan queue:status
+```
+
+### Health Checks
+
+```bash
+# Laravel health check
+curl https://your-domain.com/health
+
+# Queue health
+php artisan queue:status
+
+# Database connectivity
+php artisan db:monitor
+```
 
 ## 🤝 Contributing
 
@@ -412,10 +722,11 @@ Docker support planned for future releases.
 
 - Follow PSR-12 coding standards
 - Use Laravel Pint for code formatting
-- Write tests for new features
+- Write tests for new features (including queue jobs and background tasks)
 - Update documentation as needed
 - Use meaningful commit messages
 - Keep PRs focused and atomic
+- Test queue functionality when adding background jobs
 
 ### Code Review Process
 
