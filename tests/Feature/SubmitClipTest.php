@@ -22,21 +22,21 @@ test('validates twitch clip id format', function () {
     Livewire::actingAs($user)
         ->test(\App\Livewire\Clips\SubmitClip::class)
         ->set('twitchClipId', 'invalid@clip!')
-        ->call('submit')
+        ->call('checkClip')
         ->assertHasErrors(['twitchClipId']);
 
     // Test valid clip ID
     Livewire::actingAs($user)
         ->test(\App\Livewire\Clips\SubmitClip::class)
         ->set('twitchClipId', 'DreamyComfortableKimchiBCWarrior')
-        ->call('submit')
+        ->call('checkClip')
         ->assertHasNoErrors(['twitchClipId']);
 
     // Test valid Twitch URL
     Livewire::actingAs($user)
         ->test(\App\Livewire\Clips\SubmitClip::class)
         ->set('twitchClipId', 'https://www.twitch.tv/zurret/clip/DreamyComfortableKimchiBCWarrior-KHiH2nw1Hgh2vAGN')
-        ->call('submit')
+        ->call('checkClip')
         ->assertHasNoErrors(['twitchClipId']);
 });
 
@@ -52,9 +52,10 @@ test('handles clip not found error', function () {
     Livewire::actingAs($user)
         ->test(\App\Livewire\Clips\SubmitClip::class)
         ->set('twitchClipId', 'NonExistentClip')
-        ->call('submit')
+        ->call('checkClip')
         ->assertSet('errorMessage', 'This clip was not found on Twitch. Please check the ID and try again.')
-        ->assertSet('successMessage', null);
+        ->assertSet('successMessage', null)
+        ->assertSet('clipInfo', null);
 });
 
 // test('rejects clips older than 7 days', function () {

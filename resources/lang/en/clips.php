@@ -18,6 +18,8 @@ return [
     'clip_id_label'       => 'Twitch Clip ID',
     'clip_id_placeholder' => 'e.g., PluckyInventiveCarrotPastaThat or https://twitch.tv/.../clip/...',
     'clip_id_help'        => 'You can paste either the clip ID (e.g., :example) or the full Twitch URL.',
+    'check_clip_button'   => 'Check Clip',
+    'checking_button'     => 'Checking...',
     'submit_button'       => 'Submit Clip',
     'submitting_button'   => 'Submitting...',
     'secure_private'      => 'Secure & Private',
@@ -25,6 +27,19 @@ return [
     'help_step_1'         => 'Go to a Twitch clip URL (e.g., :example_url)',
     'help_step_2'         => 'The clip ID is the last part of the URL: :example_id',
     'help_step_3'         => 'Paste just the ID (no full URL) in the field above',
+
+    // Clip Info Display
+    'clip_info_title'     => 'Clip Information',
+    'broadcaster_label'   => 'Broadcaster',
+    'title_label'         => 'Title',
+    'created_at_label'    => 'Created At',
+    'view_count_label'    => 'Views',
+    'duration_label'      => 'Duration',
+    'load_player_button'  => 'Load Player',
+    'gdpr_warning'        => 'By loading the player, external content from Twitch will be embedded. This may involve data transmission to third parties according to Twitch\'s privacy policy.',
+    'confirm_load'        => 'I understand and want to load the player.',
+    'reset_button'        => 'Check Another Clip',
+    'submit_clip_button'  => 'Submit This Clip',
 
     // Rate Limiting Messages
     'rate_limit_exceeded' => 'Too many submissions. Try again in :seconds seconds.',
@@ -38,7 +53,13 @@ return [
     'permission_denied'          => 'You do not have permission to submit clips for this broadcaster.',
     'unexpected_error'           => 'An unexpected error occurred. Please try again later.',
 
-    // Validation Messages
-    'clip_processing'        => 'This clip is currently being processed. Please wait a moment and try again.',
-    'clip_already_submitted' => 'This clip has already been submitted.',
+    // Step Labels
+    'step_check'     => 'Check',
+    'step_info'      => 'Info',
+    'step_submit'    => 'Submit',
+    'clip_preview'   => 'Clip Preview',
+
+    // Message Titles
+    'success_title'  => 'Successfully Submitted!',
+    'error_title'    => 'Error Occurred',
 ];
