@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Clip;
+use App\Observers\ClipObserver;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
@@ -30,6 +32,14 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('local')) {
             Mail::alwaysTo('local@localhost');
         }
+
+        // Register model observers
+        Clip::observe(ClipObserver::class);
+
+        // Register custom notification channels
+        $this->app->make(\Illuminate\Notifications\ChannelManager::class)->extend('ntfy', function ($app) {
+            return new \App\Notifications\Channels\NtfyChannel;
+        });
 
         // Paginator::defaultView('vendor.pagination.tailwind');
 

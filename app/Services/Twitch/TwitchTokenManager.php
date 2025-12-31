@@ -36,7 +36,7 @@ class TwitchTokenManager
             ]);
 
         if ($response->failed()) {
-            throw new TwitchApiException('Failed to refresh user token');
+            throw TwitchApiException::tokenRefreshFailed($response->body());
         }
 
         return $response->json();
@@ -62,7 +62,7 @@ class TwitchTokenManager
             ]);
 
         if ($response->failed()) {
-            throw new TwitchApiException('Failed to fetch app access token');
+            throw TwitchApiException::appTokenFetchFailed($response->body());
         }
 
         $data = $response->json();

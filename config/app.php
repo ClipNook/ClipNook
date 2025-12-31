@@ -127,4 +127,16 @@ return [
         'store'  => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Use Synchronous Clip Submission
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, clip submissions will be processed synchronously instead
+    | of using background jobs. This is useful for testing environments.
+    |
+    */
+
+    'use_sync_clip_submission' => env('USE_SYNC_CLIP_SUBMISSION', false),
+
 ];

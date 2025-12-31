@@ -32,7 +32,7 @@ class TwitchApiClient
             ->get($url, $params);
 
         if ($response->failed()) {
-            throw new TwitchApiException("Twitch API request failed: {$response->status()} - {$response->body()}");
+            throw TwitchApiException::requestFailed($response->status(), $response->body());
         }
 
         return $response->json();
@@ -51,9 +51,19 @@ class TwitchApiClient
             ]);
 
         if ($response->failed()) {
-            throw new TwitchApiException('Failed to exchange code for token');
+            throw TwitchApiException::codeExchangeFailed($response->body());
         }
 
         return $response->json();
+    }
+
+    /**
+     * Get game information by ID
+     */
+    public function getGame(string $gameId, ?string $accessToken = null): ?array
+    {
+        $response = $this->makeRequest('games', ['id' => $gameId], $accessToken);
+
+        return $response['data'][0] ?? null;
     }
 }

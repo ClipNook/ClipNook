@@ -44,6 +44,12 @@ return new class extends Migration
 
             // User Preferences
             $table->json('preferences')->nullable();
+            $table->boolean('notifications_email')->default(true);
+            $table->boolean('notifications_web')->default(true);
+            $table->boolean('notifications_ntfy')->default(false);
+            $table->string('ntfy_server_url')->nullable();
+            $table->string('ntfy_topic')->nullable();
+            $table->string('ntfy_auth_token')->nullable();
 
             // Activity Tracking
             $table->timestamp('last_activity_at')->nullable();

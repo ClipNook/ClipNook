@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         health: '/up',
     )
+    ->withEvents(discover: [
+        __DIR__.'/../app/Events',
+    ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo(fn () => route('auth.login'));
         $middleware->redirectUsersTo(fn () => route('home'));
@@ -36,5 +39,40 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('api', \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\App\Exceptions\ClipNotFoundException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'error'   => 'clip_not_found',
+                ], 404);
+            }
+        });
+
+        $exceptions->render(function (\App\Exceptions\ClipPermissionException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'error'   => 'permission_denied',
+                ], 403);
+            }
+        });
+
+        $exceptions->render(function (\App\Exceptions\BroadcasterNotRegisteredException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'error'   => 'broadcaster_not_registered',
+                ], 400);
+            }
+        });
+
+        $exceptions->render(function (\App\Exceptions\ClipValidationException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'errors'  => $e->errors(),
+                    'error'   => 'validation_failed',
+                ], 422);
+            }
+        });
     })->create();

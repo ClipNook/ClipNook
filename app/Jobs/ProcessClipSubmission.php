@@ -1,0 +1,159 @@
+<?php
+
+namespace App\Jobs;
+
+use App\Models\Clip;
+use App\Models\User;
+use App\Services\Twitch\TwitchService;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+/**
+ * Job for processing clip submissions asynchronously.
+ *
+ * This job handles the complete clip submission workflow in the background,
+ * including Twitch API calls, validation, and database operations.
+ * Useful for improving response times and handling API rate limits.
+ */
+class ProcessClipSubmission implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public function __construct(
+        public User $user,
+        public string $twitchClipId
+    ) {}
+
+    /**
+     * Execute the job.
+     */
+    public function handle(TwitchService $twitchService): void
+    {
+        try {
+            // Validate the clip exists and get its data from Twitch
+            $clipData = $twitchService->getClip($this->twitchClipId);
+
+            if (! $clipData) {
+                Log::warning('Clip not found on Twitch', [
+                    'user_id'        => $this->user->id,
+                    'twitch_clip_id' => $this->twitchClipId,
+                ]);
+
+                return;
+            }
+
+            // Check if clip already exists
+            $existingClip = Clip::where('twitch_clip_id', $this->twitchClipId)->first();
+            if ($existingClip) {
+                Log::info('Clip already exists, skipping submission', [
+                    'user_id'          => $this->user->id,
+                    'twitch_clip_id'   => $this->twitchClipId,
+                    'existing_clip_id' => $existingClip->id,
+                ]);
+
+                return;
+            }
+
+            // Find the broadcaster user
+            $broadcaster = User::where('twitch_id', $clipData['broadcaster_id'])->first();
+            if (! $broadcaster) {
+                Log::warning('Broadcaster not registered', [
+                    'user_id'               => $this->user->id,
+                    'twitch_clip_id'        => $this->twitchClipId,
+                    'broadcaster_twitch_id' => $clipData['broadcaster_id'],
+                ]);
+
+                return;
+            }
+
+            // Check if user can submit clips for this broadcaster
+            if (! $this->user->canSubmitClipsFor($broadcaster)) {
+                Log::warning('User cannot submit clips for broadcaster', [
+                    'user_id'        => $this->user->id,
+                    'broadcaster_id' => $broadcaster->id,
+                    'twitch_clip_id' => $this->twitchClipId,
+                ]);
+
+                return;
+            }
+
+            DB::beginTransaction();
+
+            try {
+                // Create the clip
+                $clip = Clip::create([
+                    'submitter_id'      => $this->user->id,
+                    'submitted_at'      => now(),
+                    'twitch_clip_id'    => $this->twitchClipId,
+                    'title'             => $clipData['title'],
+                    'description'       => $clipData['description'] ?? null,
+                    'url'               => $clipData['url'],
+                    'thumbnail_url'     => $clipData['thumbnail_url'],
+                    'duration'          => $clipData['duration'],
+                    'view_count'        => $clipData['view_count'],
+                    'created_at_twitch' => $clipData['created_at'],
+                    'broadcaster_id'    => $broadcaster->id,
+                    'tags'              => $this->extractTags($clipData),
+                ]);
+
+                Log::info('Clip created via job', [
+                    'clip_id'        => $clip->id,
+                    'user_id'        => $this->user->id,
+                    'twitch_clip_id' => $this->twitchClipId,
+                ]);
+
+                DB::commit();
+
+                // Dispatch event for notifications and further processing
+                \App\Events\ClipSubmitted::dispatch($clip, $this->user);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Failed to create clip in job', [
+                    'user_id'        => $this->user->id,
+                    'twitch_clip_id' => $this->twitchClipId,
+                    'error'          => $e->getMessage(),
+                ]);
+                throw $e;
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Clip submission job failed', [
+                'user_id'        => $this->user->id,
+                'twitch_clip_id' => $this->twitchClipId,
+                'error'          => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Extract tags from clip data.
+     */
+    private function extractTags(array $clipData): array
+    {
+        $tags = [];
+
+        // Extract game name if available
+        if (isset($clipData['game_name'])) {
+            $tags[] = $clipData['game_name'];
+        }
+
+        // Extract broadcaster name
+        if (isset($clipData['broadcaster_name'])) {
+            $tags[] = $clipData['broadcaster_name'];
+        }
+
+        // Extract language if available
+        if (isset($clipData['language'])) {
+            $tags[] = $clipData['language'];
+        }
+
+        return array_unique($tags);
+    }
+}

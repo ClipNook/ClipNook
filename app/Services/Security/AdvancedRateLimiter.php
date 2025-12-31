@@ -2,11 +2,16 @@
 
 namespace App\Services\Security;
 
+use App\Services\Cache\CacheBackendManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 
 class AdvancedRateLimiter
 {
+    public function __construct(
+        private CacheBackendManager $cacheBackend,
+    ) {}
+
     private function getWindowSize(): int
     {
         return config('performance.rate_limiting.window_size', 60);
@@ -20,21 +25,6 @@ class AdvancedRateLimiter
     private function getBurstLimit(): int
     {
         return config('performance.rate_limiting.burst_limit', 10);
-    }
-
-    private function isRedisAvailable(): bool
-    {
-        if (! class_exists('Redis')) {
-            return false;
-        }
-
-        try {
-            Redis::ping();
-
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
     }
 
     private function getStoragePath(string $filename): string
@@ -72,61 +62,64 @@ class AdvancedRateLimiter
         $now         = time();
         $windowStart = $now - $this->getWindowSize();
 
-        if ($this->isRedisAvailable()) {
-            // Remove old entries
-            Redis::zremrangebyscore($key, '-inf', $windowStart);
+        return $this->cacheBackend->withRedis(
+            function () use ($key, $now, $windowStart) {
+                // Remove old entries
+                Redis::zremrangebyscore($key, '-inf', $windowStart);
 
-            // Count requests in current window
-            $requestCount = Redis::zcard($key);
+                // Count requests in current window
+                $requestCount = Redis::zcard($key);
 
-            // Check burst protection
-            $recentRequests = Redis::zcount($key, $now - 5, $now);
-            if ($recentRequests >= $this->getBurstLimit()) {
-                return false;
+                // Check burst protection
+                $recentRequests = Redis::zcount($key, $now - 5, $now);
+                if ($recentRequests >= $this->getBurstLimit()) {
+                    return false;
+                }
+
+                // Check overall limit
+                if ($requestCount >= $this->getMaxRequests()) {
+                    return false;
+                }
+
+                // Add current request
+                Redis::zadd($key, $now, uniqid('', true));
+                Redis::expire($key, $this->getWindowSize());
+
+                return true;
+            },
+            function () use ($safeKey, $now, $windowStart) {
+                // Fallback: Use file-based storage
+                $data = $this->readJsonFile($safeKey);
+
+                // Remove old entries
+                $data = array_filter($data, function ($timestamp) use ($windowStart) {
+                    return $timestamp > $windowStart;
+                });
+
+                // Count requests in current window
+                $requestCount = count($data);
+
+                // Check burst protection (requests in last 5 seconds)
+                $recentRequests = count(array_filter($data, function ($timestamp) use ($now) {
+                    return $timestamp > $now - 5;
+                }));
+
+                if ($recentRequests >= $this->getBurstLimit()) {
+                    return false;
+                }
+
+                // Check overall limit
+                if ($requestCount >= $this->getMaxRequests()) {
+                    return false;
+                }
+
+                // Add current request
+                $data[] = $now;
+                $this->writeJsonFile($safeKey, $data);
+
+                return true;
             }
-
-            // Check overall limit
-            if ($requestCount >= $this->getMaxRequests()) {
-                return false;
-            }
-
-            // Add current request
-            Redis::zadd($key, $now, uniqid('', true));
-            Redis::expire($key, $this->getWindowSize());
-
-            return true;
-        }
-
-        // Fallback: Use file-based storage
-        $data = $this->readJsonFile($safeKey);
-
-        // Remove old entries
-        $data = array_filter($data, function ($timestamp) use ($windowStart) {
-            return $timestamp > $windowStart;
-        });
-
-        // Count requests in current window
-        $requestCount = count($data);
-
-        // Check burst protection (requests in last 5 seconds)
-        $recentRequests = count(array_filter($data, function ($timestamp) use ($now) {
-            return $timestamp > $now - 5;
-        }));
-
-        if ($recentRequests >= $this->getBurstLimit()) {
-            return false;
-        }
-
-        // Check overall limit
-        if ($requestCount >= $this->getMaxRequests()) {
-            return false;
-        }
-
-        // Add current request
-        $data[] = $now;
-        $this->writeJsonFile($safeKey, $data);
-
-        return true;
+        );
     }
 
     public function remaining(Request $request, string $action): int
@@ -134,19 +127,24 @@ class AdvancedRateLimiter
         $key     = $this->getKey($request, $action);
         $safeKey = $this->getSafeFilename($key);
 
-        if ($this->isRedisAvailable()) {
-            $count = Redis::zcard($key);
-        } else {
-            $data = $this->readJsonFile($safeKey);
-            // Remove old entries
-            $windowStart = time() - $this->getWindowSize();
-            $data        = array_filter($data, function ($timestamp) use ($windowStart) {
-                return $timestamp > $windowStart;
-            });
-            $count = count($data);
-            // Save cleaned data
-            $this->writeJsonFile($safeKey, $data);
-        }
+        $count = $this->cacheBackend->withRedis(
+            function () use ($key) {
+                return Redis::zcard($key);
+            },
+            function () use ($safeKey) {
+                $data = $this->readJsonFile($safeKey);
+                // Remove old entries
+                $windowStart = time() - $this->getWindowSize();
+                $data        = array_filter($data, function ($timestamp) use ($windowStart) {
+                    return $timestamp > $windowStart;
+                });
+                $count = count($data);
+                // Save cleaned data
+                $this->writeJsonFile($safeKey, $data);
+
+                return $count;
+            }
+        );
 
         return max(0, $this->getMaxRequests() - $count);
     }
@@ -156,30 +154,33 @@ class AdvancedRateLimiter
         $key     = $this->getKey($request, $action);
         $safeKey = $this->getSafeFilename($key);
 
-        if ($this->isRedisAvailable()) {
-            $oldest = Redis::zrange($key, 0, 0, ['WITHSCORES' => true]);
+        return $this->cacheBackend->withRedis(
+            function () use ($key) {
+                $oldest = Redis::zrange($key, 0, 0, ['WITHSCORES' => true]);
 
-            if (empty($oldest)) {
-                return 0;
+                if (empty($oldest)) {
+                    return 0;
+                }
+
+                $oldestTimestamp = array_values($oldest)[0];
+                $windowEnd       = $oldestTimestamp + $this->getWindowSize();
+
+                return max(0, $windowEnd - time());
+            },
+            function () use ($safeKey) {
+                // Fallback: Use file-based storage
+                $data = $this->readJsonFile($safeKey);
+
+                if (empty($data)) {
+                    return 0;
+                }
+
+                $oldestTimestamp = min($data);
+                $windowEnd       = $oldestTimestamp + $this->getWindowSize();
+
+                return max(0, $windowEnd - time());
             }
-
-            $oldestTimestamp = array_values($oldest)[0];
-            $windowEnd       = $oldestTimestamp + $this->getWindowSize();
-
-            return max(0, $windowEnd - time());
-        }
-
-        // Fallback: Use file-based storage
-        $data = $this->readJsonFile($safeKey);
-
-        if (empty($data)) {
-            return 0;
-        }
-
-        $oldestTimestamp = min($data);
-        $windowEnd       = $oldestTimestamp + $this->getWindowSize();
-
-        return max(0, $windowEnd - time());
+        );
     }
 
     private function getKey(Request $request, string $action): string

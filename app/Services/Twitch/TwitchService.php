@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Twitch;
 
 use App\Events\TwitchTokenRefreshed;
 use App\Services\Twitch\Contracts\TwitchApiInterface;
+use App\Services\Twitch\DTOs\ApiLogEntryDTO;
 use App\Services\Twitch\DTOs\ClipDTO;
 use App\Services\Twitch\DTOs\GameDTO;
 use App\Services\Twitch\DTOs\StreamerDTO;
@@ -15,6 +18,7 @@ use App\Services\Twitch\Traits\ApiCaching;
 use App\Services\Twitch\Traits\ApiLogging;
 use App\Services\Twitch\Traits\ApiRateLimiting;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class TwitchService implements TwitchApiInterface
 {
@@ -47,7 +51,7 @@ class TwitchService implements TwitchApiInterface
     protected function validateConfiguration(): void
     {
         if (empty($this->clientId) || empty($this->clientSecret)) {
-            throw new TwitchApiException(__('twitch.api_invalid_config'));
+            throw TwitchApiException::invalidConfig(__('twitch.api_invalid_config'));
         }
     }
 
@@ -91,7 +95,7 @@ class TwitchService implements TwitchApiInterface
     public function refreshAccessToken(): ?TokenDTO
     {
         if (! $this->refreshToken) {
-            throw new TwitchApiException(__('twitch.api_no_refresh_token'));
+            throw TwitchApiException::noRefreshToken();
         }
 
         $data = $this->tokenManager->refreshUserToken($this->refreshToken);
@@ -106,7 +110,11 @@ class TwitchService implements TwitchApiInterface
         );
 
         $this->setTokens($token);
-        $this->logApiCall('https://id.twitch.tv/oauth2/token', ['grant_type' => 'refresh_token'], ['success' => true]);
+        $this->logApiCall(new ApiLogEntryDTO(
+            endpoint: 'https://id.twitch.tv/oauth2/token',
+            params: ['grant_type' => 'refresh_token'],
+            response: ['success' => true]
+        ));
 
         TwitchTokenRefreshed::dispatch(auth()->id() ?? 'guest', true);
 
@@ -119,7 +127,7 @@ class TwitchService implements TwitchApiInterface
 
         $rateLimitKey = "twitch_api_{$type->value}";
         if (! $this->checkActionRateLimit($type->value)) {
-            throw new TwitchApiException(__('twitch.api_rate_limit_exceeded'));
+            throw TwitchApiException::rateLimitExceeded();
         }
 
         $cacheKey = "twitch_{$type->value}_".md5(json_encode($params));
@@ -129,7 +137,11 @@ class TwitchService implements TwitchApiInterface
                 // Extract relative endpoint from full URL if provided
                 $relativeEndpoint = $this->extractRelativeEndpoint($endpoint);
                 $data             = $this->apiClient->makeRequest($relativeEndpoint, $params, $this->accessToken);
-                $this->logApiCall($endpoint, $params, $data);
+                $this->logApiCall(new ApiLogEntryDTO(
+                    endpoint: $endpoint,
+                    params: $params,
+                    response: $data
+                ));
 
                 return $data['data'] ?? null;
             } catch (TwitchApiException $e) {
@@ -138,12 +150,20 @@ class TwitchService implements TwitchApiInterface
                     $this->refreshAccessToken();
                     $relativeEndpoint = $this->extractRelativeEndpoint($endpoint);
                     $data             = $this->apiClient->makeRequest($relativeEndpoint, $params, $this->accessToken);
-                    $this->logApiCall($endpoint, $params, $data);
+                    $this->logApiCall(new ApiLogEntryDTO(
+                        endpoint: $endpoint,
+                        params: $params,
+                        response: $data
+                    ));
 
                     return $data['data'] ?? null;
                 }
 
-                $this->logApiCall($endpoint, $params, null, $e->getMessage());
+                $this->logApiCall(new ApiLogEntryDTO(
+                    endpoint: $endpoint,
+                    params: $params,
+                    error: $e->getMessage()
+                ));
                 throw $e;
             }
         }, $this->cacheTtl);
@@ -362,7 +382,7 @@ class TwitchService implements TwitchApiInterface
 
             return true;
         } catch (\Exception $e) {
-            throw new TwitchApiException('Failed to download thumbnail: '.$e->getMessage());
+            throw TwitchApiException::thumbnailDownloadFailed($e->getMessage());
         }
     }
 
@@ -374,7 +394,7 @@ class TwitchService implements TwitchApiInterface
 
             return true;
         } catch (\Exception $e) {
-            throw new TwitchApiException('Failed to download profile image: '.$e->getMessage());
+            throw TwitchApiException::profileImageDownloadFailed($e->getMessage());
         }
     }
 

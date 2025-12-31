@@ -2,10 +2,15 @@
 
 namespace App\Services\Security;
 
+use App\Services\Cache\CacheBackendManager;
 use Illuminate\Support\Facades\Redis;
 
 class LoginMonitor
 {
+    public function __construct(
+        private CacheBackendManager $cacheBackend,
+    ) {}
+
     private function getLockoutTime(): int
     {
         return config('performance.login_monitoring.lockout_time', 3600);
@@ -19,21 +24,6 @@ class LoginMonitor
     private function getAttemptWindow(): int
     {
         return config('performance.login_monitoring.attempt_window', 3600);
-    }
-
-    private function isRedisAvailable(): bool
-    {
-        if (! class_exists('Redis')) {
-            return false;
-        }
-
-        try {
-            Redis::ping();
-
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
     }
 
     private function getStoragePath(string $filename): string
@@ -66,17 +56,20 @@ class LoginMonitor
 
     public function recordAttempt(string $identifier, bool $successful): void
     {
-        if ($this->isRedisAvailable()) {
-            $key = "login_attempts:{$identifier}";
-            Redis::zadd($key, time(), uniqid('', true));
-            Redis::expire($key, $this->getAttemptWindow());
-        } else {
-            // Fallback: Use file-based storage
-            $filename = "attempts_{$identifier}";
-            $data     = $this->readJsonFile($filename);
-            $data[]   = time();
-            $this->writeJsonFile($filename, $data);
-        }
+        $this->cacheBackend->withRedis(
+            function () use ($identifier) {
+                $key = "login_attempts:{$identifier}";
+                Redis::zadd($key, time(), uniqid('', true));
+                Redis::expire($key, $this->getAttemptWindow());
+            },
+            function () use ($identifier) {
+                // Fallback: Use file-based storage
+                $filename = "attempts_{$identifier}";
+                $data     = $this->readJsonFile($filename);
+                $data[]   = time();
+                $this->writeJsonFile($filename, $data);
+            }
+        );
 
         if (! $successful) {
             $this->checkForSuspiciousActivity($identifier);
@@ -85,28 +78,31 @@ class LoginMonitor
 
     public function isLocked(string $identifier): bool
     {
-        if ($this->isRedisAvailable()) {
-            $lockKey = "login_locked:{$identifier}";
+        return $this->cacheBackend->withRedis(
+            function () use ($identifier) {
+                $lockKey = "login_locked:{$identifier}";
 
-            return Redis::exists($lockKey) > 0;
-        }
+                return Redis::exists($lockKey) > 0;
+            },
+            function () use ($identifier) {
+                // Fallback: Check file-based lock
+                $filename = "locked_{$identifier}";
+                $data     = $this->readJsonFile($filename);
 
-        // Fallback: Check file-based lock
-        $filename = "locked_{$identifier}";
-        $data     = $this->readJsonFile($filename);
+                if (empty($data) || ! isset($data['locked_until'])) {
+                    return false;
+                }
 
-        if (empty($data) || ! isset($data['locked_until'])) {
-            return false;
-        }
+                if (time() > $data['locked_until']) {
+                    // Lock has expired, remove it
+                    unlink($this->getStoragePath($filename));
 
-        if (time() > $data['locked_until']) {
-            // Lock has expired, remove it
-            unlink($this->getStoragePath($filename));
+                    return false;
+                }
 
-            return false;
-        }
-
-        return true;
+                return true;
+            }
+        );
     }
 
     public function getRemainingAttempts(string $identifier): int
@@ -115,45 +111,49 @@ class LoginMonitor
             return 0;
         }
 
-        if ($this->isRedisAvailable()) {
-            $key         = "login_attempts:{$identifier}";
-            $now         = time();
-            $windowStart = $now - $this->getAttemptWindow();
+        $attempts = $this->cacheBackend->withRedis(
+            function () use ($identifier) {
+                $key         = "login_attempts:{$identifier}";
+                $now         = time();
+                $windowStart = $now - $this->getAttemptWindow();
 
-            Redis::zremrangebyscore($key, '-inf', $windowStart);
-            $attempts = Redis::zcard($key);
-        } else {
-            $filename = "attempts_{$identifier}";
-            $data     = $this->readJsonFile($filename);
+                Redis::zremrangebyscore($key, '-inf', $windowStart);
 
-            // Remove old entries
-            $windowStart = time() - $this->getAttemptWindow();
-            $data        = array_filter($data, function ($timestamp) use ($windowStart) {
-                return $timestamp > $windowStart;
-            });
+                return Redis::zcard($key);
+            },
+            function () use ($identifier) {
+                $filename = "attempts_{$identifier}";
+                $data     = $this->readJsonFile($filename);
 
-            $attempts = count($data);
-            // Save cleaned data
-            $this->writeJsonFile($filename, $data);
-        }
+                // Remove old entries
+                $windowStart = time() - $this->getAttemptWindow();
+                $data        = array_filter($data, function ($timestamp) use ($windowStart) {
+                    return $timestamp > $windowStart;
+                });
 
-        return max(0, $this->getMaxAttempts() - $attempts);
-    }
+                $attempts = count($data);
+                // Save cleaned data
+                $this->writeJsonFile($filename, $data);
 
-    public function lock(string $identifier): void
-    {
-        if ($this->isRedisAvailable()) {
-            $lockKey = "login_locked:{$identifier}";
-            Redis::setex($lockKey, $this->getLockoutTime(), 1);
-        } else {
-            // Fallback: Use file-based lock
-            $filename = "locked_{$identifier}";
-            $data     = [
-                'locked_until' => time() + $this->getLockoutTime(),
-                'identifier'   => $identifier,
-            ];
-            $this->writeJsonFile($filename, $data);
-        }
+                return $attempts;
+            }
+        );
+
+        $this->cacheBackend->withRedis(
+            function () use ($identifier) {
+                $lockKey = "login_locked:{$identifier}";
+                Redis::setex($lockKey, $this->getLockoutTime(), 1);
+            },
+            function () use ($identifier) {
+                // Fallback: Use file-based lock
+                $filename = "locked_{$identifier}";
+                $data     = [
+                    'locked_until' => time() + $this->getLockoutTime(),
+                    'identifier'   => $identifier,
+                ];
+                $this->writeJsonFile($filename, $data);
+            }
+        );
     }
 
     private function checkForSuspiciousActivity(string $identifier): void
@@ -178,28 +178,31 @@ class LoginMonitor
 
     public function getAttemptHistory(string $identifier, int $days = 7): array
     {
-        if ($this->isRedisAvailable()) {
-            $key   = "login_attempts:{$identifier}";
-            $since = time() - ($days * 86400);
+        return $this->cacheBackend->withRedis(
+            function () use ($identifier, $days) {
+                $key   = "login_attempts:{$identifier}";
+                $since = time() - ($days * 86400);
 
-            $attempts = Redis::zrangebyscore($key, $since, '+inf', ['WITHSCORES' => true]);
+                $attempts = Redis::zrangebyscore($key, $since, '+inf', ['WITHSCORES' => true]);
 
-            return array_map(function ($timestamp) {
-                return date('Y-m-d H:i:s', $timestamp);
-            }, array_values($attempts));
-        }
+                return array_map(function ($timestamp) {
+                    return date('Y-m-d H:i:s', $timestamp);
+                }, array_values($attempts));
+            },
+            function () use ($identifier, $days) {
+                // Fallback: Use file-based storage
+                $filename = "attempts_{$identifier}";
+                $data     = $this->readJsonFile($filename);
+                $since    = time() - ($days * 86400);
 
-        // Fallback: Use file-based storage
-        $filename = "attempts_{$identifier}";
-        $data     = $this->readJsonFile($filename);
-        $since    = time() - ($days * 86400);
+                $recentAttempts = array_filter($data, function ($timestamp) use ($since) {
+                    return $timestamp > $since;
+                });
 
-        $recentAttempts = array_filter($data, function ($timestamp) use ($since) {
-            return $timestamp > $since;
-        });
-
-        return array_map(function ($timestamp) {
-            return date('Y-m-d H:i:s', $timestamp);
-        }, $recentAttempts);
+                return array_map(function ($timestamp) {
+                    return date('Y-m-d H:i:s', $timestamp);
+                }, $recentAttempts);
+            }
+        );
     }
 }

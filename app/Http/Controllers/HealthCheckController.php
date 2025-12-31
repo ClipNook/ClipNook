@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Cache\CacheBackendManager;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 
 class HealthCheckController extends Controller
 {
+    public function __construct(
+        private CacheBackendManager $cacheBackend,
+    ) {}
+
     /**
      * Perform comprehensive health check.
      */
@@ -74,15 +78,7 @@ class HealthCheckController extends Controller
      */
     private function checkRedis(): bool
     {
-        try {
-            if (! class_exists('Redis')) {
-                return true; // Redis not configured, consider healthy
-            }
-
-            return Redis::ping() !== false;
-        } catch (\Exception $e) {
-            return false;
-        }
+        return $this->cacheBackend->isRedisAvailable();
     }
 
     /**
