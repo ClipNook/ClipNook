@@ -13,7 +13,7 @@ test('clip model works', function () {
 
     $clip = Clip::factory()->create([
         'submitter_id' => $user->id,
-        'status'       => 'approved',
+        'status'       => \App\Enums\ClipStatus::APPROVED,
     ]);
 
     expect($clip)->toBeInstanceOf(Clip::class);

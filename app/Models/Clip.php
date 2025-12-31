@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Events\ClipModerated;
@@ -84,22 +86,22 @@ class Clip extends Model
     // Scopes
     public function scopePending($query)
     {
-        return $query->where('status', 'pending');
+        return $query->where('status', \App\Enums\ClipStatus::PENDING);
     }
 
     public function scopeApproved($query)
     {
-        return $query->where('status', 'approved');
+        return $query->where('status', \App\Enums\ClipStatus::APPROVED);
     }
 
     public function scopeRejected($query)
     {
-        return $query->where('status', 'rejected');
+        return $query->where('status', \App\Enums\ClipStatus::REJECTED);
     }
 
     public function scopeFlagged($query)
     {
-        return $query->where('status', 'flagged');
+        return $query->where('status', \App\Enums\ClipStatus::FLAGGED);
     }
 
     public function scopeFeatured($query)
@@ -110,28 +112,28 @@ class Clip extends Model
     // Helper methods
     public function isPending(): bool
     {
-        return $this->status === 'pending';
+        return $this->status === \App\Enums\ClipStatus::PENDING;
     }
 
     public function isApproved(): bool
     {
-        return $this->status === 'approved';
+        return $this->status === \App\Enums\ClipStatus::APPROVED;
     }
 
     public function isRejected(): bool
     {
-        return $this->status === 'rejected';
+        return $this->status === \App\Enums\ClipStatus::REJECTED;
     }
 
     public function isFlagged(): bool
     {
-        return $this->status === 'flagged';
+        return $this->status === \App\Enums\ClipStatus::FLAGGED;
     }
 
     public function approve(?User $moderator = null): void
     {
         $this->update([
-            'status'            => 'approved',
+            'status'            => \App\Enums\ClipStatus::APPROVED,
             'moderated_by'      => $moderator?->id,
             'moderated_at'      => now(),
             'moderation_reason' => null,
@@ -145,7 +147,7 @@ class Clip extends Model
     public function reject(string $reason, ?User $moderator = null): void
     {
         $this->update([
-            'status'            => 'rejected',
+            'status'            => \App\Enums\ClipStatus::REJECTED,
             'moderation_reason' => $reason,
             'moderated_by'      => $moderator?->id,
             'moderated_at'      => now(),
@@ -159,7 +161,7 @@ class Clip extends Model
     public function flag(string $reason, ?User $moderator = null): void
     {
         $this->update([
-            'status'            => 'flagged',
+            'status'            => \App\Enums\ClipStatus::FLAGGED,
             'moderation_reason' => $reason,
             'moderated_by'      => $moderator?->id,
             'moderated_at'      => now(),
@@ -202,20 +204,20 @@ class Clip extends Model
     public function getStatusBadgeAttribute(): string
     {
         return match ($this->status) {
-            'approved' => 'success',
-            'rejected' => 'danger',
-            'flagged'  => 'warning',
-            default    => 'secondary',
+            \App\Enums\ClipStatus::APPROVED => 'success',
+            \App\Enums\ClipStatus::REJECTED => 'danger',
+            \App\Enums\ClipStatus::FLAGGED  => 'warning',
+            default                         => 'secondary',
         };
     }
 
     public function getStatusTextAttribute(): string
     {
         return match ($this->status) {
-            'approved' => __('clip.status.approved'),
-            'rejected' => __('clip.status.rejected'),
-            'flagged'  => __('clip.status.flagged'),
-            default    => __('clip.status.pending'),
+            \App\Enums\ClipStatus::APPROVED => __('clip.status.approved'),
+            \App\Enums\ClipStatus::REJECTED => __('clip.status.rejected'),
+            \App\Enums\ClipStatus::FLAGGED  => __('clip.status.flagged'),
+            default                         => __('clip.status.pending'),
         };
     }
 
