@@ -8,6 +8,7 @@ use App\Events\ClipModerated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Clip extends Model
 {
@@ -322,8 +323,13 @@ class Clip extends Model
         return $this->submitted_at->diffForHumans();
     }
 
-    public function getFormattedTagsAttribute(): string
+    public function getThumbnailUrlAttribute(): string
     {
-        return $this->tags ? implode(', ', $this->tags) : '';
+        // Use local thumbnail if available, otherwise fall back to Twitch URL
+        if ($this->local_thumbnail_path && Storage::disk('public')->exists($this->local_thumbnail_path)) {
+            return Storage::disk('public')->url($this->local_thumbnail_path);
+        }
+
+        return $this->attributes['thumbnail_url'] ?? '';
     }
 }

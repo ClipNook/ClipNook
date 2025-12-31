@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn () => view('home'))->name('home');
 
 // Twitch OAuth
-Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () { //
+Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () {
     Route::middleware('guest')->group(function () {
         Route::get('/login', fn () => view('auth.login'))->name('login');
         Route::post('/twitch/login', [TwitchOAuthController::class, 'redirectToTwitch'])->name('twitch.login');
@@ -20,6 +20,7 @@ Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () { //
 });
 
 // Clips
-Route::middleware('auth')->group(function () {
-    Route::get('/clips/submit', fn () => view('clips.submit'))->name('clips.submit');
+Route::group(['prefix' => 'clips', 'as' => 'clips.'], function () {
+    Route::get('/', fn () => view('clips.index'))->name('list');
+    Route::get('/submit', fn () => view('clips.submit'))->middleware('auth')->name('submit');
 });
