@@ -32,7 +32,7 @@ class TwitchApiClient
             ->get($url, $params);
 
         if ($response->failed()) {
-            throw new TwitchApiException("Twitch API request failed: {$response->status()} - {$response->body()}");
+            throw TwitchApiException::requestFailed($response->status(), $response->body());
         }
 
         return $response->json();
@@ -51,7 +51,7 @@ class TwitchApiClient
             ]);
 
         if ($response->failed()) {
-            throw new TwitchApiException('Failed to exchange code for token');
+            throw TwitchApiException::codeExchangeFailed($response->body());
         }
 
         return $response->json();

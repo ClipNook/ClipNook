@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Exceptions;
+declare(strict_types=1);
 
-use Exception;
+namespace App\Exceptions;
 
 /**
  * Exception thrown when a user lacks permission for clip operations.
  */
-class ClipPermissionException extends Exception
+class ClipPermissionException extends AuthException
 {
     /**
      * Create exception for insufficient permissions to submit clips for a broadcaster.

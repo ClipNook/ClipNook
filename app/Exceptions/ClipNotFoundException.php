@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Exceptions;
+declare(strict_types=1);
 
-use Exception;
+namespace App\Exceptions;
 
 /**
  * Exception thrown when a Twitch clip cannot be found or accessed.
  */
-class ClipNotFoundException extends Exception
+class ClipNotFoundException extends ClipException
 {
     /**
      * Create exception for a specific Twitch clip ID.

@@ -49,7 +49,7 @@ class TwitchService implements TwitchApiInterface
     protected function validateConfiguration(): void
     {
         if (empty($this->clientId) || empty($this->clientSecret)) {
-            throw new TwitchApiException(__('twitch.api_invalid_config'));
+            throw TwitchApiException::invalidConfig(__('twitch.api_invalid_config'));
         }
     }
 
@@ -93,7 +93,7 @@ class TwitchService implements TwitchApiInterface
     public function refreshAccessToken(): ?TokenDTO
     {
         if (! $this->refreshToken) {
-            throw new TwitchApiException(__('twitch.api_no_refresh_token'));
+            throw TwitchApiException::noRefreshToken();
         }
 
         $data = $this->tokenManager->refreshUserToken($this->refreshToken);
@@ -121,7 +121,7 @@ class TwitchService implements TwitchApiInterface
 
         $rateLimitKey = "twitch_api_{$type->value}";
         if (! $this->checkActionRateLimit($type->value)) {
-            throw new TwitchApiException(__('twitch.api_rate_limit_exceeded'));
+            throw TwitchApiException::rateLimitExceeded();
         }
 
         $cacheKey = "twitch_{$type->value}_".md5(json_encode($params));
@@ -364,7 +364,7 @@ class TwitchService implements TwitchApiInterface
 
             return true;
         } catch (\Exception $e) {
-            throw new TwitchApiException('Failed to download thumbnail: '.$e->getMessage());
+            throw TwitchApiException::thumbnailDownloadFailed($e->getMessage());
         }
     }
 
@@ -376,7 +376,7 @@ class TwitchService implements TwitchApiInterface
 
             return true;
         } catch (\Exception $e) {
-            throw new TwitchApiException('Failed to download profile image: '.$e->getMessage());
+            throw TwitchApiException::profileImageDownloadFailed($e->getMessage());
         }
     }
 

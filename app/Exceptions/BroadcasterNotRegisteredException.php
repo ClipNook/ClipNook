@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Exceptions;
+declare(strict_types=1);
 
-use Exception;
+namespace App\Exceptions;
 
 /**
  * Exception thrown when a broadcaster is not registered on the platform.
  */
-class BroadcasterNotRegisteredException extends Exception
+class BroadcasterNotRegisteredException extends AuthException
 {
     /**
      * Create exception for a Twitch ID that is not registered.

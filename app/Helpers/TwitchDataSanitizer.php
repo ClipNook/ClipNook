@@ -1,6 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Helpers;
+
+use App\Exceptions\DataSanitizationException;
 
 class TwitchDataSanitizer
 {
@@ -26,12 +30,12 @@ class TwitchDataSanitizer
     {
         // Validate URL format
         if (! filter_var($url, FILTER_VALIDATE_URL)) {
-            throw new \InvalidArgumentException(__('twitch.sanitizer_invalid_url'));
+            throw DataSanitizationException::invalidUrl($url);
         }
 
         // Only allow HTTPS if required
         if (config('twitch.security.require_https') && ! str_starts_with($url, 'https://')) {
-            throw new \InvalidArgumentException(__('twitch.sanitizer_https_required'));
+            throw DataSanitizationException::httpsRequired($url);
         }
 
         // Check against allowed domains
@@ -39,7 +43,7 @@ class TwitchDataSanitizer
         $host           = parse_url($url, PHP_URL_HOST);
 
         if (! in_array($host, $allowedDomains)) {
-            throw new \InvalidArgumentException(__('twitch.sanitizer_domain_not_allowed'));
+            throw DataSanitizationException::domainNotAllowed($host);
         }
 
         return $url;
