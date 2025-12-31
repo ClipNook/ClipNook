@@ -1,77 +1,214 @@
-<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
-    <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">Submit a Twitch Clip</h2>
-        <p class="text-gray-600">Share your favorite Twitch clips with the community. Just paste the clip ID or the full Twitch URL.</p>
+<div class="max-w-4xl mx-auto bg-gray-900 text-white rounded-lg shadow-md p-6 border border-gray-700">
+    <div class="mb-8">
+        <h2 class="text-3xl font-bold text-white mb-2 flex items-center justify-center">
+            <i class="fas fa-video mr-3 text-blue-400"></i>
+            {{ __('clips.ui_title') }}
+        </h2>
+        <p class="text-lg text-gray-300 text-center">{{ __('clips.ui_description') }}</p>
     </div>
 
-    <form wire:submit="submit" class="space-y-4">
-        <!-- Clip ID Input -->
-        <div>
-            <label for="twitchClipId" class="block text-sm font-medium text-gray-700 mb-1">
-                Twitch Clip ID
-            </label>
-            <div class="relative">
-                <input
-                    type="text"
-                    id="twitchClipId"
-                    wire:model="twitchClipId"
-                    placeholder="e.g., PluckyInventiveCarrotPastaThat or https://twitch.tv/.../clip/..."
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('twitchClipId') border-red-500 @enderror"
-                    autocomplete="off"
+    <!-- Step Indicator -->
+    <div class="mb-8">
+        <div class="flex items-center justify-center space-x-4">
+            <div class="flex items-center">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center {{ !$clipInfo ? 'bg-blue-600 text-white' : 'bg-gray-600 text-gray-300' }}">
+                    <i class="fas fa-search text-sm"></i>
+                </div>
+                <span class="ml-2 text-sm font-medium {{ !$clipInfo ? 'text-blue-400' : 'text-gray-400' }}">{{ __('clips.step_check') }}</span>
+            </div>
+            <div class="w-8 h-0.5 {{ $clipInfo ? 'bg-blue-600' : 'bg-gray-600' }}"></div>
+            <div class="flex items-center">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center {{ $clipInfo && !$showPlayer ? 'bg-blue-600 text-white' : ($showPlayer ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-300') }}">
+                    <i class="fas fa-info-circle text-sm"></i>
+                </div>
+                <span class="ml-2 text-sm font-medium {{ $clipInfo && !$showPlayer ? 'text-blue-400' : ($showPlayer ? 'text-green-400' : 'text-gray-400') }}">{{ __('clips.step_info') }}</span>
+            </div>
+            <div class="w-8 h-0.5 {{ $showPlayer ? 'bg-green-600' : 'bg-gray-600' }}"></div>
+            <div class="flex items-center">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center {{ $showPlayer ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-300' }}">
+                    <i class="fas fa-paper-plane text-sm"></i>
+                </div>
+                <span class="ml-2 text-sm font-medium {{ $showPlayer ? 'text-green-400' : 'text-gray-400' }}">{{ __('clips.step_submit') }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 1: Clip ID Input -->
+    @if(!$clipInfo)
+    <div class="bg-gray-800 rounded-lg p-8 border border-gray-600 mb-6">
+        <form wire:submit.prevent="checkClip" class="space-y-6">
+            <!-- Clip ID Input -->
+            <div>
+                <label for="twitchClipId" class="block text-sm font-medium text-gray-200 mb-2 flex items-center">
+                    <i class="fas fa-link mr-2 text-gray-400"></i>
+                    {{ __('clips.clip_id_label') }}
+                </label>
+                <div class="relative">
+                    <input
+                        type="text"
+                        id="twitchClipId"
+                        wire:model="twitchClipId"
+                        placeholder="{{ __('clips.clip_id_placeholder') }}"
+                        class="w-full px-4 py-4 pl-12 border border-gray-600 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-lg @error('twitchClipId') border-red-500 @enderror"
+                        autocomplete="off"
+                    >
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-4">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                </div>
+                @error('twitchClipId')
+                    <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
+                @enderror
+                <p class="mt-2 text-sm text-gray-400">
+                    {{ __('clips.clip_id_help', ['example' => 'PluckyInventiveCarrotPastaThat']) }}
+                </p>
+            </div>
+
+            <!-- Check Button -->
+            <div class="flex items-center justify-between pt-4">
+                <button
+                    type="submit"
+                    wire:loading.attr="disabled"
+                    wire:loading.class="opacity-50 cursor-not-allowed"
+                    class="inline-flex items-center px-8 py-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                 >
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                    <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h5a.75.75 0 010 1.5h-5z" clip-rule="evenodd"></path>
-                        <path fill-rule="evenodd" d="M6.194 12.753a.75.75 0 001.06.053L16.5 4.44v2.81a.75.75 0 001.5 0v-4.5a.75.75 0 00-.75-.75h-4.5a.75.75 0 000 1.5h2.553l-9.056 8.194a.75.75 0 00-.053 1.06z" clip-rule="evenodd"></path>
-                    </svg>
+                    <i wire:loading class="fas fa-spinner fa-spin mr-3"></i>
+                    <i wire:loading.remove class="fas fa-search mr-3"></i>
+                    <span wire:loading.remove>{{ __('clips.check_clip_button') }}</span>
+                    <span wire:loading>{{ __('clips.checking_button') }}</span>
+                </button>
+
+                <div class="text-sm text-gray-400">
+                    <span class="inline-flex items-center">
+                        <i class="fas fa-shield-alt mr-1 text-green-400"></i>
+                        {{ __('clips.secure_private') }}
+                    </span>
                 </div>
             </div>
-            @error('twitchClipId')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-            <p class="mt-1 text-sm text-gray-500">
-                You can paste either the clip ID (e.g., <code class="bg-gray-100 px-1 py-0.5 rounded">PluckyInventiveCarrotPastaThat</code>) or the full Twitch URL.
-            </p>
+        </form>
+    </div>
+    @endif
+
+    <!-- Step 2: Clip Info Display -->
+    @if($clipInfo && !$showPlayer)
+    <div class="space-y-6">
+        <div class="bg-gray-800 rounded-lg p-8 border border-gray-600">
+            <h3 class="text-2xl font-semibold text-white mb-6 flex items-center">
+                <i class="fas fa-info-circle mr-3 text-blue-400"></i>
+                {{ __('clips.clip_info_title') }}
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-700 rounded-lg p-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-1">{{ __('clips.title_label') }}</label>
+                    <p class="text-white text-lg font-medium">{{ $clipInfo['title'] }}</p>
+                </div>
+                <div class="bg-gray-700 rounded-lg p-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-1">{{ __('clips.broadcaster_label') }}</label>
+                    <p class="text-white text-lg">{{ $clipInfo['broadcasterName'] }}</p>
+                </div>
+                <div class="bg-gray-700 rounded-lg p-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-1">{{ __('clips.view_count_label') }}</label>
+                    <p class="text-white text-lg">{{ number_format($clipInfo['viewCount']) }}</p>
+                </div>
+                <div class="bg-gray-700 rounded-lg p-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-1">{{ __('clips.duration_label') }}</label>
+                    <p class="text-white text-lg">{{ round($clipInfo['duration'], 1) }}s</p>
+                </div>
+                <div class="md:col-span-2 bg-gray-700 rounded-lg p-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-1">{{ __('clips.created_at_label') }}</label>
+                    <p class="text-white text-lg">{{ \Carbon\Carbon::parse($clipInfo['createdAt'])->format('M j, Y \a\t g:i A') }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- GDPR Warning and Load Player -->
+        <div class="bg-yellow-900 border border-yellow-700 rounded-lg p-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-yellow-400 text-2xl mr-4"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-lg font-medium text-yellow-200 mb-2">{{ __('clips.gdpr_warning') }}</h4>
+                    <div class="mt-4">
+                        <button
+                            wire:click="loadPlayer"
+                            class="inline-flex items-center px-6 py-3 bg-yellow-600 text-white font-medium rounded-lg hover:bg-yellow-700 focus:ring-2 focus:ring-yellow-500 transition-colors text-lg"
+                        >
+                            <i class="fas fa-play mr-3"></i>
+                            {{ __('clips.load_player_button') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="flex justify-start">
+            <button
+                wire:click="resetClip"
+                class="inline-flex items-center px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 transition-colors"
+            >
+                <i class="fas fa-arrow-left mr-3"></i>
+                {{ __('clips.reset_button') }}
+            </button>
+        </div>
+    </div>
+    @endif
+
+    <!-- Step 3: Player and Submit -->
+    @if($showPlayer)
+    <div class="space-y-6">
+        <!-- Player -->
+        <div class="bg-gray-800 rounded-lg p-8 border border-gray-600">
+            <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                <i class="fas fa-play-circle mr-3 text-green-400"></i>
+                {{ __('clips.clip_preview') }}
+            </h3>
+            <iframe
+                src="{{ $clipInfo['embedUrl'] }}&parent={{ request()->getHost() }}"
+                height="480"
+                width="100%"
+                allowfullscreen
+                class="rounded-lg border border-gray-600"
+            ></iframe>
         </div>
 
         <!-- Submit Button -->
-        <div class="flex items-center justify-between pt-4">
+        <div class="flex items-center justify-between bg-gray-800 rounded-lg p-6 border border-gray-600">
             <button
-                type="submit"
+                wire:click="submit"
                 wire:loading.attr="disabled"
                 wire:loading.class="opacity-50 cursor-not-allowed"
-                class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                class="inline-flex items-center px-8 py-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg"
             >
-                <svg wire:loading class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span wire:loading.remove>Submit Clip</span>
-                <span wire:loading>Submitting...</span>
+                <i wire:loading class="fas fa-spinner fa-spin mr-3"></i>
+                <i wire:loading.remove class="fas fa-paper-plane mr-3"></i>
+                <span wire:loading.remove>{{ __('clips.submit_clip_button') }}</span>
+                <span wire:loading>{{ __('clips.submitting_button') }}</span>
             </button>
 
-            <div class="text-sm text-gray-500">
-                <span class="inline-flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                    </svg>
-                    Secure & Private
-                </span>
-            </div>
+            <button
+                wire:click="resetClip"
+                class="inline-flex items-center px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 transition-colors"
+            >
+                <i class="fas fa-arrow-left mr-3"></i>
+                {{ __('clips.reset_button') }}
+            </button>
         </div>
-    </form>
+    </div>
+    @endif
 
     <!-- Success Message -->
     @if($successMessage)
-        <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <div class="mt-8 p-6 bg-green-900 border border-green-700 rounded-lg">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
+                    <i class="fas fa-check-circle text-green-400 text-3xl mr-4"></i>
                 </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-green-800">{{ $successMessage }}</p>
+                <div class="flex-1">
+                    <h3 class="text-lg font-medium text-green-200 mb-1">{{ __('clips.success_title') }}</h3>
+                    <p class="text-sm font-medium text-green-200">{{ $successMessage }}</p>
                 </div>
             </div>
         </div>
@@ -79,29 +216,33 @@
 
     <!-- Error Message -->
     @if($errorMessage)
-        <div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div class="mt-8 p-6 bg-red-900 border border-red-700 rounded-lg">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                    </svg>
+                    <i class="fas fa-exclamation-triangle text-red-400 text-3xl mr-4"></i>
                 </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-red-800">{{ $errorMessage }}</p>
+                <div class="flex-1">
+                    <h3 class="text-lg font-medium text-red-200 mb-1">{{ __('clips.error_title') }}</h3>
+                    <p class="text-sm font-medium text-red-200">{{ $errorMessage }}</p>
                 </div>
             </div>
         </div>
     @endif
 
     <!-- Help Section -->
-    <div class="mt-8 border-t border-gray-200 pt-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-3">How to find a Clip ID</h3>
-        <div class="bg-gray-50 rounded-lg p-4">
-            <ol class="list-decimal list-inside space-y-2 text-sm text-gray-700">
-                <li>Go to a Twitch clip URL (e.g., <code class="bg-gray-100 px-1 py-0.5 rounded">https://clips.twitch.tv/PluckyInventiveCarrotPastaThat</code>)</li>
-                <li>The clip ID is the last part of the URL: <strong>PluckyInventiveCarrotPastaThat</strong></li>
-                <li>Paste just the ID (no full URL) in the field above</li>
+    @if(!$clipInfo)
+    <div class="mt-12 border-t border-gray-600 pt-8">
+        <h3 class="text-xl font-medium text-gray-200 mb-4 flex items-center justify-center">
+            <i class="fas fa-question-circle mr-3 text-blue-400"></i>
+            {{ __('clips.help_title') }}
+        </h3>
+        <div class="bg-gray-800 rounded-lg p-6 border border-gray-600">
+            <ol class="list-decimal list-inside space-y-3 text-gray-300 text-lg">
+                <li>{{ __('clips.help_step_1', ['example_url' => 'https://clips.twitch.tv/PluckyInventiveCarrotPastaThat']) }}</li>
+                <li>{{ __('clips.help_step_2', ['example_id' => 'PluckyInventiveCarrotPastaThat']) }}</li>
+                <li>{{ __('clips.help_step_3') }}</li>
             </ol>
         </div>
     </div>
+    @endif
 </div>

@@ -6,6 +6,7 @@ use App\Actions\Clip\SubmitClipAction;
 use App\Exceptions\BroadcasterNotRegisteredException;
 use App\Exceptions\ClipNotFoundException;
 use App\Exceptions\ClipPermissionException;
+use App\Services\Twitch\TwitchService;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Validate;
@@ -18,22 +19,91 @@ class SubmitClip extends Component
 
     public bool $isSubmitting = false;
 
+    public bool $isChecking = false;
+
     public ?string $successMessage = null;
 
     public ?string $errorMessage = null;
+
+    public ?array $clipInfo = null;
+
+    public bool $showPlayer = false;
+
+    public bool $confirmedGdpr = false;
 
     protected $listeners = [
         'clip-submitted' => 'handleClipSubmitted',
     ];
 
+    public function checkClip()
+    {
+        $this->resetMessages();
+        $this->isChecking = true;
+
+        try {
+            $this->validate();
+
+            $clipId   = $this->extractClipId($this->twitchClipId);
+            $clipData = app(TwitchService::class)->getClip($clipId);
+
+            if (! $clipData) {
+                $this->errorMessage = __('clips.clip_not_found');
+
+                return;
+            }
+
+            $this->clipInfo = [
+                'id'              => $clipData->id,
+                'title'           => $clipData->title,
+                'broadcasterName' => $clipData->broadcasterName,
+                'creatorName'     => $clipData->creatorName,
+                'viewCount'       => $clipData->viewCount,
+                'createdAt'       => $clipData->createdAt,
+                'duration'        => $clipData->duration,
+                'thumbnailUrl'    => $clipData->thumbnailUrl,
+                'embedUrl'        => $clipData->embedUrl,
+            ];
+
+        } catch (ValidationException $e) {
+            $errors             = $e->errors();
+            $this->errorMessage = $errors['twitch_clip_id'][0] ?? $e->getMessage();
+        } catch (\Exception $e) {
+            $this->errorMessage = __('clips.unexpected_error');
+            report($e);
+        } finally {
+            $this->isChecking = false;
+        }
+    }
+
+    public function loadPlayer()
+    {
+        $this->confirmedGdpr = true;
+        $this->showPlayer    = true;
+    }
+
+    public function resetClip()
+    {
+        $this->clipInfo      = null;
+        $this->showPlayer    = false;
+        $this->confirmedGdpr = false;
+        $this->twitchClipId  = '';
+        $this->resetMessages();
+    }
+
     public function submit()
     {
+        if (! $this->clipInfo) {
+            $this->errorMessage = __('clips.unexpected_error');
+
+            return;
+        }
+
         // Rate limiting
         $rateLimit = config('clip.rate_limiting.submit_clip');
         $key       = 'submit-clip:'.auth()->id();
         if (RateLimiter::tooManyAttempts($key, $rateLimit['max_attempts'])) {
             $seconds            = RateLimiter::availableIn($key);
-            $this->errorMessage = "Too many submissions. Try again in {$seconds} seconds.";
+            $this->errorMessage = __('clips.rate_limit_exceeded', ['seconds' => $seconds]);
 
             return;
         }
@@ -42,31 +112,29 @@ class SubmitClip extends Component
         $this->isSubmitting = true;
 
         try {
-            $this->validate();
-
             // Extract clip ID from URL if needed
-            $clipId = $this->extractClipId($this->twitchClipId);
+            $clipId = $this->clipInfo['id'];
 
             // Execute the submission
             app(SubmitClipAction::class)->execute(auth()->user(), $clipId);
 
             RateLimiter::hit($key);
 
-            $this->successMessage = 'Clip submitted successfully! It will be processed in the background.';
-            $this->twitchClipId   = '';
+            $this->resetClip();
+            $this->successMessage = __('clips.submission_success');
             $this->dispatch('clip-submitted');
 
         } catch (ClipNotFoundException $e) {
-            $this->errorMessage = 'This clip was not found on Twitch. Please check the ID and try again.';
+            $this->errorMessage = __('clips.clip_not_found');
         } catch (BroadcasterNotRegisteredException $e) {
-            $this->errorMessage = 'The broadcaster of this clip is not registered with our service.';
+            $this->errorMessage = __('clips.broadcaster_not_registered');
         } catch (ClipPermissionException $e) {
-            $this->errorMessage = 'You do not have permission to submit clips for this broadcaster.';
+            $this->errorMessage = __('clips.permission_denied');
         } catch (ValidationException $e) {
             $errors             = $e->errors();
             $this->errorMessage = $errors['twitch_clip_id'][0] ?? $e->getMessage();
         } catch (\Exception $e) {
-            $this->errorMessage = 'An unexpected error occurred. Please try again later.';
+            $this->errorMessage = __('clips.unexpected_error');
             report($e);
         } finally {
             $this->isSubmitting = false;
