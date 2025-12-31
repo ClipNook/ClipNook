@@ -6,6 +6,7 @@ namespace App\Services\Twitch;
 
 use App\Events\TwitchTokenRefreshed;
 use App\Services\Twitch\Contracts\TwitchApiInterface;
+use App\Services\Twitch\DTOs\ApiLogEntryDTO;
 use App\Services\Twitch\DTOs\ClipDTO;
 use App\Services\Twitch\DTOs\GameDTO;
 use App\Services\Twitch\DTOs\StreamerDTO;
@@ -17,6 +18,7 @@ use App\Services\Twitch\Traits\ApiCaching;
 use App\Services\Twitch\Traits\ApiLogging;
 use App\Services\Twitch\Traits\ApiRateLimiting;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class TwitchService implements TwitchApiInterface
 {
@@ -108,7 +110,11 @@ class TwitchService implements TwitchApiInterface
         );
 
         $this->setTokens($token);
-        $this->logApiCall('https://id.twitch.tv/oauth2/token', ['grant_type' => 'refresh_token'], ['success' => true]);
+        $this->logApiCall(new ApiLogEntryDTO(
+            endpoint: 'https://id.twitch.tv/oauth2/token',
+            params: ['grant_type' => 'refresh_token'],
+            response: ['success' => true]
+        ));
 
         TwitchTokenRefreshed::dispatch(auth()->id() ?? 'guest', true);
 
@@ -131,7 +137,11 @@ class TwitchService implements TwitchApiInterface
                 // Extract relative endpoint from full URL if provided
                 $relativeEndpoint = $this->extractRelativeEndpoint($endpoint);
                 $data             = $this->apiClient->makeRequest($relativeEndpoint, $params, $this->accessToken);
-                $this->logApiCall($endpoint, $params, $data);
+                $this->logApiCall(new ApiLogEntryDTO(
+                    endpoint: $endpoint,
+                    params: $params,
+                    response: $data
+                ));
 
                 return $data['data'] ?? null;
             } catch (TwitchApiException $e) {
@@ -140,12 +150,20 @@ class TwitchService implements TwitchApiInterface
                     $this->refreshAccessToken();
                     $relativeEndpoint = $this->extractRelativeEndpoint($endpoint);
                     $data             = $this->apiClient->makeRequest($relativeEndpoint, $params, $this->accessToken);
-                    $this->logApiCall($endpoint, $params, $data);
+                    $this->logApiCall(new ApiLogEntryDTO(
+                        endpoint: $endpoint,
+                        params: $params,
+                        response: $data
+                    ));
 
                     return $data['data'] ?? null;
                 }
 
-                $this->logApiCall($endpoint, $params, null, $e->getMessage());
+                $this->logApiCall(new ApiLogEntryDTO(
+                    endpoint: $endpoint,
+                    params: $params,
+                    error: $e->getMessage()
+                ));
                 throw $e;
             }
         }, $this->cacheTtl);

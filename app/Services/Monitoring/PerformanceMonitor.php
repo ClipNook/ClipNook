@@ -3,6 +3,7 @@
 namespace App\Services\Monitoring;
 
 use App\Services\Cache\CacheBackendManager;
+use App\Services\Monitoring\DTOs\PerformanceMetricDTO;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
@@ -59,13 +60,25 @@ class PerformanceMonitor
     {
         $threshold = config('performance.slow_query_threshold', 1000);
         if ($time > $threshold) { // Log slow queries
-            $this->recordMetric('slow_query', $time, ['query' => substr($query, 0, 100)]);
+            $this->recordMetric(new PerformanceMetricDTO(
+                name: 'slow_query',
+                value: $time,
+                tags: ['query' => substr($query, 0, 100)],
+                unit: 'ms',
+                description: 'Slow database query execution time'
+            ));
         }
     }
 
     public function recordResponseTime(string $route, float $time): void
     {
-        $this->recordMetric('response_time', $time, ['route' => $route]);
+        $this->recordMetric(new PerformanceMetricDTO(
+            name: 'response_time',
+            value: $time,
+            tags: ['route' => $route],
+            unit: 'ms',
+            description: 'HTTP response time for route'
+        ));
     }
 
     public function getSystemStats(): array
@@ -157,29 +170,31 @@ class PerformanceMonitor
         );
     }
 
-    public function recordMetric(string $name, float $value, array $tags = []): void
+    public function recordMetric(PerformanceMetricDTO $metric): void
     {
-        $timestamp = now()->timestamp;
-        $metric    = [
-            'value'     => $value,
-            'timestamp' => $timestamp,
-            'tags'      => $tags,
+        $timestamp  = $metric->timestamp ?? now()->timestamp;
+        $metricData = [
+            'value'       => $metric->value,
+            'timestamp'   => $timestamp,
+            'tags'        => $metric->tags,
+            'unit'        => $metric->unit,
+            'description' => $metric->description,
         ];
 
         $this->cacheBackend->withRedis(
-            function () use ($name, $tags, $timestamp, $metric) {
-                $key = "metrics:{$name}:".implode(':', $tags);
-                Redis::zadd($key, $timestamp, json_encode($metric));
+            function () use ($metric, $timestamp, $metricData) {
+                $key = "metrics:{$metric->name}:".implode(':', $metric->tags);
+                Redis::zadd($key, $timestamp, json_encode($metricData));
                 // Keep only last 24 hours
                 Redis::zremrangebyscore($key, '-inf', $timestamp - 86400);
             },
-            function () use ($name, $timestamp, $metric) {
+            function () use ($metric, $timestamp, $metricData) {
                 // Fallback: Use file-based storage
-                $filename = "metrics_{$name}";
+                $filename = "metrics_{$metric->name}";
                 $metrics  = $this->readJsonFile($filename);
 
                 // Add new metric
-                $metrics[] = $metric;
+                $metrics[] = $metricData;
 
                 // Keep only last configured hours and limit to configured max entries
                 $retentionHours = config('performance.metrics_retention_hours', 24);
