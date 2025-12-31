@@ -135,7 +135,7 @@
             @endif
 
             <!-- Step 2: Clip Info Display -->
-            @if($clipInfo && !$showPlayer)
+            @if($clipInfo)
                 <div class="space-y-6">
                     <!-- Clip Info Card -->
                     <div class="bg-gray-900 rounded-md p-6 border border-gray-800">
@@ -214,107 +214,7 @@
                     <!-- Optional Player Preview -->
                     <div class="bg-gray-900 rounded-md p-6 border border-gray-800">
                         <div class="text-center">
-                            <div class="mb-4">
-                                <i class="fas fa-play-circle text-purple-400 text-2xl mb-2" aria-hidden="true"></i>
-                                <h3 class="text-lg font-semibold text-white mb-2">{{ __('clips.player_ready') }}</h3>
-                                <p class="text-gray-400 text-sm">{{ __('clips.preview_optional') }}</p>
-                            </div>
-                            <livewire:twitch-player-consent />
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            <!-- Step 3: Player and Final Submit -->
-            @if($showPlayer)
-                <div class="space-y-6">
-                    <!-- Player Card -->
-                    <div class="bg-gray-900 rounded-md p-6 border border-gray-800">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-8 h-8 bg-purple-600 rounded-md flex items-center justify-center">
-                                <i class="fas fa-play-circle text-white text-sm" aria-hidden="true"></i>
-                            </div>
-                            <h2 class="text-xl font-semibold text-white">{{ __('clips.clip_preview') }}</h2>
-                        </div>
-
-                        <!-- Loading State -->
-                        <div wire:loading.delay class="aspect-video bg-gray-800 rounded-md border border-gray-700 flex items-center justify-center">
-                            <div class="text-center">
-                                <i class="fas fa-spinner fa-spin text-purple-400 text-2xl mb-2" aria-hidden="true"></i>
-                                <p class="text-gray-300 font-medium">{{ __('clips.loading_player') }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Player Container -->
-                        <div wire:loading.remove class="relative aspect-video bg-gray-800 rounded-md border border-gray-700 overflow-hidden">
-                            <!-- Play Button Overlay -->
-                            <div class="absolute inset-0 flex items-center justify-center bg-black/20">
-                                <button
-                                    onclick="loadTwitchPlayer()"
-                                    class="w-16 h-16 bg-white/90 hover:bg-white rounded-full flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white"
-                                    aria-label="{{ __('clips.click_to_play') }}"
-                                >
-                                    <i class="fas fa-play text-gray-900 text-lg ml-0.5" aria-hidden="true"></i>
-                                </button>
-                            </div>
-
-                            <!-- Player iframe (hidden until clicked) -->
-                            <iframe
-                                id="twitch-player-iframe"
-                                src="{{ $clipInfo['embedUrl'] }}&parent={{ request()->getHost() }}"
-                                height="100%"
-                                width="100%"
-                                allowfullscreen
-                                class="w-full h-full absolute inset-0 opacity-0 transition-opacity duration-300"
-                                title="Twitch Clip Preview"
-                                loading="lazy"
-                            ></iframe>
-
-                            <!-- Click to play overlay text -->
-                            <div class="absolute bottom-4 left-4 right-4 text-center">
-                                <p class="text-white/80 text-sm bg-black/50 rounded px-3 py-1 inline-block">
-                                    <i class="fas fa-mouse-pointer mr-1" aria-hidden="true"></i>
-                                    {{ __('clips.click_to_play') }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Player Info -->
-                        <div class="mt-4 flex items-center justify-between text-xs text-gray-400 bg-gray-800 rounded px-3 py-2">
-                            <div class="flex items-center gap-1">
-                                <i class="fas fa-external-link-alt text-purple-400" aria-hidden="true"></i>
-                                <span>{{ __('clips.external_content') }}</span>
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <i class="fas fa-shield-alt text-green-400" aria-hidden="true"></i>
-                                <span>Twitch.tv</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Final Action Buttons -->
-                    <div class="bg-gray-900 rounded-md p-6 border border-gray-800">
-                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <button
-                                wire:click="submit"
-                                wire:loading.attr="disabled"
-                                class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
-                                aria-label="{{ __('clips.submit_clip_button') }}"
-                            >
-                                <i wire:loading class="fas fa-spinner fa-spin mr-2" aria-hidden="true"></i>
-                                <i wire:loading.remove class="fas fa-paper-plane mr-2" aria-hidden="true"></i>
-                                <span wire:loading.remove>{{ __('clips.submit_clip_button') }}</span>
-                                <span wire:loading>{{ __('clips.submitting_button') }}</span>
-                            </button>
-
-                            <button
-                                wire:click="resetClip"
-                                class="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-                                aria-label="{{ __('clips.reset_button') }}"
-                            >
-                                <i class="fas fa-arrow-left mr-2" aria-hidden="true"></i>
-                                {{ __('clips.reset_button') }}
-                            </button>
+                            <livewire:twitch-player-consent :clip-info="$clipInfo" />
                         </div>
                     </div>
                 </div>

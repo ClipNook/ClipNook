@@ -30,7 +30,7 @@ class SubmitClip extends Component
     public bool $showPlayer = false;
 
     protected $listeners = [
-        'clip-submitted' => 'handleClipSubmitted',
+        'clip-submitted'       => 'handleClipSubmitted',
         'twitch-player-loaded' => 'handlePlayerLoaded',
     ];
 
@@ -53,6 +53,7 @@ class SubmitClip extends Component
 
             $this->clipInfo = [
                 'id'              => $clipData->id,
+                'twitchClipId'    => $clipId, // Original Twitch Clip ID
                 'title'           => $clipData->title,
                 'broadcasterName' => $clipData->broadcasterName,
                 'creatorName'     => $clipData->creatorName,
@@ -81,8 +82,8 @@ class SubmitClip extends Component
 
     public function resetClip()
     {
-        $this->clipInfo    = null;
-        $this->showPlayer  = false;
+        $this->clipInfo     = null;
+        $this->showPlayer   = false;
         $this->twitchClipId = '';
         $this->resetMessages();
     }

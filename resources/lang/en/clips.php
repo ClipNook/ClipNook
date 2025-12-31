@@ -72,16 +72,24 @@ return [
     'error_title'    => 'Error Occurred',
 
     // Page Titles and Descriptions
-    'submit_page_title'    => 'Submit a Clip',
-    'submit_page_subtitle' => 'Share your favorite Twitch clips with the community',
-    'library_page_title'   => 'Clip Library',
+    'submit_page_title'     => 'Submit a Clip',
+    'submit_page_subtitle'  => 'Share your favorite Twitch clips with the community',
+    'library_page_title'    => 'Clip Library',
     'library_page_subtitle' => 'Discover and explore submitted clips',
 
     // Feature Cards
-    'feature_secure_title'        => 'Secure',
-    'feature_secure_description'  => 'All clips are processed securely with privacy in mind.',
-    'feature_fast_title'          => 'Fast',
-    'feature_fast_description'    => 'Quick submission process with background processing.',
-    'feature_community_title'     => 'Community',
+    'feature_secure_title'          => 'Secure',
+    'feature_secure_description'    => 'All clips are processed securely with privacy in mind.',
+    'feature_fast_title'            => 'Fast',
+    'feature_fast_description'      => 'Quick submission process with background processing.',
+    'feature_community_title'       => 'Community',
     'feature_community_description' => 'Share clips with fellow Twitch enthusiasts.',
+
+    // Twitch Player Consent
+    'twitch_consent_title'             => 'Twitch Clip Player',
+    'twitch_consent_description'       => 'This clip is hosted on Twitch. By clicking "Load Clip", you agree to load content from Twitch.tv.',
+    'twitch_consent_privacy_title'     => 'Privacy Notice',
+    'twitch_consent_privacy_notice'    => 'This content is provided by Twitch and may use cookies or tracking technologies. By loading, you agree to Twitch\'s privacy policy.',
+    'twitch_consent_load_button'       => 'Load Clip',
+    'twitch_consent_cancel_button'     => 'Cancel',
 ];
