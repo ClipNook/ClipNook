@@ -12,12 +12,12 @@ test('clip model works', function () {
     ]);
 
     $clip = Clip::factory()->create([
-        'user_id' => $user->id,
-        'status'  => 'approved',
+        'submitter_id' => $user->id,
+        'status'       => 'approved',
     ]);
 
     expect($clip)->toBeInstanceOf(Clip::class);
-    expect($clip->user)->toBeInstanceOf(User::class);
+    expect($clip->submitter)->toBeInstanceOf(User::class);
     expect($clip->isApproved())->toBeTrue();
 });
 

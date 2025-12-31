@@ -2,10 +2,10 @@
 
 namespace App\Actions\Clip;
 
+use App\Jobs\ProcessClipSubmission;
 use App\Models\Clip;
 use App\Models\User;
 use App\Services\Twitch\TwitchApiClient;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
@@ -18,15 +18,19 @@ class SubmitClipAction
     /**
      * Submit a clip from Twitch
      *
+     * This action handles the initial clip submission validation and dispatches
+     * a background job for processing. This improves response times and handles
+     * API rate limits gracefully.
+     *
      * @param  User  $user  The user submitting the clip
      * @param  string  $twitchClipId  The Twitch clip ID
-     * @return Clip The created clip
+     * @return bool True if job was dispatched successfully
      *
-     * @throws ValidationException
+     * @throws ValidationException When validation fails
      */
-    public function execute(User $user, string $twitchClipId): Clip
+    public function execute(User $user, string $twitchClipId): bool
     {
-        // Validate the clip exists and get its data from Twitch
+        // Basic validation - check if clip exists on Twitch
         $clipData = $this->twitchApiClient->getClip($twitchClipId);
 
         if (! $clipData) {
@@ -39,72 +43,27 @@ class SubmitClipAction
             throw ValidationException::withMessages(['twitch_clip_id' => ['This clip has already been submitted.']]);
         }
 
-        // Validate clip ownership (user must be the creator)
-        if ($clipData['broadcaster_id'] !== $user->twitch_id) {
-            throw ValidationException::withMessages(['twitch_clip_id' => ['You can only submit clips that you created.']]);
+        // Find the broadcaster user
+        $broadcaster = User::where('twitch_id', $clipData['broadcaster_id'])->first();
+        if (! $broadcaster) {
+            throw ValidationException::withMessages(['twitch_clip_id' => ['The broadcaster of this clip is not registered on our platform.']]);
         }
 
-        DB::beginTransaction();
-
-        try {
-            // Create the clip
-            $clip = Clip::create([
-                'user_id'           => $user->id,
-                'twitch_clip_id'    => $twitchClipId,
-                'title'             => $clipData['title'],
-                'description'       => $clipData['description'] ?? null,
-                'url'               => $clipData['url'],
-                'thumbnail_url'     => $clipData['thumbnail_url'],
-                'duration'          => $clipData['duration'],
-                'view_count'        => $clipData['view_count'],
-                'created_at_twitch' => $clipData['created_at'],
-                'tags'              => $this->extractTags($clipData),
-            ]);
-
-            // Log the activity
-            Log::info('Clip submitted', [
-                'user_id'        => $user->id,
-                'clip_id'        => $clip->id,
-                'twitch_clip_id' => $twitchClipId,
-            ]);
-
-            DB::commit();
-
-            return $clip;
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to submit clip', [
-                'user_id'        => $user->id,
-                'twitch_clip_id' => $twitchClipId,
-                'error'          => $e->getMessage(),
-            ]);
-
-            throw $e;
-        }
-    }
-
-    /**
-     * Extract tags from clip data
-     */
-    private function extractTags(array $clipData): array
-    {
-        $tags = [];
-
-        // Extract game name if available
-        if (isset($clipData['game_name'])) {
-            $tags[] = $clipData['game_name'];
+        // Check if user can submit clips for this broadcaster
+        if (! $user->canSubmitClipsFor($broadcaster)) {
+            throw ValidationException::withMessages(['twitch_clip_id' => ['You do not have permission to submit clips for this broadcaster.']]);
         }
 
-        // Extract broadcaster name
-        if (isset($clipData['broadcaster_name'])) {
-            $tags[] = $clipData['broadcaster_name'];
-        }
+        // Dispatch the background job for processing
+        ProcessClipSubmission::dispatch($user, $twitchClipId);
 
-        // Extract language if available
-        if (isset($clipData['language'])) {
-            $tags[] = $clipData['language'];
-        }
+        // Log the job dispatch
+        Log::info('Clip submission job dispatched', [
+            'user_id'        => $user->id,
+            'twitch_clip_id' => $twitchClipId,
+            'broadcaster_id' => $broadcaster->id,
+        ]);
 
-        return array_unique($tags);
+        return true;
     }
 }

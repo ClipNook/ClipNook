@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         health: '/up',
     )
+    ->withEvents(discover: [
+        __DIR__.'/../app/Events',
+    ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo(fn () => route('auth.login'));
         $middleware->redirectUsersTo(fn () => route('home'));

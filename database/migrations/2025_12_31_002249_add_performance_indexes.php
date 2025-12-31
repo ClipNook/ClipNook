@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('clips', function (Blueprint $table) {
             // Composite indexes for common queries
             $table->index(['status', 'is_featured', 'created_at'], 'idx_clips_status_featured_created');
-            $table->index(['user_id', 'status', 'created_at'], 'idx_clips_user_status_created');
+            $table->index(['submitter_id', 'status', 'created_at'], 'idx_clips_submitter_status_created');
 
             // Full-text search index (MySQL)
             if (DB::connection()->getDriverName() === 'mysql') {
@@ -40,7 +40,7 @@ return new class extends Migration
     {
         Schema::table('clips', function (Blueprint $table) {
             $table->dropIndex('idx_clips_status_featured_created');
-            $table->dropIndex('idx_clips_user_status_created');
+            $table->dropIndex('idx_clips_submitter_status_created');
 
             if (DB::connection()->getDriverName() === 'mysql') {
                 DB::statement('ALTER TABLE clips DROP INDEX idx_clips_fulltext');

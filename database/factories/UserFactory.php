@@ -21,6 +21,42 @@ class UserFactory extends Factory
             'twitch_login'        => $this->faker->userName(),
             'twitch_display_name' => $this->faker->name(),
             'twitch_email'        => $this->faker->email(),
+            'email_verified_at'   => now(),
+            'is_viewer'           => true,
+            'is_cutter'           => false,
+            'is_streamer'         => false,
+            'is_moderator'        => false,
+            'is_admin'            => false,
         ];
+    }
+
+    /**
+     * Create a streamer user.
+     */
+    public function streamer(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_streamer' => true,
+        ]);
+    }
+
+    /**
+     * Create a moderator user.
+     */
+    public function moderator(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_moderator' => true,
+        ]);
+    }
+
+    /**
+     * Create an admin user.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_admin' => true,
+        ]);
     }
 }

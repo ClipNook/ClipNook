@@ -14,8 +14,12 @@ class ClipFactory extends Factory
      */
     public function definition(): array
     {
+        $user        = \App\Models\User::factory()->create();
+        $broadcaster = \App\Models\User::factory()->create();
+
         return [
-            'user_id'           => \App\Models\User::factory(),
+            'submitter_id'      => $user->id,
+            'submitted_at'      => $this->faker->dateTimeBetween('-1 month', 'now'),
             'twitch_clip_id'    => $this->faker->unique()->regexify('[A-Za-z0-9]{10}'),
             'title'             => $this->faker->sentence(),
             'description'       => $this->faker->optional()->paragraph(),
@@ -28,6 +32,7 @@ class ClipFactory extends Factory
             'tags'              => $this->faker->randomElements(['gaming', 'twitch', 'clips', 'streaming', 'esports'], $this->faker->numberBetween(0, 3)),
             'upvotes'           => $this->faker->numberBetween(0, 1000),
             'downvotes'         => $this->faker->numberBetween(0, 100),
+            'broadcaster_id'    => $broadcaster->id, // Random broadcaster user
         ];
     }
 

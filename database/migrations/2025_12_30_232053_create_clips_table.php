@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('clips', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('twitch_clip_id')->unique(); // Twitch's clip ID
             $table->string('title');
             $table->text('description')->nullable();
@@ -23,6 +22,9 @@ return new class extends Migration
             $table->integer('view_count')->default(0);
             $table->timestamp('created_at_twitch'); // When created on Twitch
             $table->enum('status', ['pending', 'approved', 'rejected', 'flagged'])->default('pending');
+            $table->foreignId('submitter_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->timestamp('submitted_at')->useCurrent();
+            $table->foreignId('broadcaster_id')->constrained('users')->onDelete('cascade');
             $table->text('moderation_reason')->nullable(); // Reason for rejection/flagging
             $table->foreignId('moderated_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamp('moderated_at')->nullable();
@@ -33,7 +35,6 @@ return new class extends Migration
             $table->timestamps();
 
             // Indexes for performance
-            $table->index(['user_id', 'status']);
             $table->index(['status', 'created_at']);
             $table->index('twitch_clip_id');
             $table->index('is_featured');
