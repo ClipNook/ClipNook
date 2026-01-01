@@ -2,17 +2,14 @@
     <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-neutral-950">
         <div class="max-w-7xl mx-auto">
             <!-- Header -->
-            <div class="mb-6">
-                <h1 class="text-2xl font-semibold text-neutral-100 mb-1">
-                    {{ __('clips.library_page_title') }}
-                </h1>
-                <p class="text-sm text-neutral-400">
-                    {{ __('clips.library_page_subtitle') }}
-                </p>
-            </div>
+            <x-ui.hero-section
+                :title="__('clips.library_page_title')"
+                :subtitle="__('clips.library_page_subtitle')"
+                class="mb-8"
+            />
 
             <!-- Main Content -->
-            <div class="bg-neutral-900 rounded-md border border-neutral-800">
+            <div class="bg-neutral-900 rounded-lg border border-neutral-800 shadow-xl">
                 <div class="p-6">
                     <livewire:clips.clip-list />
                 </div>

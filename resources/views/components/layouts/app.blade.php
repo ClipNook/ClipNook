@@ -174,51 +174,76 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-neutral-900/50 border-t border-neutral-800/50 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="flex flex-col items-center justify-center space-y-6">
-                <!-- Brand & Description -->
-                <div class="text-center">
-                    <div class="flex items-center justify-center gap-3 mb-3">
-                        <i class="fa-solid fa-video text-xl text-neutral-400"></i>
-                        <span class="font-semibold text-xl text-neutral-100">{{ config('app.name') }}</span>
+    <footer class="bg-neutral-900/30 border-t border-neutral-800/30 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+                <!-- Brand Section -->
+                <div class="lg:col-span-1">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-neutral-800 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-video text-xl text-neutral-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-neutral-100">{{ config('app.name') }}</h3>
+                            <p class="text-xs text-neutral-500 uppercase tracking-wide">Open Source</p>
+                        </div>
                     </div>
-                    <p class="text-neutral-400 text-sm max-w-md mx-auto leading-relaxed">
+                    <p class="text-neutral-400 text-sm leading-relaxed">
                         {{ __('footer.description') }}
                     </p>
                 </div>
 
-                <!-- GitHub & Open Source -->
-                <div class="flex flex-col sm:flex-row items-center gap-4">
-                    <a href="https://github.com/ClipNook/ClipNook" target="_blank" rel="noopener noreferrer"
-                       class="flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-neutral-100 rounded-md transition-colors border border-neutral-700">
-                        <i class="fa-brands fa-github text-lg"></i>
-                        <span class="text-sm font-medium">{{ __('footer.view_source') }}</span>
-                    </a>
-                    <div class="flex items-center gap-2 px-3 py-1 bg-green-900/20 border border-green-700/30 rounded-full">
-                        <i class="fa-solid fa-code-branch text-green-400 text-xs"></i>
-                        <span class="text-xs text-green-300 font-medium">{{ __('footer.open_source') }}</span>
-                    </div>
-                </div>
-
-                <!-- Bottom Links & Copyright -->
-                <div class="flex flex-col sm:flex-row items-center justify-between w-full pt-6 border-t border-neutral-800/50">
-                    <div class="flex items-center gap-6 mb-4 sm:mb-0">
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-neutral-300 font-medium mb-4">{{ __('footer.quick_links') }}</h4>
+                    <div class="flex flex-col gap-3">
                         <a href="{{ route('home') }}" class="text-neutral-500 hover:text-neutral-300 text-sm transition-colors">{{ __('nav.home') }}</a>
                         <a href="{{ route('clips.list') }}" class="text-neutral-500 hover:text-neutral-300 text-sm transition-colors">{{ __('nav.clips') }}</a>
+                        <a href="{{ route('games.list') }}" class="text-neutral-500 hover:text-neutral-300 text-sm transition-colors">{{ __('nav.games') }}</a>
                         @auth
                             <a href="{{ route('clips.submit') }}" class="text-neutral-500 hover:text-neutral-300 text-sm transition-colors">{{ __('nav.submit') }}</a>
                         @endauth
                     </div>
+                </div>
 
+                <!-- Legal -->
+                <div>
+                    <h4 class="text-neutral-300 font-medium mb-4">{{ __('footer.legal') }}</h4>
+                    <div class="flex flex-col gap-3">
+                        <a href="#" class="text-neutral-500 hover:text-neutral-300 text-sm transition-colors">{{ __('footer.imprint') }}</a>
+                        <a href="#" class="text-neutral-500 hover:text-neutral-300 text-sm transition-colors">{{ __('footer.privacy_policy') }}</a>
+                        <a href="#" class="text-neutral-500 hover:text-neutral-300 text-sm transition-colors">{{ __('footer.terms_of_service') }}</a>
+                    </div>
+                </div>
+
+                <!-- Community -->
+                <div>
+                    <h4 class="text-neutral-300 font-medium mb-4">{{ __('footer.community') }}</h4>
+                    <div class="flex flex-col gap-3">
+                        <a href="https://github.com/ClipNook/ClipNook" target="_blank" rel="noopener noreferrer"
+                           class="inline-flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-neutral-100 rounded-md transition-colors border border-neutral-700 text-sm">
+                            <i class="fa-brands fa-github"></i>
+                            {{ __('footer.view_source') }}
+                        </a>
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-code-branch text-green-400 text-sm"></i>
+                            <span class="text-green-400 text-sm font-medium">{{ __('footer.open_source') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Section -->
+            <div class="border-t border-neutral-800/50 mt-12 pt-8">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <p class="text-neutral-500 text-sm">
+                        © {{ date('Y') }} {{ config('app.name') }}. {{ __('footer.all_rights_reserved') }}
+                    </p>
                     <div class="flex items-center gap-4">
-                        <p class="text-neutral-500 text-xs">
+                        <p class="text-neutral-500 text-sm">
                             {{ __('footer.made_with') }}
                             <i class="fa-solid fa-heart text-red-500 mx-1"></i>
-                            <span class="text-neutral-400">Laravel</span>
-                        </p>
-                        <p class="text-neutral-500 text-xs border-l border-neutral-800 pl-4">
-                            © {{ date('Y') }} {{ config('app.name') }}
+                            <span class="text-neutral-400 font-medium">ClipNook</span>
                         </p>
                     </div>
                 </div>
