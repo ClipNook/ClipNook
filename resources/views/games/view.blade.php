@@ -1,13 +1,12 @@
 <x-layouts.app title="{{ $game->name }} - {{ __('games.view_page_title') }}">
-    <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-neutral-950">
+    <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-zinc-950">
         <div class="max-w-7xl mx-auto space-y-8">
             <!-- Game Header -->
-            <div class="bg-neutral-900 rounded-lg border border-neutral-800 overflow-hidden shadow-xl">
-                <div class="relative h-64 bg-gradient-to-br from-neutral-800 to-neutral-900">
-                    <div class="absolute inset-0 bg-black/40"></div>
+            <div class="bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden shadow-xl">
+                <div class="relative h-64 bg-zinc-800">
                     <div class="absolute inset-0 flex items-center justify-center">
                         @if($game->local_box_art_path)
-                            <div class="w-40 h-56 bg-neutral-800 rounded-lg border-2 border-neutral-700 overflow-hidden shadow-2xl">
+                            <div class="w-40 h-56 bg-zinc-800 rounded-lg border-2 border-zinc-700 overflow-hidden shadow-2xl">
                                 <img
                                     src="{{ Storage::url($game->local_box_art_path) }}"
                                     alt="{{ $game->name }}"
@@ -15,21 +14,21 @@
                                 >
                             </div>
                         @else
-                            <div class="w-40 h-56 bg-neutral-800 rounded-lg border-2 border-neutral-700 flex items-center justify-center shadow-2xl">
-                                <i class="fa-solid fa-gamepad text-neutral-600 text-5xl"></i>
+                            <div class="w-40 h-56 bg-zinc-800 rounded-lg border-2 border-zinc-700 flex items-center justify-center shadow-2xl">
+                                <i class="fa-solid fa-gamepad text-zinc-600 text-5xl"></i>
                             </div>
                         @endif
                     </div>
                 </div>
                 <div class="p-8 text-center">
-                    <h1 class="text-3xl font-bold text-neutral-100 mb-4">{{ $game->name }}</h1>
+                    <h1 class="text-3xl font-bold text-zinc-100 mb-4">{{ $game->name }}</h1>
                     <div class="flex flex-wrap justify-center gap-4 text-sm">
-                        <div class="px-4 py-2 bg-neutral-800 border border-neutral-700 text-neutral-300 rounded-lg">
-                            <i class="fa-solid fa-video mr-2 text-purple-400"></i>
+                        <div class="px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-lg">
+                            <i class="fa-solid fa-video mr-2 text-violet-400"></i>
                             {{ number_format($clipsCount) }} {{ Str::plural('clip', $clipsCount) }}
                         </div>
-                        <div class="px-4 py-2 bg-neutral-800 border border-neutral-700 text-neutral-300 rounded-lg">
-                            <i class="fa-solid fa-users mr-2 text-blue-400"></i>
+                        <div class="px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-lg">
+                            <i class="fa-solid fa-users mr-2 text-violet-400"></i>
                             {{ number_format($streamersCount) }} {{ Str::plural('streamer', $streamersCount) }}
                         </div>
                     </div>
@@ -37,7 +36,7 @@
             </div>
 
             <!-- Clips Section -->
-            <div class="bg-neutral-900 rounded-lg border border-neutral-800 shadow-xl p-8">
+            <div class="bg-zinc-900 rounded-lg border border-zinc-800 shadow-xl p-8">
                 <x-ui.section-header
                     :title="__('games.clips_section')"
                     icon="video"

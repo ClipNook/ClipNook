@@ -9,16 +9,16 @@
                         type="text"
                         wire:model.live.debounce.300ms="search"
                         placeholder="{{ __('clips.search_placeholder') }}"
-                        class="w-full px-4 py-2.5 pl-10 border border-neutral-700 rounded-md bg-neutral-800 text-white placeholder-neutral-500 focus:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-700 transition-colors"
+                        class="w-full px-4 py-2.5 pl-10 border border-zinc-700 rounded-md bg-zinc-800 text-white placeholder-zinc-500 focus:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-700 transition-colors"
                         aria-label="{{ __('clips.search_placeholder') }}"
                     >
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3">
-                        <i class="fa-solid fa-magnifying-glass text-neutral-500 text-sm"></i>
+                        <i class="fa-solid fa-magnifying-glass text-zinc-500 text-sm"></i>
                     </div>
                     @if($search)
                         <button
                             wire:click="$set('search', '')"
-                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-400 hover:text-white transition-colors"
+                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 hover:text-white transition-colors"
                             aria-label="{{ __('clips.clear_search') }}"
                         >
                             <i class="fa-solid fa-xmark text-sm"></i>
@@ -31,7 +31,7 @@
             <div class="flex gap-3">
                 <select
                     wire:model.live="sortBy"
-                    class="px-4 py-2.5 border border-neutral-700 rounded-md bg-neutral-800 text-white focus:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-700 transition-colors"
+                    class="px-4 py-2.5 border border-zinc-700 rounded-md bg-zinc-800 text-white focus:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-700 transition-colors"
                     aria-label="{{ __('clips.sort_by') }}"
                 >
                     <option value="recent">{{ __('clips.sort_recent') }}</option>
@@ -44,11 +44,11 @@
         <!-- Active Filters -->
         @if($search)
             <div class="mt-3 flex items-center gap-2">
-                <span class="text-sm text-neutral-400">{{ __('clips.active_filters') }}:</span>
-                <span class="inline-flex items-center gap-2 px-3 py-1 bg-neutral-800 border border-neutral-700 rounded-md text-sm text-neutral-300">
-                    <i class="fa-solid fa-magnifying-glass text-xs text-neutral-500"></i>
+                <span class="text-sm text-zinc-400">{{ __('clips.active_filters') }}:</span>
+                <span class="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800 border border-zinc-700 rounded-md text-sm text-zinc-300">
+                    <i class="fa-solid fa-magnifying-glass text-xs text-zinc-500"></i>
                     {{ $search }}
-                    <button wire:click="$set('search', '')" class="text-neutral-400 hover:text-white transition-colors">
+                    <button wire:click="$set('search', '')" class="text-zinc-400 hover:text-white transition-colors">
                         <i class="fa-solid fa-xmark text-xs"></i>
                     </button>
                 </span>
@@ -60,9 +60,9 @@
     @if($clips->count() > 0)
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             @foreach($clips as $clip)
-                <a href="{{ route('clips.view', $clip) }}" class="group block bg-neutral-800 rounded-md overflow-hidden border border-neutral-700 hover:border-neutral-600 transition-colors">
+                <a href="{{ route('clips.view', $clip) }}" class="group block bg-zinc-800 rounded-md overflow-hidden border border-zinc-700 hover:border-zinc-600 transition-colors">
                     <!-- Thumbnail -->
-                    <div class="aspect-video bg-neutral-700 relative overflow-hidden">
+                    <div class="aspect-video bg-zinc-700 relative overflow-hidden">
                         @if($clip->thumbnail_url)
                             <img
                                 src="{{ $clip->thumbnail_url }}"
@@ -71,7 +71,7 @@
                                 loading="lazy"
                             >
                         @else
-                            <div class="w-full h-full flex items-center justify-center text-neutral-600">
+                            <div class="w-full h-full flex items-center justify-center text-zinc-600">
                                 <i class="fa-solid fa-video text-3xl"></i>
                             </div>
                         @endif
@@ -84,40 +84,40 @@
 
                     <!-- Content -->
                     <div class="p-4">
-                        <h3 class="text-neutral-100 font-medium text-sm mb-3 line-clamp-2 leading-snug" title="{{ $clip->title }}">
+                        <h3 class="text-zinc-100 font-medium text-sm mb-3 line-clamp-2 leading-snug" title="{{ $clip->title }}">
                             {{ $clip->title }}
                         </h3>
 
                         <div class="space-y-2">
                             <!-- Broadcaster -->
                             <div class="flex items-center gap-2 text-xs">
-                                <i class="fa-solid fa-user text-neutral-500 w-3"></i>
-                                <span class="text-neutral-400 truncate">{{ $clip->broadcaster?->twitch_display_name ?? 'Unknown' }}</span>
+                                <i class="fa-solid fa-user text-zinc-500 w-3"></i>
+                                <span class="text-zinc-400 truncate">{{ $clip->broadcaster?->twitch_display_name ?? 'Unknown' }}</span>
                             </div>
 
                             <!-- Game -->
                             @if($clip->game)
                                 <div class="flex items-center gap-2 text-xs">
-                                    <i class="fa-solid fa-gamepad text-neutral-500 w-3"></i>
-                                    <span class="text-neutral-400 truncate">{{ $clip->game->name }}</span>
+                                    <i class="fa-solid fa-gamepad text-zinc-500 w-3"></i>
+                                    <span class="text-zinc-400 truncate">{{ $clip->game->name }}</span>
                                 </div>
                             @endif
 
                             <!-- Stats Row -->
-                            <div class="flex items-center justify-between pt-2 border-t border-neutral-700">
-                                <div class="flex items-center gap-3 text-xs text-neutral-500">
+                            <div class="flex items-center justify-between pt-2 border-t border-zinc-700">
+                                <div class="flex items-center gap-3 text-xs text-zinc-500">
                                     <span class="flex items-center gap-1">
                                         <i class="fa-solid fa-eye"></i>
                                         {{ number_format($clip->view_count) }}
                                     </span>
                                     @if($clip->upvotes > 0 || $clip->downvotes > 0)
-                                        <span class="flex items-center gap-1 text-neutral-400">
+                                        <span class="flex items-center gap-1 text-zinc-400">
                                             <i class="fa-solid fa-thumbs-up"></i>
                                             {{ $clip->upvotes }}
                                         </span>
                                     @endif
                                 </div>
-                                <span class="text-xs text-neutral-500">
+                                <span class="text-xs text-zinc-500">
                                     {{ $clip->created_at_twitch?->format('M j') ?? $clip->created_at->format('M j') }}
                                 </span>
                             </div>
@@ -134,11 +134,11 @@
     @else
         <!-- Empty State -->
         <div class="text-center py-16">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-md bg-neutral-800 border border-neutral-700 mb-4">
-                <i class="fa-solid fa-video text-neutral-500 text-2xl"></i>
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-md bg-zinc-800 border border-zinc-700 mb-4">
+                <i class="fa-solid fa-video text-zinc-500 text-2xl"></i>
             </div>
-            <h3 class="text-lg font-medium text-neutral-300 mb-2">{{ __('clips.no_clips_found') }}</h3>
-            <p class="text-sm text-neutral-500 mb-6">
+            <h3 class="text-lg font-medium text-zinc-300 mb-2">{{ __('clips.no_clips_found') }}</h3>
+            <p class="text-sm text-zinc-500 mb-6">
                 @if($search)
                     {{ __('clips.no_clips_search', ['search' => $search]) }}
                 @else
@@ -148,7 +148,7 @@
             @if($search)
                 <button
                     wire:click="$set('search', '')"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-600"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-600"
                     aria-label="{{ __('clips.clear_search') }}"
                 >
                     <i class="fa-solid fa-xmark"></i>

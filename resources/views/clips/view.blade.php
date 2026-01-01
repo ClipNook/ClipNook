@@ -1,20 +1,20 @@
 <x-layouts.app title="{{ $clip->title }}">
-    <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-neutral-950">
+    <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-zinc-950">
         <div class="max-w-6xl mx-auto space-y-8">
             <!-- Clip Player -->
-            <div class="bg-neutral-900 rounded-lg border border-neutral-800 overflow-hidden shadow-2xl">
-                <div class="aspect-video bg-neutral-800">
+            <div class="bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden shadow-2xl">
+                <div class="aspect-video bg-zinc-800">
                     <livewire:twitch-player-consent :clip-info="['twitchClipId' => $clip->twitch_clip_id, 'localThumbnailPath' => $clip->local_thumbnail_path]" />
                 </div>
             </div>
 
             <!-- Clip Info -->
-            <div class="bg-neutral-900 rounded-lg border border-neutral-800 p-8 shadow-xl">
+            <div class="bg-zinc-900 rounded-lg border border-zinc-800 p-8 shadow-xl">
                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6">
                     <div class="flex-1">
-                        <h1 class="text-3xl font-bold text-neutral-100 mb-4 leading-tight">{{ $clip->title }}</h1>
-                        <div class="flex flex-wrap items-center gap-4 text-sm text-neutral-400 mb-4">
-                            <a href="{{ route('clips.list', ['broadcaster' => $clip->broadcaster->twitch_login]) }}" class="flex items-center gap-2 hover:text-purple-400 transition-colors">
+                        <h1 class="text-3xl font-bold text-zinc-100 mb-4 leading-tight">{{ $clip->title }}</h1>
+                        <div class="flex flex-wrap items-center gap-4 text-sm text-zinc-400 mb-4">
+                            <a href="{{ route('clips.list', ['broadcaster' => $clip->broadcaster->twitch_login]) }}" class="flex items-center gap-2 hover:text-violet-400 transition-colors">
                                 <i class="fa-solid fa-user"></i>
                                 {{ $clip->broadcaster->twitch_display_name }}
                             </a>
@@ -38,7 +38,7 @@
                         <button
                             x-data="{ copied: false }"
                             x-on:click="navigator.clipboard.writeText(window.location.href); copied = true; setTimeout(() => copied = false, 2000)"
-                            class="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-neutral-100 rounded-lg transition-colors border border-neutral-700"
+                            class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-zinc-100 rounded-lg transition-colors border border-zinc-700"
                         >
                             <i class="fa-solid fa-share-nodes mr-2"></i>
                             <span x-text="copied ? 'Copied!' : '{{ __('clips.share') }}'"></span>
@@ -48,15 +48,15 @@
 
                 <!-- Description -->
                 @if ($clip->description)
-                    <div class="border-t border-neutral-800 pt-6 mb-6">
-                        <p class="text-neutral-300 leading-relaxed text-lg">
+                    <div class="border-t border-zinc-800 pt-6 mb-6">
+                        <p class="text-zinc-300 leading-relaxed text-lg">
                             {{ $clip->description }}
                         </p>
                     </div>
                 @endif
 
                 <!-- Tags/Meta -->
-                <div class="border-t border-neutral-800 pt-6">
+                <div class="border-t border-zinc-800 pt-6">
                     <div class="flex flex-wrap gap-3">
                         @if ($clip->game)
                             <x-ui.button
@@ -69,16 +69,16 @@
                             </x-ui.button>
                         @endif
                         @if ($clip->submitter)
-                            <span class="px-3 py-1.5 bg-neutral-800 border border-neutral-700 text-neutral-400 rounded-lg text-sm">
+                            <span class="px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded-lg text-sm">
                                 <i class="fa-solid fa-user-pen mr-2"></i>
                                 {{ __('clips.submitted_by_label') }}: {{ $clip->submitter->twitch_login }}
                             </span>
                         @endif
-                        <span class="px-3 py-1.5 bg-neutral-800 border border-neutral-700 text-neutral-400 rounded-lg text-sm">
+                        <span class="px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded-lg text-sm">
                             <i class="fa-solid fa-scissors mr-2"></i>
                             {{ __('clips.created_by_label') }}: {{ $clip->clip_creator_name }}
                         </span>
-                        <span class="px-3 py-1.5 bg-neutral-800 border border-neutral-700 text-neutral-400 rounded-lg text-sm">
+                        <span class="px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded-lg text-sm">
                             <i class="fa-solid fa-plus mr-2"></i>
                             {{ __('clips.added_on_label', ['date' => $clip->created_at->format('M j, Y')]) }}
                         </span>
@@ -96,7 +96,7 @@
 
             <!-- Related Clips -->
             @if ($relatedClips->isNotEmpty())
-                <div class="bg-neutral-900 rounded-lg border border-neutral-800 p-8 shadow-xl">
+                <div class="bg-zinc-900 rounded-lg border border-zinc-800 p-8 shadow-xl">
                     <x-ui.section-header
                         :title="__('clips.related_clips')"
                         icon="film"

@@ -10,28 +10,47 @@
     }
 @endphp
 
-<a href="{{ route('clips.view', $clip) }}" class="group block bg-neutral-800 rounded-md overflow-hidden border border-neutral-700 hover:border-neutral-600 transition-colors {{ $class }}">
-    <div class="aspect-video bg-neutral-700 relative overflow-hidden">
+<a href="{{ route('clips.view', $clip) }}" class="block bg-zinc-800 border border-zinc-700 hover:border-zinc-600 rounded-lg overflow-hidden transition-colors {{ $class }}">
+    <div class="aspect-video bg-zinc-700 relative overflow-hidden">
         <img
             src="{{ $clip->thumbnail_url }}"
             alt="{{ $clip->title }}"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+            class="w-full h-full object-cover"
             loading="lazy"
         >
-        <div class="absolute bottom-2 right-2 px-2 py-1 bg-black/70 rounded text-xs text-neutral-300 font-medium">
+        <div class="absolute bottom-2 right-2 px-2 py-1 bg-black/70 text-zinc-100 text-xs font-medium rounded">
             {{ $clip->duration }}s
         </div>
     </div>
+
     <div class="p-4">
-        <h3 class="font-medium text-neutral-100 truncate mb-2">{{ $clip->title }}</h3>
-        <div class="flex items-center justify-between text-xs text-neutral-400 mb-3">
-            <span>{{ $clip->broadcaster->name }}</span>
-            <span>{{ $clip->created_at->shortRelativeDiffForHumans() }}</span>
+        <h3 class="font-semibold text-zinc-100 text-lg mb-2 line-clamp-2 leading-tight">
+            {{ $clip->title }}
+        </h3>
+
+        <div class="flex items-center justify-between text-sm text-zinc-400 mb-3">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-user text-xs"></i>
+                <span class="font-medium">{{ $clip->broadcaster->name }}</span>
+            </div>
+            <div class="flex items-center gap-1">
+                <i class="fa-solid fa-clock text-xs"></i>
+                <span>{{ $clip->created_at->shortRelativeDiffForHumans() }}</span>
+            </div>
         </div>
+
         @if($showStats)
-            <div class="flex items-center justify-between text-xs text-neutral-500">
-                <span><i class="fa-solid fa-eye mr-1"></i>{{ number_format($clip->views) }}</span>
-                <span><i class="fa-solid fa-thumbs-up mr-1"></i>{{ number_format($clip->upvotes) }}</span>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-1.5 text-zinc-400">
+                        <i class="fa-solid fa-eye text-sm"></i>
+                        <span class="text-sm font-medium">{{ number_format($clip->views) }}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-zinc-400">
+                        <i class="fa-solid fa-thumbs-up text-sm"></i>
+                        <span class="text-sm font-medium">{{ number_format($clip->upvotes) }}</span>
+                    </div>
+                </div>
             </div>
         @endif
     </div>

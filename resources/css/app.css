@@ -10,17 +10,313 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
-
-/* Custom Theme Variables */
+/* Custom Theme Variables - Dark Theme Only */
 @theme {
-    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
         "Noto Color Emoji";
     --font-roboto: "Roboto Variable", var(--font-sans);
+
+    /* Dark Theme Base Colors */
+    --color-bg-primary: oklch(0.15 0 0);    /* #09090b */
+    --color-bg-secondary: oklch(0.2 0 0);   /* #18181b */
+    --color-bg-tertiary: oklch(0.25 0 0);   /* #27272a */
+    --color-bg-elevated: oklch(0.3 0 0);    /* #3f3f46 */
+    
+    --color-text-primary: oklch(0.95 0 0);  /* #f4f4f5 */
+    --color-text-secondary: oklch(0.7 0 0); /* #a1a1aa */
+    --color-text-muted: oklch(0.5 0 0);     /* #71717a */
+    
+    --color-border: oklch(0.25 0 0);        /* #27272a */
+    --color-border-hover: oklch(0.35 0 0);  /* #52525b */
+    --color-divider: oklch(0.2 0 0);        /* #18181b */
+
+    /* Violet Theme - Default */
+    --color-accent-violet-50: oklch(0.9 0.08 300);
+    --color-accent-violet-100: oklch(0.8 0.12 300);
+    --color-accent-violet-200: oklch(0.7 0.15 300);
+    --color-accent-violet-300: oklch(0.65 0.18 300);
+    --color-accent-violet-400: oklch(0.55 0.22 300);
+    --color-accent-violet-500: oklch(0.5 0.23 300);
+    --color-accent-violet-600: oklch(0.45 0.25 300);
+    --color-accent-violet-700: oklch(0.4 0.25 300);
+    --color-accent-violet-800: oklch(0.35 0.24 300);
+    --color-accent-violet-900: oklch(0.3 0.22 300);
+    --color-accent-violet-950: oklch(0.25 0.2 300);
+
+    /* Blue Theme */
+    --color-accent-blue-50: oklch(0.9 0.06 240);
+    --color-accent-blue-100: oklch(0.8 0.1 240);
+    --color-accent-blue-200: oklch(0.7 0.13 240);
+    --color-accent-blue-300: oklch(0.65 0.15 240);
+    --color-accent-blue-400: oklch(0.6 0.16 240);
+    --color-accent-blue-500: oklch(0.55 0.17 240);
+    --color-accent-blue-600: oklch(0.5 0.18 240);
+    --color-accent-blue-700: oklch(0.45 0.18 240);
+    --color-accent-blue-800: oklch(0.4 0.17 240);
+    --color-accent-blue-900: oklch(0.35 0.16 240);
+    --color-accent-blue-950: oklch(0.3 0.15 240);
+
+    /* Green Theme */
+    --color-accent-green-50: oklch(0.9 0.06 142);
+    --color-accent-green-100: oklch(0.8 0.1 142);
+    --color-accent-green-200: oklch(0.7 0.13 142);
+    --color-accent-green-300: oklch(0.65 0.15 142);
+    --color-accent-green-400: oklch(0.6 0.16 142);
+    --color-accent-green-500: oklch(0.55 0.17 142);
+    --color-accent-green-600: oklch(0.5 0.18 142);
+    --color-accent-green-700: oklch(0.45 0.18 142);
+    --color-accent-green-800: oklch(0.4 0.17 142);
+    --color-accent-green-900: oklch(0.35 0.16 142);
+    --color-accent-green-950: oklch(0.3 0.15 142);
+
+    /* Red Theme */
+    --color-accent-red-50: oklch(0.9 0.06 25);
+    --color-accent-red-100: oklch(0.8 0.1 25);
+    --color-accent-red-200: oklch(0.7 0.13 25);
+    --color-accent-red-300: oklch(0.65 0.15 25);
+    --color-accent-red-400: oklch(0.6 0.17 25);
+    --color-accent-red-500: oklch(0.55 0.19 25);
+    --color-accent-red-600: oklch(0.5 0.21 25);
+    --color-accent-red-700: oklch(0.45 0.21 25);
+    --color-accent-red-800: oklch(0.4 0.2 25);
+    --color-accent-red-900: oklch(0.35 0.18 25);
+    --color-accent-red-950: oklch(0.3 0.16 25);
+
+    /* Orange Theme */
+    --color-accent-orange-50: oklch(0.9 0.06 60);
+    --color-accent-orange-100: oklch(0.8 0.1 60);
+    --color-accent-orange-200: oklch(0.7 0.13 60);
+    --color-accent-orange-300: oklch(0.65 0.15 60);
+    --color-accent-orange-400: oklch(0.6 0.17 60);
+    --color-accent-orange-500: oklch(0.55 0.19 60);
+    --color-accent-orange-600: oklch(0.5 0.21 60);
+    --color-accent-orange-700: oklch(0.45 0.21 60);
+    --color-accent-orange-800: oklch(0.4 0.2 60);
+    --color-accent-orange-900: oklch(0.35 0.18 60);
+    --color-accent-orange-950: oklch(0.3 0.16 60);
+
+    /* Pink Theme */
+    --color-accent-pink-50: oklch(0.9 0.06 330);
+    --color-accent-pink-100: oklch(0.8 0.1 330);
+    --color-accent-pink-200: oklch(0.7 0.13 330);
+    --color-accent-pink-300: oklch(0.65 0.15 330);
+    --color-accent-pink-400: oklch(0.6 0.17 330);
+    --color-accent-pink-500: oklch(0.55 0.19 330);
+    --color-accent-pink-600: oklch(0.5 0.21 330);
+    --color-accent-pink-700: oklch(0.45 0.21 330);
+    --color-accent-pink-800: oklch(0.4 0.2 330);
+    --color-accent-pink-900: oklch(0.35 0.18 330);
+    --color-accent-pink-950: oklch(0.3 0.16 330);
+
+    /* Cyan Theme */
+    --color-accent-cyan-50: oklch(0.9 0.06 200);
+    --color-accent-cyan-100: oklch(0.8 0.1 200);
+    --color-accent-cyan-200: oklch(0.7 0.12 200);
+    --color-accent-cyan-300: oklch(0.65 0.14 200);
+    --color-accent-cyan-400: oklch(0.6 0.15 200);
+    --color-accent-cyan-500: oklch(0.55 0.16 200);
+    --color-accent-cyan-600: oklch(0.5 0.17 200);
+    --color-accent-cyan-700: oklch(0.45 0.17 200);
+    --color-accent-cyan-800: oklch(0.4 0.16 200);
+    --color-accent-cyan-900: oklch(0.35 0.15 200);
+    --color-accent-cyan-950: oklch(0.3 0.14 200);
+
+    /* Amber Theme */
+    --color-accent-amber-50: oklch(0.9 0.06 75);
+    --color-accent-amber-100: oklch(0.8 0.1 75);
+    --color-accent-amber-200: oklch(0.7 0.13 75);
+    --color-accent-amber-300: oklch(0.65 0.15 75);
+    --color-accent-amber-400: oklch(0.6 0.17 75);
+    --color-accent-amber-500: oklch(0.55 0.19 75);
+    --color-accent-amber-600: oklch(0.5 0.21 75);
+    --color-accent-amber-700: oklch(0.45 0.21 75);
+    --color-accent-amber-800: oklch(0.4 0.2 75);
+    --color-accent-amber-900: oklch(0.35 0.18 75);
+    --color-accent-amber-950: oklch(0.3 0.16 75);
+
+    /* Semantic Colors */
+    --color-success: var(--color-accent-green-500);
+    --color-warning: var(--color-accent-amber-500);
+    --color-error: var(--color-accent-red-500);
+    --color-info: var(--color-accent-blue-500);
+}
+
+/* Theme Classes - Dark Mode Optimized */
+.theme-violet {
+    --color-accent-50: var(--color-accent-violet-50);
+    --color-accent-100: var(--color-accent-violet-100);
+    --color-accent-200: var(--color-accent-violet-200);
+    --color-accent-300: var(--color-accent-violet-300);
+    --color-accent-400: var(--color-accent-violet-400);
+    --color-accent-500: var(--color-accent-violet-500);
+    --color-accent-600: var(--color-accent-violet-600);
+    --color-accent-700: var(--color-accent-violet-700);
+    --color-accent-800: var(--color-accent-violet-800);
+    --color-accent-900: var(--color-accent-violet-900);
+    --color-accent-950: var(--color-accent-violet-950);
+}
+
+.theme-blue {
+    --color-accent-50: var(--color-accent-blue-50);
+    --color-accent-100: var(--color-accent-blue-100);
+    --color-accent-200: var(--color-accent-blue-200);
+    --color-accent-300: var(--color-accent-blue-300);
+    --color-accent-400: var(--color-accent-blue-400);
+    --color-accent-500: var(--color-accent-blue-500);
+    --color-accent-600: var(--color-accent-blue-600);
+    --color-accent-700: var(--color-accent-blue-700);
+    --color-accent-800: var(--color-accent-blue-800);
+    --color-accent-900: var(--color-accent-blue-900);
+    --color-accent-950: var(--color-accent-blue-950);
+}
+
+.theme-green {
+    --color-accent-50: var(--color-accent-green-50);
+    --color-accent-100: var(--color-accent-green-100);
+    --color-accent-200: var(--color-accent-green-200);
+    --color-accent-300: var(--color-accent-green-300);
+    --color-accent-400: var(--color-accent-green-400);
+    --color-accent-500: var(--color-accent-green-500);
+    --color-accent-600: var(--color-accent-green-600);
+    --color-accent-700: var(--color-accent-green-700);
+    --color-accent-800: var(--color-accent-green-800);
+    --color-accent-900: var(--color-accent-green-900);
+    --color-accent-950: var(--color-accent-green-950);
+}
+
+.theme-red {
+    --color-accent-50: var(--color-accent-red-50);
+    --color-accent-100: var(--color-accent-red-100);
+    --color-accent-200: var(--color-accent-red-200);
+    --color-accent-300: var(--color-accent-red-300);
+    --color-accent-400: var(--color-accent-red-400);
+    --color-accent-500: var(--color-accent-red-500);
+    --color-accent-600: var(--color-accent-red-600);
+    --color-accent-700: var(--color-accent-red-700);
+    --color-accent-800: var(--color-accent-red-800);
+    --color-accent-900: var(--color-accent-red-900);
+    --color-accent-950: var(--color-accent-red-950);
+}
+
+.theme-orange {
+    --color-accent-50: var(--color-accent-orange-50);
+    --color-accent-100: var(--color-accent-orange-100);
+    --color-accent-200: var(--color-accent-orange-200);
+    --color-accent-300: var(--color-accent-orange-300);
+    --color-accent-400: var(--color-accent-orange-400);
+    --color-accent-500: var(--color-accent-orange-500);
+    --color-accent-600: var(--color-accent-orange-600);
+    --color-accent-700: var(--color-accent-orange-700);
+    --color-accent-800: var(--color-accent-orange-800);
+    --color-accent-900: var(--color-accent-orange-900);
+    --color-accent-950: var(--color-accent-orange-950);
+}
+
+.theme-pink {
+    --color-accent-50: var(--color-accent-pink-50);
+    --color-accent-100: var(--color-accent-pink-100);
+    --color-accent-200: var(--color-accent-pink-200);
+    --color-accent-300: var(--color-accent-pink-300);
+    --color-accent-400: var(--color-accent-pink-400);
+    --color-accent-500: var(--color-accent-pink-500);
+    --color-accent-600: var(--color-accent-pink-600);
+    --color-accent-700: var(--color-accent-pink-700);
+    --color-accent-800: var(--color-accent-pink-800);
+    --color-accent-900: var(--color-accent-pink-900);
+    --color-accent-950: var(--color-accent-pink-950);
+}
+
+.theme-cyan {
+    --color-accent-50: var(--color-accent-cyan-50);
+    --color-accent-100: var(--color-accent-cyan-100);
+    --color-accent-200: var(--color-accent-cyan-200);
+    --color-accent-300: var(--color-accent-cyan-300);
+    --color-accent-400: var(--color-accent-cyan-400);
+    --color-accent-500: var(--color-accent-cyan-500);
+    --color-accent-600: var(--color-accent-cyan-600);
+    --color-accent-700: var(--color-accent-cyan-700);
+    --color-accent-800: var(--color-accent-cyan-800);
+    --color-accent-900: var(--color-accent-cyan-900);
+    --color-accent-950: var(--color-accent-cyan-950);
+}
+
+.theme-amber {
+    --color-accent-50: var(--color-accent-amber-50);
+    --color-accent-100: var(--color-accent-amber-100);
+    --color-accent-200: var(--color-accent-amber-200);
+    --color-accent-300: var(--color-accent-amber-300);
+    --color-accent-400: var(--color-accent-amber-400);
+    --color-accent-500: var(--color-accent-amber-500);
+    --color-accent-600: var(--color-accent-amber-600);
+    --color-accent-700: var(--color-accent-amber-700);
+    --color-accent-800: var(--color-accent-amber-800);
+    --color-accent-900: var(--color-accent-amber-900);
+    --color-accent-950: var(--color-accent-amber-950);
 }
 
 @layer base {
-    /* Remove all glow, grow, and gradient effects */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-[var(--color-bg-primary)] text-[var(--color-text-primary)];
+        
+        /* Default theme - violet */
+        --color-accent-50: var(--color-accent-violet-50);
+        --color-accent-100: var(--color-accent-violet-100);
+        --color-accent-200: var(--color-accent-violet-200);
+        --color-accent-300: var(--color-accent-violet-300);
+        --color-accent-400: var(--color-accent-violet-400);
+        --color-accent-500: var(--color-accent-violet-500);
+        --color-accent-600: var(--color-accent-violet-600);
+        --color-accent-700: var(--color-accent-violet-700);
+        --color-accent-800: var(--color-accent-violet-800);
+        --color-accent-900: var(--color-accent-violet-900);
+        --color-accent-950: var(--color-accent-violet-950);
+    }
+
+    /* Custom scrollbar - dark theme optimized */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--color-bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--color-accent-600);
+        border-radius: 4px;
+        border: 2px solid var(--color-bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--color-accent-500);
+    }
+
+    /* Selection color */
+    ::selection {
+        background: var(--color-accent-800);
+        color: var(--color-text-primary);
+    }
+
+    /* Focus styles */
+    :focus-visible {
+        outline: 2px solid var(--color-accent-500);
+        outline-offset: 2px;
+        outline-color: var(--color-accent-500);
+    }
+
+    /* Hide Alpine.js elements until initialized */
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+/* Adds pointer cursor to buttons and base styles using palette variables */
+@layer base {
     button:not(:disabled),
     [role="button"]:not(:disabled) {
         cursor: pointer;
