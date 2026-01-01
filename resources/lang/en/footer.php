@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -12,12 +14,15 @@ return [
     |
     */
 
-    'description' => 'Share and discover your favorite Twitch clips with the community.',
-    'quick_links' => 'Quick Links',
-    'community'   => 'Community',
-    'github'      => 'GitHub',
-    'twitch'      => 'Twitch',
-    'copyright'   => '© :year :app_name. All rights reserved.',
-    'privacy'     => 'Privacy',
-    'terms'       => 'Terms',
+    'description'   => 'Share and discover your favorite Twitch clips with the community.',
+    'links'         => 'Links',
+    'legal'         => 'Legal',
+    'view_source'   => 'View Source',
+    'open_source'   => 'Open Source',
+    'made_with'     => 'Made with',
+    'using'         => 'using',
+    'contact'       => 'Contact',
+    'privacy'       => 'Privacy',
+    'terms'         => 'Terms',
+    'copyright'     => '© :year :app. All rights reserved.',
 ];

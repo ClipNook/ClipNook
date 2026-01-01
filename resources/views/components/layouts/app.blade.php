@@ -174,55 +174,53 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-neutral-900 border-t border-neutral-800 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Brand -->
-                <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <i class="fa-solid fa-video text-lg text-neutral-400"></i>
-                        <span class="font-semibold text-lg text-neutral-100">{{ config('app.name') }}</span>
+    <footer class="bg-neutral-900/50 border-t border-neutral-800/50 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="flex flex-col items-center justify-center space-y-6">
+                <!-- Brand & Description -->
+                <div class="text-center">
+                    <div class="flex items-center justify-center gap-3 mb-3">
+                        <i class="fa-solid fa-video text-xl text-neutral-400"></i>
+                        <span class="font-semibold text-xl text-neutral-100">{{ config('app.name') }}</span>
                     </div>
-                    <p class="text-neutral-400 text-sm leading-relaxed">
+                    <p class="text-neutral-400 text-sm max-w-md mx-auto leading-relaxed">
                         {{ __('footer.description') }}
                     </p>
                 </div>
 
-                <!-- Links -->
-                <div>
-                    <h3 class="text-neutral-100 font-semibold mb-4">{{ __('footer.links') }}</h3>
-                    <ul class="space-y-3">
-                        <li><a href="{{ route('home') }}" class="text-neutral-400 hover:text-neutral-100 transition-colors">{{ __('nav.home') }}</a></li>
-                        <li><a href="{{ route('clips.list') }}" class="text-neutral-400 hover:text-neutral-100 transition-colors">{{ __('nav.clips') }}</a></li>
+                <!-- GitHub & Open Source -->
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <a href="https://github.com/ClipNook/ClipNook" target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-neutral-100 rounded-md transition-colors border border-neutral-700">
+                        <i class="fa-brands fa-github text-lg"></i>
+                        <span class="text-sm font-medium">{{ __('footer.view_source') }}</span>
+                    </a>
+                    <div class="flex items-center gap-2 px-3 py-1 bg-green-900/20 border border-green-700/30 rounded-full">
+                        <i class="fa-solid fa-code-branch text-green-400 text-xs"></i>
+                        <span class="text-xs text-green-300 font-medium">{{ __('footer.open_source') }}</span>
+                    </div>
+                </div>
+
+                <!-- Bottom Links & Copyright -->
+                <div class="flex flex-col sm:flex-row items-center justify-between w-full pt-6 border-t border-neutral-800/50">
+                    <div class="flex items-center gap-6 mb-4 sm:mb-0">
+                        <a href="{{ route('home') }}" class="text-neutral-500 hover:text-neutral-300 text-sm transition-colors">{{ __('nav.home') }}</a>
+                        <a href="{{ route('clips.list') }}" class="text-neutral-500 hover:text-neutral-300 text-sm transition-colors">{{ __('nav.clips') }}</a>
                         @auth
-                            <li><a href="{{ route('clips.submit') }}" class="text-neutral-400 hover:text-neutral-100 transition-colors">{{ __('nav.submit') }}</a></li>
+                            <a href="{{ route('clips.submit') }}" class="text-neutral-500 hover:text-neutral-300 text-sm transition-colors">{{ __('nav.submit') }}</a>
                         @endauth
-                    </ul>
-                </div>
+                    </div>
 
-                <!-- Legal -->
-                <div>
-                    <h3 class="text-neutral-100 font-semibold mb-4">{{ __('footer.legal') }}</h3>
-                    <ul class="space-y-3">
-                        <li><a href="#" class="text-neutral-400 hover:text-neutral-100 transition-colors">{{ __('footer.privacy') }}</a></li>
-                        <li><a href="#" class="text-neutral-400 hover:text-neutral-100 transition-colors">{{ __('footer.terms') }}</a></li>
-                        <li><a href="#" class="text-neutral-400 hover:text-neutral-100 transition-colors">{{ __('footer.contact') }}</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Bottom -->
-            <div class="border-t border-neutral-800 mt-8 pt-6">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p class="text-neutral-400 text-sm">
-                        {{ __('footer.copyright', ['year' => date('Y'), 'app' => config('app.name')]) }}
-                    </p>
-                    <p class="text-neutral-400 text-sm">
-                        {{ __('footer.made_with') }}
-                        <i class="fa-solid fa-heart text-red-500 mx-1"></i>
-                        {{ __('footer.using') }}
-                        <span class="text-neutral-300 font-medium">Laravel</span>
-                    </p>
+                    <div class="flex items-center gap-4">
+                        <p class="text-neutral-500 text-xs">
+                            {{ __('footer.made_with') }}
+                            <i class="fa-solid fa-heart text-red-500 mx-1"></i>
+                            <span class="text-neutral-400">Laravel</span>
+                        </p>
+                        <p class="text-neutral-500 text-xs border-l border-neutral-800 pl-4">
+                            © {{ date('Y') }} {{ config('app.name') }}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

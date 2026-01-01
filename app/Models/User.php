@@ -56,7 +56,7 @@ final class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected array $fillable = [
+    protected $fillable = [
         // Twitch OAuth Data
         'twitch_id',
         'twitch_login',
