@@ -25,14 +25,11 @@ class ClipList extends Component
         $this->resetPage();
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $clips = Clip::with(['submitter', 'broadcaster', 'game'])
             ->approved()
-            ->when($this->search, function ($query) {
-                $query->where('title', 'like', '%'.$this->search.'%')
-                    ->orWhere('twitch_clip_id', 'like', '%'.$this->search.'%');
-            })
+            ->when($this->search, fn ($query) => $query->search($this->search))
             ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);
 

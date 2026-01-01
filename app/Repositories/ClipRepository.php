@@ -160,10 +160,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     public function search(string $query): Collection
     {
         return $this->model->approved()
-            ->where(function ($q) use ($query) {
-                $q->where('title', 'like', "%{$query}%")
-                    ->orWhere('description', 'like', "%{$query}%");
-            })
+            ->search($query)
             ->get();
     }
 

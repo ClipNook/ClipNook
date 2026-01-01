@@ -42,7 +42,7 @@ class ClipModeration extends Component
         }
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $clips = Clip::query()
             ->with(['submitter', 'broadcaster', 'game', 'moderator'])

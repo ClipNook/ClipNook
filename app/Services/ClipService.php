@@ -83,10 +83,10 @@ class ClipService
             return Clip::whereRaw('1 = 0')->paginate($perPage); // Return empty result
         }
 
-        return Clip::where(function ($q) use ($searchTerm) {
-            $q->where('title', 'LIKE', '%'.$searchTerm.'%')
-                ->orWhereJsonContains('tags', $searchTerm);
-        })
+        return Clip::search($searchTerm)
+            ->orWhere(function ($q) use ($searchTerm) {
+                $q->whereJsonContains('tags', $searchTerm);
+            })
             ->withRelations() // Use the optimized scope
             ->approved()
             ->orderBy('created_at', 'desc')

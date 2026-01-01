@@ -53,9 +53,9 @@ class SubmitClip extends Component
             $service  = $this->twitchService ??= app(TwitchService::class);
             $clipData = $service->getClip($clipId);
 
-            if (! $clipData) {
+            if (! $clipData || ! $clipData->id) {
                 $this->errorMessage = __('clips.clip_not_found');
-                $this->clipInfo = null;
+                $this->clipInfo     = null;
 
                 return;
             }
@@ -91,7 +91,7 @@ class SubmitClip extends Component
 
     public function resetClip()
     {
-        $this->clipInfo     = [];
+        $this->clipInfo     = null;
         $this->showPlayer   = false;
         $this->twitchClipId = '';
         $this->resetMessages();
@@ -99,8 +99,8 @@ class SubmitClip extends Component
 
     public function submit()
     {
-        if (! $this->clipInfo) {
-            $this->errorMessage = __('clips.unexpected_error');
+        if (empty($this->clipInfo) || ! isset($this->clipInfo['id'])) {
+            $this->errorMessage = __('clips.please_check_clip_first');
 
             return;
         }
@@ -115,16 +115,21 @@ class SubmitClip extends Component
             return;
         }
 
-        $this->resetMessages();
         $this->isSubmitting = true;
 
         try {
-            $clipId = $this->clipInfo['id'];
+            $clipId = data_get($this->clipInfo, 'id');
+
+            if (! $clipId) {
+                throw ValidationException::withMessages(['twitch_clip_id' => [__('clips.please_check_clip_first')]]);
+            }
+
             app(SubmitClipAction::class)->executeSync(auth()->user(), $clipId);
 
             RateLimiter::hit($key);
 
             $this->resetClip();
+            $this->resetMessages();
             $this->successMessage = __('clips.submission_success');
             $this->dispatch('clip-submitted');
 

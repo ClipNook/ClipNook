@@ -148,6 +148,15 @@ class Clip extends Model
         return $query->where('is_featured', true);
     }
 
+    public function scopeSearch($query, string $searchTerm)
+    {
+        return $query->where(function ($q) use ($searchTerm) {
+            $q->where('title', 'like', "%{$searchTerm}%")
+                ->orWhere('description', 'like', "%{$searchTerm}%")
+                ->orWhere('twitch_clip_id', 'like', "%{$searchTerm}%");
+        });
+    }
+
     // Helper methods
     public function isPending(): bool
     {
