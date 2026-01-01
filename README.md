@@ -1,6 +1,6 @@
 # ClipNook
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PHP Version](https://img.shields.io/badge/PHP-8.5+-777bb4.svg)](https://www.php.net/)
 [![Laravel Version](https://img.shields.io/badge/Laravel-12.x-ff2d20.svg)](https://laravel.com)
 [![Livewire](https://img.shields.io/badge/Livewire-3.x-fb70a9.svg)](https://laravel-livewire.com)
@@ -756,9 +756,9 @@ php artisan db:monitor
 
 ## 📝 License
 
-This project is licensed under the **GNU Affero General Public License v3.0** - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
-The AGPL v3 requires that any modified versions of this software that are used to provide services over a network must make their source code available to users of that service.
+The MIT License is a permissive license that allows for free use, modification, and distribution of the software.
 
 ## 🙏 Support
 
