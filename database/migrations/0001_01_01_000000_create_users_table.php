@@ -55,6 +55,12 @@ return new class extends Migration
             $table->timestamp('last_activity_at')->nullable();
             $table->timestamp('last_login_at')->nullable();
 
+            // GDPR compliance fields
+            $table->timestamp('deletion_requested_at')->nullable();
+            $table->timestamp('data_exported_at')->nullable();
+            $table->timestamp('anonymized_at')->nullable();
+            $table->json('gdpr_consent_log')->nullable();
+
             // Laravel Standard Fields
             $table->rememberToken();
             $table->timestamps();
@@ -68,6 +74,10 @@ return new class extends Migration
             // Additional performance indexes
             $table->index('twitch_email', 'idx_users_email');
             $table->index('last_activity_at', 'idx_users_last_activity');
+
+            // Indexes for GDPR operations
+            $table->index('deletion_requested_at', 'idx_users_deletion_requested');
+            $table->index('anonymized_at', 'idx_users_anonymized');
         });
 
         Schema::create('sessions', function (Blueprint $table) {

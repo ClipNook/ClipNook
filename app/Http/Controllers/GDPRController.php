@@ -35,6 +35,10 @@ class GDPRController extends Controller
         $user   = $request->user();
         $reason = $request->input('reason');
 
+        if (! $this->gdprService->requestDeletion($user)) {
+            return response()->json(['error' => 'Failed to process deletion request'], 500);
+        }
+
         // Log the deletion request
         $user->activityLogs()->create([
             'action'      => 'account_deletion_requested',

@@ -108,6 +108,7 @@ final readonly class GDPRService implements GDPRServiceInterface
 				'ntfy_server_url'        => null,
 				'ntfy_topic'             => null,
 				'ntfy_auth_token'        => null,
+				'anonymized_at'          => now(),
 			]);
 
 			// Delete activity logs
@@ -143,28 +144,25 @@ final readonly class GDPRService implements GDPRServiceInterface
 	}
 
 	/**
-	 * Schedule user data deletion after grace period.
+	 * Request user data deletion (Right to be Forgotten).
 	 *
 	 * @param  User  $user
-	 * @param  int  $gracePeriodDays
 	 * @return bool
 	 */
-	public function scheduleDataDeletion(User $user, int $gracePeriodDays = 30): bool
+	public function requestDeletion(User $user): bool
 	{
 		try {
 			$user->update([
 				'deletion_requested_at' => now(),
-				'deletion_scheduled_at' => now()->addDays($gracePeriodDays),
 			]);
 
-			Log::info('User deletion scheduled', [
-				'user_id'      => $user->id,
-				'scheduled_at' => $user->deletion_scheduled_at,
+			Log::info('User deletion requested', [
+				'user_id' => $user->id,
 			]);
 
 			return true;
 		} catch (\Exception $e) {
-			Log::error('Failed to schedule user deletion', [
+			Log::error('Failed to request user deletion', [
 				'user_id' => $user->id,
 				'error'   => $e->getMessage(),
 			]);

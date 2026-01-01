@@ -78,6 +78,12 @@ class User extends Authenticatable
         'ntfy_server_url',
         'ntfy_topic',
         'ntfy_auth_token',
+
+        // GDPR Compliance
+        'deletion_requested_at',
+        'data_exported_at',
+        'anonymized_at',
+        'gdpr_consent_log',
     ];
 
     /**
@@ -121,6 +127,12 @@ class User extends Authenticatable
         // JSON
         'preferences'             => 'array',
         'scopes'                  => 'array',
+        'gdpr_consent_log'        => 'array',
+
+        // GDPR timestamps
+        'deletion_requested_at'   => 'datetime',
+        'data_exported_at'        => 'datetime',
+        'anonymized_at'           => 'datetime',
     ];
 
     /**
