@@ -13,7 +13,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () {
     Route::middleware('guest')->group(function () {
         Route::get('/login', fn () => view('auth.login'))->name('login');
-        Route::post('/twitch/login', [TwitchOAuthController::class, 'redirectToTwitch'])->name('twitch.login');
+        Route::post('/twitch/login', [TwitchOAuthController::class, 'redirectToTwitch'])
+            ->middleware('throttle:5,1') // 5 attempts per minute
+            ->name('twitch.login');
         Route::get('/twitch/callback', [TwitchOAuthController::class, 'handleCallback'])->name('twitch.callback');
     });
 

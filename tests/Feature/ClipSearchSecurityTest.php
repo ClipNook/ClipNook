@@ -6,6 +6,12 @@ use App\Models\Clip;
 use App\Models\User;
 use App\Services\ClipService;
 
+beforeEach(function () {
+    // Set required Twitch config for tests
+    config(['twitch.client_id' => 'test_client_id']);
+    config(['twitch.client_secret' => 'test_client_secret']);
+});
+
 test('search sanitizes input and prevents sql injection', function () {
     // Create test data
     $user = User::factory()->create();

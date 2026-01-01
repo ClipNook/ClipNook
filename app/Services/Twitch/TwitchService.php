@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Twitch;
 
+use App\Enums\ImageMimeType;
 use App\Events\TwitchTokenRefreshed;
 use App\Models\User;
 use App\Services\Twitch\Contracts\DownloadInterface;
@@ -15,6 +16,7 @@ use App\Services\Twitch\DTOs\StreamerDTO;
 use App\Services\Twitch\DTOs\TokenDTO;
 use App\Services\Twitch\DTOs\VideoDTO;
 use App\Services\Twitch\Enums\RequestType;
+use App\Services\Twitch\Exceptions\InvalidImageException;
 use App\Services\Twitch\Exceptions\TwitchApiException;
 use App\Services\Twitch\Traits\ApiCaching;
 use App\Services\Twitch\Traits\ApiLogging;
@@ -26,6 +28,11 @@ use Illuminate\Support\Facades\Storage;
 class TwitchService implements DownloadInterface, TwitchApiInterface
 {
     use ApiCaching, ApiLogging, ApiRateLimiting;
+
+    /**
+     * Maximum allowed image file size in bytes (5MB)
+     */
+    protected const int MAX_IMAGE_SIZE_BYTES = 5_242_880;
 
     protected readonly string $clientId;
 
@@ -447,21 +454,7 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
     public function downloadThumbnail(string $url, string $savePath): bool
     {
         try {
-            // Validate URL is HTTPS and from trusted domain
-            if (! $this->isValidImageUrl($url)) {
-                throw new \InvalidArgumentException('Invalid or untrusted image URL');
-            }
-
-            $image = Http::timeout(config('constants.http.timeout_seconds'))->retry(config('constants.http.retry_count'), config('constants.http.retry_delay_ms'))->get($url)->body();
-
-            // Check file size (max 5MB)
-            if (strlen($image) > 5242880) {
-                throw new \Exception('Image too large');
-            }
-
-            Storage::disk('public')->put($savePath, $image);
-
-            return true;
+            return $this->downloadImage($url, $savePath);
         } catch (\Exception $e) {
             throw TwitchApiException::thumbnailDownloadFailed($e->getMessage());
         }
@@ -470,24 +463,49 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
     public function downloadProfileImage(string $url, string $savePath): bool
     {
         try {
-            // Validate URL is HTTPS and from trusted domain
-            if (! $this->isValidImageUrl($url)) {
-                throw new \InvalidArgumentException('Invalid or untrusted image URL');
-            }
-
-            $image = Http::timeout(config('constants.http.timeout_seconds'))->retry(config('constants.http.retry_count'), config('constants.http.retry_delay_ms'))->get($url)->body();
-
-            // Check file size (max 5MB)
-            if (strlen($image) > 5242880) {
-                throw new \Exception('Image too large');
-            }
-
-            Storage::disk('public')->put($savePath, $image);
-
-            return true;
+            return $this->downloadImage($url, $savePath);
         } catch (\Exception $e) {
             throw TwitchApiException::profileImageDownloadFailed($e->getMessage());
         }
+    }
+
+    /**
+     * Download and validate an image from a URL
+     */
+    protected function downloadImage(string $url, string $savePath): bool
+    {
+        // Validate URL is HTTPS and from trusted domain
+        if (! $this->isValidImageUrl($url)) {
+            throw InvalidImageException::invalidUrl($url);
+        }
+
+        $response = Http::timeout(config('constants.http.timeout_seconds'))
+            ->retry(config('constants.http.retry_count'), config('constants.http.retry_delay_ms'))
+            ->get($url);
+
+        if (! $response->successful()) {
+            throw InvalidImageException::downloadFailed($response->status());
+        }
+
+        $image = $response->body();
+
+        // Validate image MIME type using enum
+        $finfo    = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->buffer($image);
+
+        if (! ImageMimeType::isAllowed($mimeType)) {
+            throw InvalidImageException::invalidMimeType($mimeType);
+        }
+
+        // Check file size
+        $imageSize = strlen($image);
+        if ($imageSize > self::MAX_IMAGE_SIZE_BYTES) {
+            throw InvalidImageException::tooLarge($imageSize, self::MAX_IMAGE_SIZE_BYTES);
+        }
+
+        Storage::disk('public')->put($savePath, $image);
+
+        return true;
     }
 
     /**

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -13,27 +15,35 @@ class SecurityHeaders
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Generate CSP nonce for this request
+        $nonce = base64_encode(random_bytes(16));
+        $request->attributes->set('csp_nonce', $nonce);
+
         $response = $next($request);
 
-        // Skip CSP for auth routes to prevent login issues
-        if ($request->is('auth/*')) {
-            return $response
-                // Prevent MIME type sniffing
-                ->header('X-Content-Type-Options', 'nosniff')
-                // Prevent clickjacking
-                ->header('X-Frame-Options', 'DENY')
-                // XSS protection
-                ->header('X-XSS-Protection', '1; mode=block')
-                // Referrer policy
-                ->header('Referrer-Policy', 'strict-origin-when-cross-origin')
-                // Permissions policy
-                ->header('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+        // Apply base security headers
+        $this->applySecurityHeaders($response);
+
+        // Apply CSP (skip for auth routes to prevent login issues)
+        if (! $request->is('auth/*')) {
+            $csp = $this->buildContentSecurityPolicy($request, $nonce);
+            $response->header('Content-Security-Policy', $csp);
         }
 
-        // Build CSP dynamically based on environment
-        $csp = $this->buildContentSecurityPolicy($request);
+        // Apply HSTS (only for HTTPS)
+        if ($request->secure()) {
+            $this->applyHstsHeader($response);
+        }
 
-        $response = $response
+        return $response;
+    }
+
+    /**
+     * Apply base security headers to the response
+     */
+    protected function applySecurityHeaders(Response $response): void
+    {
+        $response
             // Prevent MIME type sniffing
             ->header('X-Content-Type-Options', 'nosniff')
             // Prevent clickjacking
@@ -43,32 +53,31 @@ class SecurityHeaders
             // Referrer policy
             ->header('Referrer-Policy', 'strict-origin-when-cross-origin')
             // Permissions policy
-            ->header('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
-            // Content Security Policy
-            ->header('Content-Security-Policy', $csp);
-
-        // HSTS (only for HTTPS)
-        if ($request->secure()) {
-            $hstsConfig        = config('performance.security_headers.hsts', []);
-            $maxAge            = $hstsConfig['max_age'] ?? 31536000;
-            $includeSubdomains = $hstsConfig['include_subdomains'] ?? true;
-            $preload           = $hstsConfig['preload'] ?? false;
-
-            $hstsValue = 'max-age='.$maxAge;
-            if ($includeSubdomains) {
-                $hstsValue .= '; includeSubDomains';
-            }
-            if ($preload) {
-                $hstsValue .= '; preload';
-            }
-
-            $response->header('Strict-Transport-Security', $hstsValue);
-        }
-
-        return $response;
+            ->header('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
     }
 
-    private function buildContentSecurityPolicy(Request $request): string
+    /**
+     * Apply HSTS header to the response
+     */
+    protected function applyHstsHeader(Response $response): void
+    {
+        $hstsConfig        = config('performance.security_headers.hsts', []);
+        $maxAge            = $hstsConfig['max_age'] ?? 31536000;
+        $includeSubdomains = $hstsConfig['include_subdomains'] ?? true;
+        $preload           = $hstsConfig['preload'] ?? false;
+
+        $hstsValue = 'max-age='.$maxAge;
+        if ($includeSubdomains) {
+            $hstsValue .= '; includeSubDomains';
+        }
+        if ($preload) {
+            $hstsValue .= '; preload';
+        }
+
+        $response->header('Strict-Transport-Security', $hstsValue);
+    }
+
+    private function buildContentSecurityPolicy(Request $request, string $nonce): string
     {
         // Get current domain for CSP
         $currentHost = $request->getHost();
@@ -121,16 +130,17 @@ class SecurityHeaders
         $baseCsp[]             = 'font-src '.implode(' ', $fontSrc);
 
         // Script sources
-        $scriptSrc = ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net', 'https://code.jquery.com'];
+        $scriptSrc = ["'self'", "'nonce-{$nonce}'", 'https://cdn.jsdelivr.net', 'https://code.jquery.com'];
         if (app()->environment('local')) {
             // Allow Vite HMR in development
             $scriptSrc[] = config('app.url').':5173';
+            $scriptSrc[] = "'unsafe-eval'"; // Required for Vite HMR
         }
         $additionalScriptSources = array_filter($additionalSources['script'] ?? []);
         $scriptSrc               = array_merge($scriptSrc, $additionalScriptSources);
         $baseCsp[]               = 'script-src '.implode(' ', $scriptSrc);
 
-        // Style sources
+        // Style sources - keep unsafe-inline for Tailwind and Livewire
         $styleSrc = ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net'];
         if (app()->environment('local')) {
             // Allow Vite HMR in development
