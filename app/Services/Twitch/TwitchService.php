@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Twitch;
 
 use App\Events\TwitchTokenRefreshed;
+use App\Models\User;
 use App\Services\Twitch\Contracts\DownloadInterface;
 use App\Services\Twitch\Contracts\TwitchApiInterface;
 use App\Services\Twitch\DTOs\ApiLogEntryDTO;
@@ -37,6 +38,8 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
 
     protected ?int $tokenExpiresAt = null;
 
+    protected ?int $userId = null;
+
     public function __construct(
         protected readonly TwitchApiClient $apiClient,
         protected readonly TwitchTokenManager $tokenManager,
@@ -58,9 +61,15 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
 
     protected function loadTokensFromUser(): void
     {
+        // If user was explicitly set via setUser(), don't load from auth
+        if ($this->userId) {
+            return;
+        }
+
         $user = auth()->user();
 
         if ($user && $user->twitch_access_token) {
+            $this->userId         = $user->id;
             $this->accessToken    = $user->twitch_access_token;
             $this->refreshToken   = $user->twitch_refresh_token;
             $this->tokenExpiresAt = $user->twitch_token_expires_at?->timestamp;
@@ -83,6 +92,16 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
                 throw TwitchApiException::authenticationRequired(__('twitch.token_expired_no_refresh'));
             }
             $this->refreshAccessToken();
+        }
+    }
+
+    public function setUser(User $user): void
+    {
+        $this->userId = $user->id;
+        if ($user->twitch_access_token) {
+            $this->accessToken    = $user->twitch_access_token;
+            $this->refreshToken   = $user->twitch_refresh_token;
+            $this->tokenExpiresAt = $user->twitch_token_expires_at?->timestamp;
         }
     }
 
@@ -123,7 +142,7 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
         ));
 
         // Update user tokens in database
-        $user = auth()->user();
+        $user = $this->userId ? User::find($this->userId) : auth()->user();
         if ($user) {
             $user->update([
                 'twitch_access_token'     => $token->accessToken,
@@ -132,9 +151,19 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
             ]);
         }
 
-        TwitchTokenRefreshed::dispatch(auth()->id() ?? 'guest', true);
+        TwitchTokenRefreshed::dispatch($this->userId ?? auth()->id() ?? 'guest', true);
 
         return $token;
+    }
+
+    /**
+     * Get user-specific cache key prefix
+     */
+    protected function getUserCachePrefix(): string
+    {
+        $userId = $this->userId ?? auth()->id();
+
+        return $userId ? "user_{$userId}:" : 'guest_' . session()->getId() . ':';
     }
 
     protected function makeApiRequest(string $endpoint, array $params, RequestType $type): ?array
@@ -146,7 +175,9 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
             throw TwitchApiException::rateLimitExceeded();
         }
 
-        $cacheKey = "twitch_{$type->value}_".md5(json_encode($params));
+        // FIXED: Include user-specific prefix in cache key
+        $userPrefix = $this->getUserCachePrefix();
+        $cacheKey   = "twitch_{$userPrefix}{$type->value}_".md5(json_encode($params));
 
         return $this->getCachedResponse($cacheKey, function () use ($endpoint, $params) {
             try {

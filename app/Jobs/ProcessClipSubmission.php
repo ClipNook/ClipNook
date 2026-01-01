@@ -36,8 +36,8 @@ class ProcessClipSubmission implements ShouldQueue
      */
     public function handle(TwitchService $twitchService, TwitchGameService $gameService): void
     {
-        // Set the authenticated user for token access
-        auth()->login($this->user);
+        // Set the user for token access in this job context
+        $twitchService->setUser($this->user);
 
         try {
             // Validate the clip exists and get its data from Twitch
