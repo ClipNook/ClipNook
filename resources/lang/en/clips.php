@@ -111,7 +111,7 @@ return [
 
     // Twitch Player Consent
     'twitch_consent_title'             => 'Twitch Clip Player',
-    'twitch_consent_description'       => 'This clip is hosted on Twitch. By clicking "Load Clip", you agree to load content from Twitch.tv.',
+    'twitch_consent_description'       => 'This clip is hosted on Twitch. By clicking on the player, you agree to load content from Twitch.tv.',
     'twitch_consent_privacy_title'     => 'Privacy Notice',
     'twitch_consent_privacy_notice'    => 'This content is provided by Twitch and may use cookies or tracking technologies. By loading, you agree to Twitch\'s privacy policy.',
     'twitch_consent_load_button'       => 'Load Clip',

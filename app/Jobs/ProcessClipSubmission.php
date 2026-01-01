@@ -36,8 +36,11 @@ class ProcessClipSubmission implements ShouldQueue
      */
     public function handle(TwitchService $twitchService, TwitchGameService $gameService): void
     {
+        // Reload user from database to get tokens (they're hidden from serialization)
+        $user = User::find($this->user->id);
+
         // Set the user for token access in this job context
-        $twitchService->setUser($this->user);
+        $twitchService->setUser($user);
 
         try {
             // Validate the clip exists and get its data from Twitch
@@ -126,10 +129,7 @@ class ProcessClipSubmission implements ShouldQueue
                 // Dispatch thumbnail download job
                 if ($clipData->thumbnailUrl) {
                     $thumbnailPath = 'clips/thumbnails/'.$clip->id.'.jpg';
-                    \App\Jobs\DownloadTwitchImage::dispatch($clipData->thumbnailUrl, $thumbnailPath, 'thumbnail');
-
-                    // Update clip with local path
-                    $clip->update(['local_thumbnail_path' => $thumbnailPath]);
+                    \App\Jobs\DownloadTwitchImage::dispatch($clipData->thumbnailUrl, $thumbnailPath, 'thumbnail', $clip->id);
                 }
 
                 // Dispatch event for notifications and further processing

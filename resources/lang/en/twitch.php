@@ -59,6 +59,7 @@ return [
     'token_refresh_success'    => 'Access token refreshed successfully.',
     'token_refresh_failed'     => 'Failed to refresh access token.',
     'authentication_required'  => 'User authentication required.',
+    'no_access_token'          => 'No Twitch access token available. Please re-authenticate with Twitch.',
     'token_expired_no_refresh' => 'Access token has expired and no refresh token is available. Please re-authenticate with Twitch.',
 
     // General Messages

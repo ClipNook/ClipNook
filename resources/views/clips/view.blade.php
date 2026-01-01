@@ -4,7 +4,7 @@
             <!-- Clip Player -->
             <div class="bg-gray-900 rounded-md border border-gray-800 overflow-hidden">
                 <div class="aspect-video bg-gray-800">
-                    <livewire:twitch-player-consent :clip-info="['twitchClipId' => $clip->twitch_clip_id]" />
+                    <livewire:twitch-player-consent :clip-info="['twitchClipId' => $clip->twitch_clip_id, 'localThumbnailPath' => $clip->local_thumbnail_path]" />
                 </div>
             </div>
 
@@ -43,9 +43,9 @@
 
                     <!-- Actions -->
                     <div class="flex items-center gap-2">
-                        <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-md transition-colors">
+                        <button x-data="{ copied: false }" x-on:click="navigator.clipboard.writeText(window.location.href); copied = true; setTimeout(() => copied = false, 2000)" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-md transition-colors">
                             <i class="fas fa-share-alt mr-2"></i>
-                            {{ __('clips.share') }}
+                            <span x-text="copied ? 'Copied!' : '{{ __('clips.share') }}'"></span>
                         </button>
                     </div>
                 </div>

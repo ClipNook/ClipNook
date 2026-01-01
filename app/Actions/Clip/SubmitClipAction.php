@@ -15,6 +15,7 @@ use App\Services\Twitch\TwitchService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class SubmitClipAction
@@ -41,11 +42,15 @@ class SubmitClipAction
      */
     public function execute(User $user, string $twitchClipId): bool
     {
+        $this->ensureUserHasTwitchTokens($user);
+
         $cacheKey = "processing_clip_{$twitchClipId}";
 
         if (Cache::has($cacheKey)) {
             throw ValidationException::withMessages(['twitch_clip_id' => [__('clips.clip_processing')]]);
         }
+
+        $this->twitchService->setUser($user);
 
         $clipData = $this->validateClip($twitchClipId);
         $this->checkExistingClip($twitchClipId);
@@ -67,7 +72,11 @@ class SubmitClipAction
 
     public function executeSync(User $user, string $twitchClipId): Clip
     {
+        $this->ensureUserHasTwitchTokens($user);
+
         return DB::transaction(function () use ($user, $twitchClipId) {
+            $this->twitchService->setUser($user);
+
             $clipData = $this->validateClip($twitchClipId);
             $this->checkExistingClip($twitchClipId);
             $broadcaster = $this->validateBroadcaster($clipData->broadcasterId);
@@ -95,6 +104,11 @@ class SubmitClipAction
             ]);
 
             \App\Events\ClipSubmitted::dispatch($clip, $user);
+
+            // Download thumbnail synchronously
+            if ($clipData->thumbnailUrl) {
+                $this->downloadThumbnail($clip, $clipData->thumbnailUrl);
+            }
 
             return $clip;
         });
@@ -160,11 +174,40 @@ class SubmitClipAction
         }
     }
 
+    private function downloadThumbnail(Clip $clip, string $thumbnailUrl): void
+    {
+        try {
+            $thumbnailPath = 'clips/thumbnails/'.$clip->id.'.jpg';
+
+            // Ensure directory exists
+            Storage::disk('public')->makeDirectory(dirname($thumbnailPath));
+
+            // Download the image
+            $imageContent = file_get_contents($thumbnailUrl);
+            if ($imageContent !== false) {
+                Storage::disk('public')->put($thumbnailPath, $imageContent);
+                $clip->update(['local_thumbnail_path' => $thumbnailPath]);
+                Log::info('Thumbnail downloaded successfully', ['clip_id' => $clip->id, 'path' => $thumbnailPath]);
+            } else {
+                Log::warning('Failed to download thumbnail', ['clip_id' => $clip->id, 'url' => $thumbnailUrl]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Thumbnail download failed', ['clip_id' => $clip->id, 'error' => $e->getMessage()]);
+        }
+    }
+
     private function extractTags(\App\Services\Twitch\DTOs\ClipDTO $clipData): array
     {
         return array_unique(array_filter([
             $clipData->broadcasterName,
             $clipData->language,
         ]));
+    }
+
+    private function ensureUserHasTwitchTokens(User $user): void
+    {
+        if (! $user->twitch_access_token) {
+            throw ValidationException::withMessages(['user' => [__('twitch.missing_access_token')]]);
+        }
     }
 }

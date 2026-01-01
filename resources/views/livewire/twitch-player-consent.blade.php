@@ -1,44 +1,58 @@
 <div>
     @if (!$showPlayer)
-        <!-- Fake Player Placeholder with DSGVO Notice -->
-        <div class="relative aspect-video bg-gray-900 rounded-md border border-gray-700 overflow-hidden cursor-pointer group"
+        <!-- Privacy-First Player Placeholder -->
+        <div class="relative aspect-video bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-lg overflow-hidden shadow-2xl cursor-pointer group"
              wire:click="loadPlayer"
              role="button"
              tabindex="0"
              aria-label="{{ __('clips.twitch_consent_load_button') }}">
-            <!-- Background Image or Placeholder -->
-            <div class="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-                <!-- Play Icon -->
-                <div class="text-white opacity-70 group-hover:opacity-100 transition-opacity">
-                    <i class="fas fa-play-circle text-5xl"></i>
+            
+            <!-- Thumbnail Background -->
+            @if(isset($clipInfo['localThumbnailPath']))
+                <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30 group-hover:opacity-40 transition-opacity duration-300"
+                     style="background-image: url('{{ Storage::url($clipInfo['localThumbnailPath']) }}');">
                 </div>
-            </div>
-            <!-- Overlay Content -->
-            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black/40 group-hover:bg-black/20 transition-colors">
-                <h3 class="text-lg font-semibold text-white mb-2">{{ __('clips.twitch_consent_title') }}</h3>
-                <p class="text-gray-300 text-sm mb-4">{{ __('clips.twitch_consent_description') }}</p>
-                <!-- Privacy Notice -->
-                <div class="bg-gray-800 bg-opacity-80 border border-gray-600 rounded-md p-3 mb-4 max-w-md">
-                    <div class="flex items-center mb-2">
-                        <i class="fas fa-shield-alt text-purple-400 mr-2"></i>
-                        <span class="text-purple-300 font-medium text-sm">{{ __('clips.twitch_consent_privacy_title') }}</span>
+            @endif
+
+            <!-- Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
+
+            <!-- Main Content -->
+            <div class="relative h-full flex flex-col items-center justify-center p-8 text-center">
+
+                <!-- Title -->
+                <h3 class="text-2xl font-bold text-white mb-3 tracking-tight">
+                    {{ __('clips.twitch_consent_title') }}
+                </h3>
+
+                <!-- Description -->
+                <p class="text-gray-300 text-base mb-8 max-w-lg leading-relaxed">
+                    {{ __('clips.twitch_consent_description') }}
+                </p>
+
+                <!-- Privacy Notice Card -->
+                <div class="bg-white/5 dark:bg-white/10 backdrop-blur-sm border border-white/10 rounded-lg p-5 mb-8 max-w-lg group-hover:bg-white/10 transition-colors">
+                    <div class="flex items-start gap-3 mb-3">
+                        <div class="flex-shrink-0 mt-0.5">
+                            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <div class="text-left">
+                            <h4 class="text-purple-300 font-semibold text-sm mb-1.5">
+                                {{ __('clips.twitch_consent_privacy_title') }}
+                            </h4>
+                            <p class="text-gray-300/90 text-sm leading-relaxed">
+                                {{ __('clips.twitch_consent_privacy_notice') }}
+                            </p>
+                        </div>
                     </div>
-                    <p class="text-gray-300 text-xs">
-                        {{ __('clips.twitch_consent_privacy_notice') }}
-                    </p>
-                </div>
-                <!-- Action Buttons -->
-                <div class="flex gap-3">
-                    <button class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none flex items-center">
-                        <i class="fas fa-play mr-2"></i>
-                        {{ __('clips.twitch_consent_load_button') }}
-                    </button>
                 </div>
             </div>
         </div>
     @else
         <!-- Twitch Player Embed -->
-        <div class="relative aspect-video rounded-md overflow-hidden border border-gray-700">
+        <div class="relative aspect-video rounded-lg overflow-hidden shadow-2xl border border-gray-700/50">
             <iframe
                 src="https://clips.twitch.tv/embed?clip={{ $clipInfo['twitchClipId'] }}&parent={{ request()->getHost() }}"
                 height="100%"

@@ -43,7 +43,10 @@ test('validates twitch clip id format', function () {
 test('handles clip not found error', function () {
     $user = User::factory()->create();
 
-    $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) {
+    $this->mock(\App\Services\Twitch\TwitchService::class, function ($mock) use ($user) {
+        $mock->shouldReceive('setUser')
+            ->with($user)
+            ->once();
         $mock->shouldReceive('getClip')
             ->with('NonExistentClip')
             ->andReturn(null);
