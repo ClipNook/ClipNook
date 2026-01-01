@@ -6,6 +6,9 @@ namespace App\Models;
 
 use App\Models\Concerns\HasClipPermissions;
 use App\Models\Concerns\HasTwitchIntegration;
+use App\Models\Concerns\User\HasAvatar;
+use App\Models\Concerns\User\HasRoles;
+use App\Models\Concerns\User\HasStats;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -14,32 +17,46 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
+use function __;
+use function app;
+use function md5;
+use function now;
+use function route;
+use function substr;
+use function uniqid;
+
 /**
- * User Model
+ * User Model.
  *
  * Represents a user in the ClipNook platform. Users can be viewers, cutters,
  * streamers, moderators, or administrators with different permission levels.
  *
- * @property int $id
- * @property string $twitch_id Unique Twitch user ID
- * @property string $twitch_login Twitch username
+ * @property int    $id
+ * @property string $twitch_id           Unique Twitch user ID
+ * @property string $twitch_login        Twitch username
  * @property string $twitch_display_name Display name on Twitch
- * @property string $twitch_email Email from Twitch
- * @property bool $is_streamer Whether user is a streamer
- * @property bool $is_moderator Whether user is a moderator
- * @property bool $is_admin Whether user is an administrator
+ * @property string $twitch_email        Email from Twitch
+ * @property bool   $is_streamer         Whether user is a streamer
+ * @property bool   $is_moderator        Whether user is a moderator
+ * @property bool   $is_admin            Whether user is an administrator
  */
-class User extends Authenticatable
+final class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
-    use HasClipPermissions, HasTwitchIntegration;
+    use HasApiTokens;
+    use HasAvatar;
+    use HasClipPermissions;
+    use HasFactory;
+    use HasRoles;
+    use HasStats;
+    use HasTwitchIntegration;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $fillable = [
+    protected array $fillable = [
         // Twitch OAuth Data
         'twitch_id',
         'twitch_login',
@@ -137,16 +154,33 @@ class User extends Authenticatable
      */
     protected static function booted(): void
     {
-        static::created(function (self $user) {
+        self::created(static function (self $user): void {
             $preferences                 = $user->preferences ?? [];
             $preferences['lang']         = app()->getLocale();
             $user->preferences           = $preferences;
             $user->save();
         });
 
-        static::deleting(function (self $user) {
+        self::deleting(static function (self $user): void {
             $user->deleteAvatar();
         });
+    }
+
+    /**
+     * Clean up expired tokens periodically.
+     */
+    public static function cleanupExpiredTokens(): int
+    {
+        return self::query()
+            ->whereHas('tokens', static function ($query): void {
+                $query->where('expires_at', '<', now());
+            })
+            ->with('tokens')
+            ->get()
+            ->each(static function ($user): void {
+                $user->tokens()->where('expires_at', '<', now())->delete();
+            })
+            ->count();
     }
 
     // Relationships
@@ -167,27 +201,6 @@ class User extends Authenticatable
     public function getDisplayNameAttribute(): string
     {
         return $this->twitch_display_name ?? $this->twitch_login ?? __('user.messages.anonymous_user');
-    }
-
-    /**
-     * Get the user's avatar URL.
-     */
-    public function getAvatarUrlAttribute(): ?string
-    {
-        if ($this->avatar_disabled) {
-            return null;
-        }
-
-        if ($this->custom_avatar_path && Storage::exists($this->custom_avatar_path)) {
-            return Storage::url($this->custom_avatar_path);
-        }
-
-        if ($this->twitch_avatar) {
-            return $this->twitch_avatar;
-        }
-
-        // Return default avatar if no other avatar is available
-        return asset('images/avatar-default.svg');
     }
 
     /**
@@ -253,9 +266,9 @@ class User extends Authenticatable
      */
     public function getProfileCompleteAttribute(): bool
     {
-        return ! empty($this->description) &&
-               ! empty($this->twitch_display_name) &&
-               ($this->avatar_url !== null);
+        return ! empty($this->description)
+               && ! empty($this->twitch_display_name)
+               && ($this->avatar_url !== null);
     }
 
     // Helper Methods
@@ -280,14 +293,6 @@ class User extends Authenticatable
         }
 
         return false;
-    }
-
-    /**
-     * Check if the user is an admin or moderator.
-     */
-    public function isStaff(): bool
-    {
-        return $this->is_admin || $this->is_moderator;
     }
 
     /**
@@ -347,21 +352,6 @@ class User extends Authenticatable
             'cutter'    => 'info',
             default     => 'secondary',
         };
-    }
-
-    /**
-     * Get the user's stats.
-     */
-    public function getStatsAttribute(): array
-    {
-        return [
-            'total_clips'         => $this->submittedClips()->count(),
-            'approved_clips'      => $this->submittedClips()->approved()->count(),
-            'broadcaster_clips'   => $this->broadcasterClips()->count(),
-            'moderated_clips'     => $this->moderatedClips()->count(),
-            'total_upvotes'       => $this->submittedClips()->sum('upvotes'),
-            'total_downvotes'     => $this->submittedClips()->sum('downvotes'),
-        ];
     }
 
     /**
@@ -553,7 +543,7 @@ class User extends Authenticatable
     /**
      * Scope for active users.
      */
-    public function scopeActive($query)
+    public function scopeActive(mixed $query)
     {
         return $query->where('last_activity_at', '>=', now()->subDays(30));
     }
@@ -561,9 +551,9 @@ class User extends Authenticatable
     /**
      * Scope for staff members.
      */
-    public function scopeStaff($query)
+    public function scopeStaff(mixed $query)
     {
-        return $query->where(function ($q) {
+        return $query->where(static function ($q): void {
             $q->where('is_admin', true)
                 ->orWhere('is_moderator', true);
         });
@@ -572,7 +562,7 @@ class User extends Authenticatable
     /**
      * Scope for streamers.
      */
-    public function scopeStreamers($query)
+    public function scopeStreamers(mixed $query)
     {
         return $query->where('is_streamer', true);
     }
@@ -580,7 +570,7 @@ class User extends Authenticatable
     /**
      * Scope for cutters.
      */
-    public function scopeCutters($query)
+    public function scopeCutters(mixed $query)
     {
         return $query->where('is_cutter', true);
     }
@@ -588,7 +578,7 @@ class User extends Authenticatable
     /**
      * Scope for users with expired Twitch tokens.
      */
-    public function scopeExpiredTokens($query)
+    public function scopeExpiredTokens(mixed $query)
     {
         return $query->where('twitch_token_expires_at', '<', now());
     }
@@ -604,7 +594,7 @@ class User extends Authenticatable
     /**
      * Check if this user can submit clips for the given broadcaster.
      */
-    public function canSubmitClipsFor(User $broadcaster): bool
+    public function canSubmitClipsFor(self $broadcaster): bool
     {
         // Broadcaster can always submit their own clips
         if ($this->id === $broadcaster->id) {
@@ -626,7 +616,7 @@ class User extends Authenticatable
     /**
      * Check if this user can edit clips for the given broadcaster.
      */
-    public function canEditClipsFor(User $broadcaster): bool
+    public function canEditClipsFor(self $broadcaster): bool
     {
         // Broadcaster can always edit their own clips
         if ($this->id === $broadcaster->id) {
@@ -643,7 +633,7 @@ class User extends Authenticatable
     /**
      * Check if this user can delete clips for the given broadcaster.
      */
-    public function canDeleteClipsFor(User $broadcaster): bool
+    public function canDeleteClipsFor(self $broadcaster): bool
     {
         // Broadcaster can always delete their own clips
         if ($this->id === $broadcaster->id) {
@@ -660,7 +650,7 @@ class User extends Authenticatable
     /**
      * Check if this user can moderate clips for the given broadcaster.
      */
-    public function canModerateClipsFor(User $broadcaster): bool
+    public function canModerateClipsFor(self $broadcaster): bool
     {
         // Broadcaster can always moderate their own clips
         if ($this->id === $broadcaster->id) {
@@ -677,7 +667,7 @@ class User extends Authenticatable
     /**
      * Grant clip submission permission to a user.
      */
-    public function grantClipSubmissionPermission(User $user): void
+    public function grantClipSubmissionPermission(self $user): void
     {
         $this->clipPermissionsGiven()->updateOrCreate(
             ['user_id' => $user->id],
@@ -688,7 +678,7 @@ class User extends Authenticatable
     /**
      * Grant clip editing permission to a user.
      */
-    public function grantClipEditingPermission(User $user): void
+    public function grantClipEditingPermission(self $user): void
     {
         $this->clipPermissionsGiven()->updateOrCreate(
             ['user_id' => $user->id],
@@ -699,7 +689,7 @@ class User extends Authenticatable
     /**
      * Grant clip deletion permission to a user.
      */
-    public function grantClipDeletionPermission(User $user): void
+    public function grantClipDeletionPermission(self $user): void
     {
         $this->clipPermissionsGiven()->updateOrCreate(
             ['user_id' => $user->id],
@@ -710,7 +700,7 @@ class User extends Authenticatable
     /**
      * Grant clip moderation permission to a user.
      */
-    public function grantClipModerationPermission(User $user): void
+    public function grantClipModerationPermission(self $user): void
     {
         $this->clipPermissionsGiven()->updateOrCreate(
             ['user_id' => $user->id],
@@ -721,7 +711,7 @@ class User extends Authenticatable
     /**
      * Revoke clip submission permission from a user.
      */
-    public function revokeClipSubmissionPermission(User $user): void
+    public function revokeClipSubmissionPermission(self $user): void
     {
         $this->clipPermissionsGiven()
             ->where('user_id', $user->id)
@@ -731,7 +721,7 @@ class User extends Authenticatable
     /**
      * Revoke clip editing permission from a user.
      */
-    public function revokeClipEditingPermission(User $user): void
+    public function revokeClipEditingPermission(self $user): void
     {
         $this->clipPermissionsGiven()
             ->where('user_id', $user->id)
@@ -741,7 +731,7 @@ class User extends Authenticatable
     /**
      * Revoke clip deletion permission from a user.
      */
-    public function revokeClipDeletionPermission(User $user): void
+    public function revokeClipDeletionPermission(self $user): void
     {
         $this->clipPermissionsGiven()
             ->where('user_id', $user->id)
@@ -751,7 +741,7 @@ class User extends Authenticatable
     /**
      * Revoke clip moderation permission from a user.
      */
-    public function revokeClipModerationPermission(User $user): void
+    public function revokeClipModerationPermission(self $user): void
     {
         $this->clipPermissionsGiven()
             ->where('user_id', $user->id)
@@ -771,22 +761,5 @@ class User extends Authenticatable
         $tokenName = 'api-token-'.now()->format('Y-m-d-H-i-s').'-'.substr(md5(uniqid()), 0, 8);
 
         return $this->createToken($tokenName)->plainTextToken;
-    }
-
-    /**
-     * Clean up expired tokens periodically.
-     */
-    public static function cleanupExpiredTokens(): int
-    {
-        return static::query()
-            ->whereHas('tokens', function ($query) {
-                $query->where('expires_at', '<', now());
-            })
-            ->with('tokens')
-            ->get()
-            ->each(function ($user) {
-                $user->tokens()->where('expires_at', '<', now())->delete();
-            })
-            ->count();
     }
 }

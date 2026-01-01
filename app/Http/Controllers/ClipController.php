@@ -207,12 +207,12 @@ final class ClipController extends Controller
 
                     break;
                 case 'reject':
-                    $clip->reject($request->string('reason'), $moderator);
+                    $clip->reject($moderator, $request->string('reason'));
                     $message = 'Clip rejected successfully.';
 
                     break;
                 case 'flag':
-                    $clip->flag($request->string('reason'), $moderator);
+                    $clip->flag($moderator, $request->string('reason'));
                     $message = 'Clip flagged successfully.';
 
                     break;
@@ -267,10 +267,7 @@ final class ClipController extends Controller
     public function pending(Request $request): JsonResponse
     {
         // Check if user has any moderation permissions
-        $hasModerationPermission = Auth::user()->broadcasterSettings
-            || Auth::user()->clipPermissionsReceived()->where('can_moderate_clips', true)->exists();
-
-        if (! $hasModerationPermission) {
+        if (! Auth::user()->canModerate()) {
             abort(403, 'Unauthorized');
         }
 
