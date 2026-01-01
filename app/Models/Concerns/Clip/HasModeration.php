@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\Models\Concerns\Clip;
 
 use App\Enums\ClipStatus;
+use App\Models\User;
+
+use function in_array;
+use function now;
 
 /**
  * Handles clip moderation functionality.
@@ -48,13 +52,13 @@ trait HasModeration
      */
     public function isActive(): bool
     {
-        return in_array($this->status, [ClipStatus::APPROVED, ClipStatus::FLAGGED]);
+        return in_array($this->status, [ClipStatus::APPROVED, ClipStatus::FLAGGED], true);
     }
 
     /**
      * Approve the clip.
      */
-    public function approve(\App\Models\User $moderator, ?string $reason = null): bool
+    public function approve(User $moderator, ?string $reason = null): bool
     {
         if (! $moderator->is_admin && ! $moderator->is_moderator) {
             return false;
@@ -73,7 +77,7 @@ trait HasModeration
     /**
      * Reject the clip.
      */
-    public function reject(\App\Models\User $moderator, string $reason): bool
+    public function reject(User $moderator, string $reason): bool
     {
         if (! $moderator->is_admin && ! $moderator->is_moderator) {
             return false;
@@ -92,7 +96,7 @@ trait HasModeration
     /**
      * Flag the clip.
      */
-    public function flag(\App\Models\User $moderator, string $reason): bool
+    public function flag(User $moderator, string $reason): bool
     {
         if (! $moderator->is_admin && ! $moderator->is_moderator) {
             return false;

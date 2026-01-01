@@ -12,12 +12,19 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 
-class ClipService implements ClipServiceInterface
+use function config;
+use function now;
+use function preg_replace;
+use function strlen;
+use function today;
+use function trim;
+
+final class ClipService implements ClipServiceInterface
 {
     public function __construct(private readonly SubmitClipAction $submitClipAction) {}
 
     /**
-     * Submit a clip for a user
+     * Submit a clip for a user.
      */
     public function submitClip(User $user, string $clipId): Clip
     {
@@ -25,7 +32,7 @@ class ClipService implements ClipServiceInterface
     }
 
     /**
-     * Get clips for a user with pagination
+     * Get clips for a user with pagination.
      */
     public function getUserClips(User $user, ?int $perPage = null): LengthAwarePaginator
     {
@@ -38,7 +45,7 @@ class ClipService implements ClipServiceInterface
     }
 
     /**
-     * Get clips for a specific broadcaster
+     * Get clips for a specific broadcaster.
      */
     public function getBroadcasterClips(int $broadcasterId, ?int $perPage = null): LengthAwarePaginator
     {
@@ -51,7 +58,7 @@ class ClipService implements ClipServiceInterface
     }
 
     /**
-     * Get featured/popular clips
+     * Get featured/popular clips.
      */
     public function getFeaturedClips(?int $limit = null): Collection
     {
@@ -60,7 +67,7 @@ class ClipService implements ClipServiceInterface
         return Cache::remember(
             'featured_clips',
             now()->addMinutes(config('constants.cache.featured_clips_minutes')),
-            fn () => Clip::with(['user', 'broadcaster', 'game'])
+            static fn () => Clip::with(['user', 'broadcaster', 'game'])
                 ->where('is_featured', true)
                 ->orderBy('view_count', 'desc')
                 ->limit($limit)
@@ -69,7 +76,7 @@ class ClipService implements ClipServiceInterface
     }
 
     /**
-     * Get recent clips
+     * Get recent clips.
      */
     public function getRecentClips(?int $limit = null): Collection
     {
@@ -78,7 +85,7 @@ class ClipService implements ClipServiceInterface
         return Cache::remember(
             'recent_clips',
             now()->addMinutes(config('constants.cache.recent_clips_minutes')),
-            fn () => Clip::with(['user', 'broadcaster', 'game'])
+            static fn () => Clip::with(['user', 'broadcaster', 'game'])
                 ->orderBy('created_at', 'desc')
                 ->limit($limit)
                 ->get()
@@ -86,21 +93,21 @@ class ClipService implements ClipServiceInterface
     }
 
     /**
-     * Search clips by title or tags with improved security
+     * Search clips by title or tags with improved security.
      */
     public function searchClips(string $query, ?int $perPage = null): LengthAwarePaginator
     {
         $perPage ??= config('constants.pagination.default_per_page');
-        // Sanitize and prepare search query
+        // Sanitize and prepare search query - only remove dangerous characters
         $searchTerm = trim($query);
-        $searchTerm = preg_replace('/[^\w\s\-]/', '', $searchTerm); // Remove special characters
+        $searchTerm = preg_replace('/[<>\"\'&]/', '', $searchTerm); // Remove only dangerous HTML/JS chars
 
         if (empty($searchTerm) || strlen($searchTerm) < 2) {
             return Clip::whereRaw('1 = 0')->paginate($perPage); // Return empty result
         }
 
         return Clip::search($searchTerm)
-            ->orWhere(function ($q) use ($searchTerm) {
+            ->orWhere(static function ($q) use ($searchTerm): void {
                 $q->whereJsonContains('tags', $searchTerm);
             })
             ->withRelations() // Use the optimized scope
@@ -110,11 +117,11 @@ class ClipService implements ClipServiceInterface
     }
 
     /**
-     * Get clip statistics for a user
+     * Get clip statistics for a user.
      */
     public function getUserStats(User $user): array
     {
-        return Cache::remember("user_clip_stats_{$user->id}", now()->addHours(config('constants.cache.user_stats_hours')), function () use ($user) {
+        return Cache::remember("user_clip_stats_{$user->id}", now()->addHours(config('constants.cache.user_stats_hours')), static function () use ($user) {
             $stats = Clip::where('user_id', $user->id)
                 ->selectRaw('
                     COUNT(*) as total_clips,
@@ -134,7 +141,7 @@ class ClipService implements ClipServiceInterface
     }
 
     /**
-     * Check if user can submit more clips (rate limiting)
+     * Check if user can submit more clips (rate limiting).
      */
     public function canUserSubmitClip(User $user): bool
     {
@@ -146,7 +153,7 @@ class ClipService implements ClipServiceInterface
     }
 
     /**
-     * Get clips by game/category
+     * Get clips by game/category.
      */
     public function getClipsByGame(int $gameId, ?int $perPage = null): LengthAwarePaginator
     {
@@ -159,7 +166,7 @@ class ClipService implements ClipServiceInterface
     }
 
     /**
-     * Toggle featured status for a clip (admin only)
+     * Toggle featured status for a clip (admin only).
      */
     public function toggleFeatured(Clip $clip): bool
     {
@@ -170,7 +177,7 @@ class ClipService implements ClipServiceInterface
     }
 
     /**
-     * Delete a clip
+     * Delete a clip.
      */
     public function deleteClip(Clip $clip): bool
     {

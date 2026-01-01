@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Events\ClipModerated;
+use App\Enums\ClipStatus;
+use App\Enums\VoteType;
 use App\Models\Concerns\Clip\HasMedia;
 use App\Models\Concerns\Clip\HasModeration;
 use App\Models\Concerns\Clip\HasVoting;
@@ -12,8 +13,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
-use function __;
 use function asset;
 use function config;
 use function now;
@@ -68,7 +69,7 @@ final class Clip extends Model
         'downvotes'         => 'integer',
         'view_count'        => 'integer',
         'duration'          => 'integer',
-        'status'            => \App\Enums\ClipStatus::class,
+        'status'            => ClipStatus::class,
     ];
 
     protected $attributes = [
@@ -133,27 +134,27 @@ final class Clip extends Model
         ]);
     }
 
-    public function scopePending($query)
+    public function scopePending(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
-        return $query->where('status', \App\Enums\ClipStatus::PENDING);
+        return $query->where('status', ClipStatus::PENDING);
     }
 
-    public function scopeApproved($query)
+    public function scopeApproved(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
-        return $query->where('status', \App\Enums\ClipStatus::APPROVED);
+        return $query->where('status', ClipStatus::APPROVED);
     }
 
-    public function scopeRejected($query)
+    public function scopeRejected(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
-        return $query->where('status', \App\Enums\ClipStatus::REJECTED);
+        return $query->where('status', ClipStatus::REJECTED);
     }
 
-    public function scopeFlagged($query)
+    public function scopeFlagged(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
-        return $query->where('status', \App\Enums\ClipStatus::FLAGGED);
+        return $query->where('status', ClipStatus::FLAGGED);
     }
 
-    public function scopeFeatured($query)
+    public function scopeFeatured(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_featured', true);
     }
@@ -170,74 +171,27 @@ final class Clip extends Model
     // Helper methods
     public function isPending(): bool
     {
-        return $this->status === \App\Enums\ClipStatus::PENDING;
+        return $this->status === ClipStatus::PENDING;
     }
 
     public function isApproved(): bool
     {
-        return $this->status === \App\Enums\ClipStatus::APPROVED;
+        return $this->status === ClipStatus::APPROVED;
     }
 
     public function isRejected(): bool
     {
-        return $this->status === \App\Enums\ClipStatus::REJECTED;
+        return $this->status === ClipStatus::REJECTED;
     }
 
     public function isFlagged(): bool
     {
-        return $this->status === \App\Enums\ClipStatus::FLAGGED;
-    }
-
-    public function approve(?User $moderator = null): void
-    {
-        $this->update([
-            'status'            => \App\Enums\ClipStatus::APPROVED,
-            'moderated_by'      => $moderator?->id,
-            'moderated_at'      => now(),
-            'moderation_reason' => null,
-        ]);
-
-        if ($moderator) {
-            ClipModerated::dispatch($this, $moderator, 'approve');
-        }
-    }
-
-    public function reject(string $reason, ?User $moderator = null): void
-    {
-        $this->update([
-            'status'            => \App\Enums\ClipStatus::REJECTED,
-            'moderation_reason' => $reason,
-            'moderated_by'      => $moderator?->id,
-            'moderated_at'      => now(),
-        ]);
-
-        if ($moderator) {
-            ClipModerated::dispatch($this, $moderator, 'reject', $reason);
-        }
-    }
-
-    public function flag(string $reason, ?User $moderator = null): void
-    {
-        $this->update([
-            'status'            => \App\Enums\ClipStatus::FLAGGED,
-            'moderation_reason' => $reason,
-            'moderated_by'      => $moderator?->id,
-            'moderated_at'      => now(),
-        ]);
-
-        if ($moderator) {
-            ClipModerated::dispatch($this, $moderator, 'flag', $reason);
-        }
+        return $this->status === ClipStatus::FLAGGED;
     }
 
     public function toggleFeatured(): void
     {
         $this->update(['is_featured' => ! $this->is_featured]);
-    }
-
-    public function getScoreAttribute(): int
-    {
-        return $this->upvotes - $this->downvotes;
     }
 
     public function getPopularityScoreAttribute(): float
@@ -261,22 +215,12 @@ final class Clip extends Model
 
     public function getStatusBadgeAttribute(): string
     {
-        return match ($this->status) {
-            \App\Enums\ClipStatus::APPROVED => 'success',
-            \App\Enums\ClipStatus::REJECTED => 'danger',
-            \App\Enums\ClipStatus::FLAGGED  => 'warning',
-            default                         => 'secondary',
-        };
+        return $this->status->badgeColor();
     }
 
     public function getStatusTextAttribute(): string
     {
-        return match ($this->status) {
-            \App\Enums\ClipStatus::APPROVED => __('clip.status.approved'),
-            \App\Enums\ClipStatus::REJECTED => __('clip.status.rejected'),
-            \App\Enums\ClipStatus::FLAGGED  => __('clip.status.flagged'),
-            default                         => __('clip.status.pending'),
-        };
+        return $this->status->label();
     }
 
     public function getBroadcasterDisplayNameAttribute(): string
@@ -298,7 +242,7 @@ final class Clip extends Model
         return $this->votes()->where('user_id', $user->id)->exists();
     }
 
-    public function getUserVoteType(User $user): ?\App\Enums\VoteType
+    public function getUserVoteType(User $user): ?VoteType
     {
         $vote = $this->votes()->where('user_id', $user->id)->first();
 
@@ -364,7 +308,7 @@ final class Clip extends Model
         $existingVote = $this->votes()->where('user_id', $user->id)->first();
 
         if ($existingVote) {
-            if ($existingVote->vote_type === \App\Enums\VoteType::UPVOTE) {
+            if ($existingVote->vote_type === VoteType::UPVOTE) {
                 // Already upvoted, remove vote
                 $existingVote->delete();
                 $this->decrement('upvotes');
@@ -372,7 +316,7 @@ final class Clip extends Model
                 return false;
             }
             // Change from downvote to upvote
-            $existingVote->update(['vote_type' => \App\Enums\VoteType::UPVOTE]);
+            $existingVote->update(['vote_type' => VoteType::UPVOTE]);
             $this->increment('upvotes');
             $this->decrement('downvotes');
 
@@ -382,7 +326,7 @@ final class Clip extends Model
         // New upvote
         $this->votes()->create([
             'user_id'   => $user->id,
-            'vote_type' => \App\Enums\VoteType::UPVOTE,
+            'vote_type' => VoteType::UPVOTE,
         ]);
         $this->increment('upvotes');
 
@@ -395,7 +339,7 @@ final class Clip extends Model
         $existingVote = $this->votes()->where('user_id', $user->id)->first();
 
         if ($existingVote) {
-            if ($existingVote->vote_type === \App\Enums\VoteType::DOWNVOTE) {
+            if ($existingVote->vote_type === VoteType::DOWNVOTE) {
                 // Already downvoted, remove vote
                 $existingVote->delete();
                 $this->decrement('downvotes');
@@ -403,7 +347,7 @@ final class Clip extends Model
                 return false;
             }
             // Change from upvote to downvote
-            $existingVote->update(['vote_type' => \App\Enums\VoteType::DOWNVOTE]);
+            $existingVote->update(['vote_type' => VoteType::DOWNVOTE]);
             $this->decrement('upvotes');
             $this->increment('downvotes');
 
@@ -413,21 +357,11 @@ final class Clip extends Model
         // New downvote
         $this->votes()->create([
             'user_id'   => $user->id,
-            'vote_type' => \App\Enums\VoteType::DOWNVOTE,
+            'vote_type' => VoteType::DOWNVOTE,
         ]);
         $this->increment('downvotes');
 
         return true;
-    }
-
-    public function isPopular(): bool
-    {
-        return $this->score > config('constants.limits.clip_score_threshold') && $this->view_count > config('constants.limits.clip_view_threshold');
-    }
-
-    public function isTrending(): bool
-    {
-        return $this->created_at->diffInHours(now()) <= 24 && $this->score > 5;
     }
 
     public function getTimeAgoAttribute(): string
