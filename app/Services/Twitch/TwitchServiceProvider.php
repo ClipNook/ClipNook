@@ -4,47 +4,80 @@ declare(strict_types=1);
 
 namespace App\Services\Twitch;
 
-use App\Actions\Twitch\ExchangeCodeForTokenAction;
-use Illuminate\Contracts\Cache\Repository;
+use App\Contracts\ImageValidatorInterface;
+use App\Services\Twitch\Api\ClipApiService;
+use App\Services\Twitch\Api\DataSanitizerService;
+use App\Services\Twitch\Api\GameApiService;
+use App\Services\Twitch\Api\StreamerApiService;
+use App\Services\Twitch\Api\TwitchApiClient;
+use App\Services\Twitch\Api\VideoApiService;
+use App\Services\Twitch\Auth\TwitchTokenManager;
+use App\Services\Twitch\Contracts\TwitchApiClientInterface;
+use App\Services\Twitch\Media\TwitchMediaService;
 use Illuminate\Support\ServiceProvider;
 
 class TwitchServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind(TwitchApiClient::class, function ($app) {
+        // Core API Client
+        $this->app->bind(TwitchApiClientInterface::class, function ($app) {
             return new TwitchApiClient(
                 clientId: config('twitch.client_id'),
                 clientSecret: config('twitch.client_secret'),
-                timeout: config('twitch.timeout', 30),
             );
         });
 
+        // Specialized API Services
+        $this->app->bind(ClipApiService::class, function ($app) {
+            return new ClipApiService(
+                apiClient: $app->make(TwitchApiClientInterface::class),
+                sanitizer: $app->make(DataSanitizerService::class),
+                tokenManager: $app->make(TwitchTokenManager::class),
+            );
+        });
+
+        $this->app->bind(GameApiService::class, function ($app) {
+            return new GameApiService(
+                apiClient: $app->make(TwitchApiClientInterface::class),
+                sanitizer: $app->make(DataSanitizerService::class),
+                tokenManager: $app->make(TwitchTokenManager::class),
+            );
+        });
+
+        $this->app->bind(StreamerApiService::class, function ($app) {
+            return new StreamerApiService(
+                apiClient: $app->make(TwitchApiClientInterface::class),
+                sanitizer: $app->make(DataSanitizerService::class),
+                tokenManager: $app->make(TwitchTokenManager::class),
+            );
+        });
+
+        $this->app->bind(VideoApiService::class, function ($app) {
+            return new VideoApiService(
+                apiClient: $app->make(TwitchApiClientInterface::class),
+                sanitizer: $app->make(DataSanitizerService::class),
+                tokenManager: $app->make(TwitchTokenManager::class),
+            );
+        });
+
+        // Auth & Media Services
         $this->app->bind(TwitchTokenManager::class, function ($app) {
             return new TwitchTokenManager(
                 clientId: config('twitch.client_id'),
                 clientSecret: config('twitch.client_secret'),
-                cache: $app->make(Repository::class),
-                timeout: config('twitch.timeout', 30),
             );
         });
 
-        $this->app->bind(TwitchDataSanitizer::class, function ($app) {
-            return new TwitchDataSanitizer;
-        });
-
-        $this->app->bind(TwitchService::class, function ($app) {
-            return new TwitchService(
-                apiClient: $app->make(TwitchApiClient::class),
-                tokenManager: $app->make(TwitchTokenManager::class),
-                sanitizer: $app->make(TwitchDataSanitizer::class),
+        $this->app->bind(TwitchMediaService::class, function ($app) {
+            return new TwitchMediaService(
+                imageValidator: $app->make(ImageValidatorInterface::class),
             );
         });
 
-        $this->app->bind(ExchangeCodeForTokenAction::class, function ($app) {
-            return new ExchangeCodeForTokenAction(
-                apiClient: $app->make(TwitchApiClient::class),
-            );
+        // Utility Services
+        $this->app->bind(DataSanitizerService::class, function ($app) {
+            return new DataSanitizerService;
         });
     }
 

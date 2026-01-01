@@ -18,13 +18,46 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Bind DownloadInterface to TwitchService
-        $this->app->bind(\App\Services\Twitch\Contracts\DownloadInterface::class, \App\Services\Twitch\TwitchService::class);
+        // Bind service interfaces to implementations
+        $this->bindServiceInterfaces();
 
         if ($this->app->environment('local') && class_exists(\Laravel\Telescope\TelescopeServiceProvider::class)) {
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
             $this->app->register(TelescopeServiceProvider::class);
         }
+    }
+
+    /**
+     * Bind service contracts to their implementations.
+     */
+    protected function bindServiceInterfaces(): void
+    {
+        // Twitch contracts
+        $this->app->bind(
+            \App\Services\Twitch\Contracts\DownloadInterface::class,
+            \App\Services\Twitch\Media\TwitchMediaService::class
+        );
+
+        // Application contracts
+        $this->app->bind(
+            \App\Contracts\Clip\ClipServiceInterface::class,
+            \App\Services\Clip\ClipService::class
+        );
+
+        $this->app->bind(
+            \App\Contracts\GDPRServiceInterface::class,
+            \App\Services\GDPR\GDPRService::class
+        );
+
+        $this->app->bind(
+            \App\Contracts\ImageValidatorInterface::class,
+            \App\Services\Image\ImageValidator::class
+        );
+
+        $this->app->bind(
+            \App\Contracts\CacheServiceInterface::class,
+            \App\Services\Cache\CacheBackendManager::class
+        );
     }
 
     /**

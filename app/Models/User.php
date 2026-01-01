@@ -6,9 +6,6 @@ namespace App\Models;
 
 use App\Models\Concerns\HasClipPermissions;
 use App\Models\Concerns\HasTwitchIntegration;
-use App\Models\Concerns\HasUserAvatar;
-use App\Models\Concerns\HasUserRoles;
-use App\Models\Concerns\HasUserStats;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -35,7 +32,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-    use HasClipPermissions, HasTwitchIntegration, HasUserAvatar, HasUserRoles, HasUserStats;
+    use HasClipPermissions, HasTwitchIntegration;
 
     /**
      * The attributes that are mass assignable.
@@ -78,6 +75,12 @@ class User extends Authenticatable
         'ntfy_server_url',
         'ntfy_topic',
         'ntfy_auth_token',
+
+        // GDPR Compliance
+        'deletion_requested_at',
+        'data_exported_at',
+        'anonymized_at',
+        'gdpr_consent_log',
     ];
 
     /**
@@ -121,6 +124,12 @@ class User extends Authenticatable
         // JSON
         'preferences'             => 'array',
         'scopes'                  => 'array',
+        'gdpr_consent_log'        => 'array',
+
+        // GDPR timestamps
+        'deletion_requested_at'   => 'datetime',
+        'data_exported_at'        => 'datetime',
+        'anonymized_at'           => 'datetime',
     ];
 
     /**

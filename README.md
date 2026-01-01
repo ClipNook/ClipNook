@@ -1,7 +1,7 @@
 # ClipNook
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PHP Version](https://img.shields.io/badge/PHP-8.5+-777bb4.svg)](https://www.php.net/)
+[![PHP Version](https://img.shields.io/badge/PHP-8.4+-777bb4.svg)](https://www.php.net/)
 [![Laravel Version](https://img.shields.io/badge/Laravel-12.x-ff2d20.svg)](https://laravel.com)
 [![Livewire](https://img.shields.io/badge/Livewire-3.x-fb70a9.svg)](https://laravel-livewire.com)
 [![Pest](https://img.shields.io/badge/Pest-4.x-8A2BE2.svg)](https://pestphp.com)

@@ -5,15 +5,21 @@ declare(strict_types=1);
 namespace App\Actions\Twitch;
 
 use App\Models\User;
+use App\Services\Twitch\Api\StreamerApiService;
+use App\Services\Twitch\Auth\TwitchTokenManager;
 use App\Services\Twitch\DTOs\TokenDTO;
-use App\Services\Twitch\TwitchService;
 use Illuminate\Support\Facades\Auth;
 
 class AuthenticateTwitchUserAction
 {
-    public function execute(TokenDTO $token, TwitchService $twitchService): ?User
+    public function __construct(
+        private readonly StreamerApiService $streamerApiService,
+        private readonly TwitchTokenManager $tokenManager,
+    ) {}
+
+    public function execute(TokenDTO $token): ?User
     {
-        $twitchUser = $twitchService->getCurrentUser();
+        $twitchUser = $this->streamerApiService->getCurrentUser($token->accessToken);
 
         if (! $twitchUser) {
             return null;
@@ -32,13 +38,13 @@ class AuthenticateTwitchUserAction
                 'twitch_login'            => $twitchUser->login,
                 'twitch_display_name'     => $twitchUser->displayName,
                 'twitch_email'            => $email,
-                'twitch_access_token'     => $token->accessToken,
-                'twitch_refresh_token'    => $token->refreshToken,
-                'twitch_token_expires_at' => now()->addSeconds($token->expiresIn),
                 'scopes'                  => $grantedScopes,
                 'last_login_at'           => now(),
             ]
         );
+
+        // Store tokens using the token manager
+        $this->tokenManager->updateUserTokens($user, $token);
 
         // Always update last_login_at on login
         $user->update(['last_login_at' => now()]);

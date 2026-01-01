@@ -10,8 +10,11 @@ use App\Exceptions\ClipPermissionException;
 use App\Jobs\ProcessClipSubmission;
 use App\Models\Clip;
 use App\Models\User;
-use App\Services\Twitch\TwitchGameService;
-use App\Services\Twitch\TwitchService;
+use App\Services\Twitch\Api\ClipApiService;
+use App\Services\Twitch\Api\GameApiService;
+use App\Services\Twitch\Api\StreamerApiService;
+use App\Services\Twitch\Api\VideoApiService;
+use App\Services\Twitch\Auth\TwitchTokenManager;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -21,8 +24,11 @@ use Illuminate\Validation\ValidationException;
 class SubmitClipAction
 {
     public function __construct(
-        private TwitchService $twitchService,
-        private TwitchGameService $twitchGameService
+        private ClipApiService $clipApiService,
+        private GameApiService $gameApiService,
+        private StreamerApiService $streamerApiService,
+        private VideoApiService $videoApiService,
+        private TwitchTokenManager $tokenManager
     ) {}
 
     /**
@@ -50,9 +56,7 @@ class SubmitClipAction
             throw ValidationException::withMessages(['twitch_clip_id' => [__('clips.clip_processing')]]);
         }
 
-        $this->twitchService->setUser($user);
-
-        $clipData = $this->validateClip($twitchClipId);
+        $clipData = $this->validateClip($twitchClipId, $user);
         $this->checkExistingClip($twitchClipId);
         $broadcaster = $this->validateBroadcaster($clipData->broadcasterId);
         $this->checkPermissions($user, $broadcaster);
@@ -75,15 +79,13 @@ class SubmitClipAction
         $this->ensureUserHasTwitchTokens($user);
 
         return DB::transaction(function () use ($user, $twitchClipId) {
-            $this->twitchService->setUser($user);
-
-            $clipData = $this->validateClip($twitchClipId);
+            $clipData = $this->validateClip($twitchClipId, $user);
             $this->checkExistingClip($twitchClipId);
             $broadcaster = $this->validateBroadcaster($clipData->broadcasterId);
             $this->checkPermissions($user, $broadcaster);
 
             $game = $clipData->gameId
-                ? $this->twitchGameService->getOrCreateGame($clipData->gameId)
+                ? $this->getOrCreateGame($clipData->gameId, $this->tokenManager->getValidAccessToken($user))
                 : null;
 
             $clip = Clip::create([
@@ -114,9 +116,10 @@ class SubmitClipAction
         });
     }
 
-    private function validateClip(string $twitchClipId): \App\Services\Twitch\DTOs\ClipDTO
+    private function validateClip(string $twitchClipId, User $user): \App\Services\Twitch\DTOs\ClipDTO
     {
-        $clipData = $this->twitchService->getClip($twitchClipId);
+        $accessToken = $this->tokenManager->getValidAccessToken($user);
+        $clipData    = $this->clipApiService->getClip($twitchClipId, $accessToken);
 
         if (! $clipData) {
             throw ClipNotFoundException::forId($twitchClipId);
@@ -209,5 +212,21 @@ class SubmitClipAction
         if (! $user->twitch_access_token) {
             throw ValidationException::withMessages(['user' => [__('twitch.missing_access_token')]]);
         }
+    }
+
+    private function getOrCreateGame(string $gameId, ?string $accessToken = null): ?\App\Models\Game
+    {
+        $gameDTO = $this->gameApiService->getGame($gameId, $accessToken);
+
+        if (! $gameDTO) {
+            return null;
+        }
+
+        return \App\Models\Game::findOrCreateFromTwitch([
+            'id'          => $gameDTO->id,
+            'name'        => $gameDTO->name,
+            'box_art_url' => $gameDTO->boxArtUrl,
+            'igdb_id'     => null,
+        ]);
     }
 }

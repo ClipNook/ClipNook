@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('broadcaster_settings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('broadcaster_id')->constrained('users')->onDelete('cascade');
-            $table->boolean('allow_public_clip_submissions')->default(false);
+            $table->enum('clip_submission_permission', ['everyone', 'followers', 'subscribers', 'none'])->default('none');
             $table->timestamps();
 
             $table->unique('broadcaster_id');

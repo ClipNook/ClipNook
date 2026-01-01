@@ -6,8 +6,9 @@ namespace App\Jobs;
 
 use App\Models\Clip;
 use App\Models\User;
-use App\Services\Twitch\TwitchGameService;
-use App\Services\Twitch\TwitchService;
+use App\Services\Twitch\Api\ClipApiService;
+use App\Services\Twitch\Api\GameApiService;
+use App\Services\Twitch\Auth\TwitchTokenManager;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -36,17 +37,17 @@ class ProcessClipSubmission implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(TwitchService $twitchService, TwitchGameService $gameService): void
+    public function handle(ClipApiService $clipApiService, GameApiService $gameService, TwitchTokenManager $tokenManager): void
     {
         // Reload user from database to get tokens (they're hidden from serialization)
         $user = User::find($this->user->id);
 
-        // Set the user for token access in this job context
-        $twitchService->setUser($user);
-
         try {
+            // Get access token for the user
+            $accessToken = $tokenManager->getValidAccessToken($user);
+
             // Validate the clip exists and get its data from Twitch
-            $clipData = $twitchService->getClip($this->twitchClipId);
+            $clipData = $clipApiService->getClip($this->twitchClipId, $accessToken);
 
             if (! $clipData) {
                 Log::warning('Clip not found on Twitch', [
@@ -98,7 +99,15 @@ class ProcessClipSubmission implements ShouldQueue
                 // Get or create game if available
                 $game = null;
                 if ($clipData->gameId) {
-                    $game = $gameService->getOrCreateGame($clipData->gameId);
+                    $gameDTO = $gameService->getGame($clipData->gameId, $accessToken);
+                    if ($gameDTO) {
+                        $game = \App\Models\Game::findOrCreateFromTwitch([
+                            'id'          => $gameDTO->id,
+                            'name'        => $gameDTO->name,
+                            'box_art_url' => $gameDTO->boxArtUrl,
+                            'igdb_id'     => null,
+                        ]);
+                    }
                 }
 
                 // Create the clip with race condition protection

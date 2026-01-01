@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Services;
+namespace App\Services\Clip;
 
 use App\Actions\Clip\SubmitClipAction;
+use App\Contracts\Clip\ClipServiceInterface;
 use App\Models\Clip;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 
-class ClipService
+class ClipService implements ClipServiceInterface
 {
-    public function __construct(private SubmitClipAction $submitClipAction) {}
+    public function __construct(private readonly SubmitClipAction $submitClipAction) {}
 
     /**
      * Submit a clip for a user
@@ -56,11 +57,14 @@ class ClipService
     {
         $limit ??= config('constants.limits.featured_clips');
 
-        return Cache::remember('featured_clips', now()->addMinutes(config('constants.cache.featured_clips_minutes')), fn () => Clip::with(['user', 'broadcaster', 'game'])
-            ->where('is_featured', true)
-            ->orderBy('view_count', 'desc')
-            ->limit($limit)
-            ->get()
+        return Cache::remember(
+            'featured_clips',
+            now()->addMinutes(config('constants.cache.featured_clips_minutes')),
+            fn () => Clip::with(['user', 'broadcaster', 'game'])
+                ->where('is_featured', true)
+                ->orderBy('view_count', 'desc')
+                ->limit($limit)
+                ->get()
         );
     }
 
@@ -71,10 +75,13 @@ class ClipService
     {
         $limit ??= config('constants.limits.recent_clips');
 
-        return Cache::remember('recent_clips', now()->addMinutes(config('constants.cache.recent_clips_minutes')), fn () => Clip::with(['user', 'broadcaster', 'game'])
-            ->orderBy('created_at', 'desc')
-            ->limit($limit)
-            ->get()
+        return Cache::remember(
+            'recent_clips',
+            now()->addMinutes(config('constants.cache.recent_clips_minutes')),
+            fn () => Clip::with(['user', 'broadcaster', 'game'])
+                ->orderBy('created_at', 'desc')
+                ->limit($limit)
+                ->get()
         );
     }
 
