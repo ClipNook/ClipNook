@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Cache;
 
 class ClipService
 {
-    public function __construct(private SubmitClipAction $submitClipAction) {}
+    public function __construct(private readonly SubmitClipAction $submitClipAction) {}
 
     /**
      * Submit a clip for a user

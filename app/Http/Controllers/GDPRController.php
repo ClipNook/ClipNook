@@ -5,75 +5,21 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Contracts\GDPRServiceInterface;
 use Illuminate\Http\Request;
 
 class GDPRController extends Controller
 {
+    public function __construct(
+        private readonly GDPRServiceInterface $gdprService,
+    ) {}
     /**
      * Export user data (Right to Data Portability)
      */
     public function exportData(Request $request)
     {
         $user = $request->user();
-
-        $data = [
-            'personal_information' => [
-                'twitch_id'           => $user->twitch_id,
-                'twitch_login'        => $user->twitch_login,
-                'twitch_display_name' => $user->twitch_display_name,
-                'twitch_email'        => $user->twitch_email,
-                'description'         => $user->description,
-                'created_at'          => $user->created_at,
-                'last_login_at'       => $user->last_login_at,
-                'last_activity_at'    => $user->last_activity_at,
-            ],
-            'preferences' => $user->preferences ?? [],
-            'roles'       => [
-                'is_viewer'    => $user->is_viewer,
-                'is_streamer'  => $user->is_streamer,
-                'is_moderator' => $user->is_moderator,
-                'is_admin'     => $user->is_admin,
-            ],
-            'activity_logs' => $user->activityLogs()
-                ->orderBy('created_at', 'desc')
-                ->take(1000)
-                ->get()
-                ->map(function ($log) {
-                    return [
-                        'action'      => $log->action,
-                        'description' => $log->description,
-                        'created_at'  => $log->created_at,
-                        'metadata'    => $log->metadata,
-                    ];
-                }),
-            'exported_at'             => now(),
-            'data_portability_rights' => [
-                'This data export is provided under GDPR Article 20 (Right to Data Portability)',
-                'You have the right to receive your personal data in a structured, commonly used format',
-                'You have the right to transmit this data to another controller',
-            ],
-        ];
-
-        // Add clips data if clips exist
-        if (method_exists($user, 'clips')) {
-            $data['clips'] = $user->clips()
-                ->withTrashed()
-                ->get()
-                ->map(function ($clip) {
-                    return [
-                        'id'               => $clip->id,
-                        'twitch_clip_id'   => $clip->twitch_clip_id,
-                        'title'            => $clip->title,
-                        'broadcaster_name' => $clip->broadcaster_name,
-                        'game_name'        => $clip->game_name,
-                        'view_count'       => $clip->view_count,
-                        'duration'         => $clip->duration,
-                        'status'           => $clip->status,
-                        'created_at'       => $clip->created_at,
-                        'deleted_at'       => $clip->deleted_at,
-                    ];
-                });
-        }
+        $data = $this->gdprService->exportUserData($user);
 
         return response()->json($data, 200, [
             'Content-Type'        => 'application/json',
@@ -126,7 +72,9 @@ class GDPRController extends Controller
         }
 
         // Perform the deletion
-        app(\App\Actions\GDPR\DeleteUserDataAction::class)->execute($user);
+        if (! $this->gdprService->deleteUserData($user)) {
+            return response()->json(['error' => 'Failed to delete user data'], 500);
+        }
 
         // Log out the user
         auth()->logout();

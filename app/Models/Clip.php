@@ -283,14 +283,25 @@ class Clip extends Model
         return '#';
     }
 
-    public function isSubmittedBy(User $user): bool
+    public function hasUserVoted(User $user): bool
     {
-        return $this->submitter_id === $user->id;
+        return $this->votes()->where('user_id', $user->id)->exists();
+    }
+
+    public function getUserVoteType(User $user): ?\App\Enums\VoteType
+    {
+        $vote = $this->votes()->where('user_id', $user->id)->first();
+        return $vote?->vote_type;
     }
 
     public function isFromBroadcaster(User $user): bool
     {
         return $this->broadcaster_id === $user->id;
+    }
+
+    public function isSubmittedBy(User $user): bool
+    {
+        return $this->submitter_id === $user->id;
     }
 
     public function canBeEditedBy(User $user): bool
@@ -338,19 +349,59 @@ class Clip extends Model
 
     public function upvote(User $user): bool
     {
-        // TODO: Implement proper voting system with vote tracking table
-        // For now, simply increment upvotes
-        $this->increment('upvotes');
+        // Check if user already voted
+        $existingVote = $this->votes()->where('user_id', $user->id)->first();
 
+        if ($existingVote) {
+            if ($existingVote->vote_type === \App\Enums\VoteType::UP) {
+                // Already upvoted, remove vote
+                $existingVote->delete();
+                $this->decrement('upvotes');
+                return false;
+            } else {
+                // Change from downvote to upvote
+                $existingVote->update(['vote_type' => \App\Enums\VoteType::UP]);
+                $this->increment('upvotes');
+                $this->decrement('downvotes');
+                return true;
+            }
+        }
+
+        // New upvote
+        $this->votes()->create([
+            'user_id'   => $user->id,
+            'vote_type' => \App\Enums\VoteType::UP,
+        ]);
+        $this->increment('upvotes');
         return true;
     }
 
     public function downvote(User $user): bool
     {
-        // TODO: Implement proper voting system with vote tracking table
-        // For now, simply increment downvotes
-        $this->increment('downvotes');
+        // Check if user already voted
+        $existingVote = $this->votes()->where('user_id', $user->id)->first();
 
+        if ($existingVote) {
+            if ($existingVote->vote_type === \App\Enums\VoteType::DOWN) {
+                // Already downvoted, remove vote
+                $existingVote->delete();
+                $this->decrement('downvotes');
+                return false;
+            } else {
+                // Change from upvote to downvote
+                $existingVote->update(['vote_type' => \App\Enums\VoteType::DOWN]);
+                $this->decrement('upvotes');
+                $this->increment('downvotes');
+                return true;
+            }
+        }
+
+        // New downvote
+        $this->votes()->create([
+            'user_id'   => $user->id,
+            'vote_type' => \App\Enums\VoteType::DOWN,
+        ]);
+        $this->increment('downvotes');
         return true;
     }
 

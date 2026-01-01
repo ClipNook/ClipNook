@@ -2,6 +2,6 @@
 
 declare(strict_types=1);
 
-it('ist wahr', function () {
+it('is true', function () {
     expect(true)->toBeTrue();
 });
