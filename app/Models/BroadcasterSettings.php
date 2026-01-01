@@ -23,14 +23,7 @@ class BroadcasterSettings extends Model
      */
     protected $fillable = [
         'broadcaster_id',
-        'allow_public_clip_submissions',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     */
-    protected $casts = [
-        'allow_public_clip_submissions' => 'boolean',
+        'clip_submission_permission',
     ];
 
     /**
@@ -46,7 +39,7 @@ class BroadcasterSettings extends Model
      */
     public function allowsPublicSubmissions(): bool
     {
-        return $this->allow_public_clip_submissions;
+        return in_array($this->clip_submission_permission, ['everyone', 'followers', 'subscribers']);
     }
 
     /**
@@ -54,7 +47,7 @@ class BroadcasterSettings extends Model
      */
     public function enablePublicSubmissions(): void
     {
-        $this->update(['allow_public_clip_submissions' => true]);
+        $this->update(['clip_submission_permission' => 'everyone']);
     }
 
     /**
@@ -62,6 +55,58 @@ class BroadcasterSettings extends Model
      */
     public function disablePublicSubmissions(): void
     {
-        $this->update(['allow_public_clip_submissions' => false]);
+        $this->update(['clip_submission_permission' => 'none']);
+    }
+
+    /**
+     * Get the clip submission permission.
+     */
+    public function getClipSubmissionPermission(): string
+    {
+        return $this->clip_submission_permission ?? 'everyone';
+    }
+
+    /**
+     * Set the clip submission permission.
+     */
+    public function setClipSubmissionPermission(string $permission): void
+    {
+        if (! in_array($permission, ['everyone', 'followers', 'subscribers', 'none'])) {
+            throw new \InvalidArgumentException('Invalid clip submission permission');
+        }
+
+        $this->update(['clip_submission_permission' => $permission]);
+    }
+
+    /**
+     * Check if clips can be submitted by everyone.
+     */
+    public function allowsEveryoneToSubmit(): bool
+    {
+        return $this->getClipSubmissionPermission() === 'everyone';
+    }
+
+    /**
+     * Check if clips can be submitted by followers only.
+     */
+    public function allowsFollowersToSubmit(): bool
+    {
+        return $this->getClipSubmissionPermission() === 'followers';
+    }
+
+    /**
+     * Check if clips can be submitted by subscribers only.
+     */
+    public function allowsSubscribersToSubmit(): bool
+    {
+        return $this->getClipSubmissionPermission() === 'subscribers';
+    }
+
+    /**
+     * Check if clip submissions are disabled.
+     */
+    public function submissionsDisabled(): bool
+    {
+        return $this->getClipSubmissionPermission() === 'none';
     }
 }
