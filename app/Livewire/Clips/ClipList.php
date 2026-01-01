@@ -27,7 +27,7 @@ class ClipList extends Component
 
     public function render()
     {
-        $clips = Clip::with(['submitter', 'broadcaster'])
+        $clips = Clip::with(['submitter', 'broadcaster', 'game'])
             ->approved()
             ->when($this->search, function ($query) {
                 $query->where('title', 'like', '%'.$this->search.'%')
