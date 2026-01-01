@@ -12,7 +12,7 @@ class SubmitClipRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()?->hasVerifiedEmail() ?? false;
+        return $this->user() !== null;
     }
 
     /**

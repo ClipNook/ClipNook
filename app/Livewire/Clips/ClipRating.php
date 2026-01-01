@@ -11,7 +11,7 @@ use Livewire\Component;
 
 class ClipRating extends Component
 {
-    public readonly Clip $clip;
+    public Clip $clip;
 
     public ?VoteType $userVote = null;
 

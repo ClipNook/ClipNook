@@ -43,14 +43,12 @@ class ClipPolicy
     /**
      * Determine whether the user can create new clips.
      *
-     * Only verified users can submit clips to prevent spam.
-     *
-     * @param  User  $user  The authenticated user
-     * @return bool True if user can create clips
+     * All authenticated users can submit clips.
+     * Email verification is not required as Twitch OAuth is trusted.
      */
     public function create(User $user): bool
     {
-        return $user->hasVerifiedEmail(); // Only verified users can submit clips
+        return true;
     }
 
     /**

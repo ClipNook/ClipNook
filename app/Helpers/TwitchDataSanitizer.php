@@ -28,6 +28,11 @@ class TwitchDataSanitizer
      */
     public static function sanitizeUrl(string $url): string
     {
+        // Allow empty URLs (e.g., when user has no profile image)
+        if (empty($url)) {
+            return '';
+        }
+
         // Validate URL format
         if (! filter_var($url, FILTER_VALIDATE_URL)) {
             throw DataSanitizationException::invalidUrl($url);

@@ -32,11 +32,12 @@ class ClipCommentPolicy
     /**
      * Determine whether the user can create comments.
      *
-     * Only verified users can post comments to prevent spam.
+     * All authenticated users can post comments.
+     * Email verification is not required as Twitch OAuth is trusted.
      */
     public function create(User $user): bool
     {
-        return $user->hasVerifiedEmail();
+        return true;
     }
 
     /**

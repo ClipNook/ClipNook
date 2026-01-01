@@ -12,10 +12,17 @@
 */
 
 return [
-    'home'        => 'Home',
-    'library'     => 'Library',
-    'submit'      => 'Submit',
-    'login'       => 'Login',
-    'logout'      => 'Logout',
-    'toggle_menu' => 'Toggle menu',
+    'home'             => 'Home',
+    'clips'            => 'Clips',
+    'games'            => 'Games',
+    'library'          => 'Library',
+    'submit'           => 'Submit Clip',
+    'login'            => 'Login',
+    'logout'           => 'Logout',
+    'profile'          => 'Profile',
+    'settings'         => 'Settings',
+    'account'          => 'Account',
+    'signed_in_as'     => 'Signed in as',
+    'toggle_menu'      => 'Toggle menu',
+    'main_navigation'  => 'Main navigation',
 ];

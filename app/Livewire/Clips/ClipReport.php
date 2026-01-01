@@ -12,7 +12,7 @@ use Livewire\Component;
 
 class ClipReport extends Component
 {
-    public readonly Clip $clip;
+    public Clip $clip;
 
     public bool $showModal = false;
 

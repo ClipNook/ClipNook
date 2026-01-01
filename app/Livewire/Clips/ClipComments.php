@@ -10,7 +10,7 @@ use Livewire\Component;
 
 class ClipComments extends Component
 {
-    public readonly Clip $clip;
+    public Clip $clip;
 
     #[Validate('required|min:1|max:1000')]
     public string $newComment = '';

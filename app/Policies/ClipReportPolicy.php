@@ -34,11 +34,12 @@ class ClipReportPolicy
     /**
      * Determine whether the user can create reports.
      *
-     * Only verified users can submit reports to prevent spam.
+     * All authenticated users can submit reports.
+     * Email verification is not required as Twitch OAuth is trusted.
      */
     public function create(User $user): bool
     {
-        return $user->hasVerifiedEmail();
+        return true;
     }
 
     /**

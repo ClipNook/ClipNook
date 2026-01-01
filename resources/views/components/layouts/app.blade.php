@@ -17,110 +17,156 @@
     </head>
     <body class="min-h-screen flex flex-col bg-gray-950 text-gray-100 font-sans antialiased">
         <!-- Header -->
-        <header class="bg-gray-900 border-b border-gray-800">
+        <header class="bg-gray-900 border-b border-gray-800" x-data="{ mobileMenuOpen: false, userMenuOpen: false }">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-16">
                     <!-- Logo -->
                     <div class="flex items-center">
-                        <a href="{{ route('home') }}" class="flex items-center gap-2 text-white hover:text-purple-400 transition-colors" aria-label="{{ __('nav.home') }}">
-                            <i class="fas fa-video text-purple-500" aria-hidden="true"></i>
-                            <span class="font-bold text-lg">{{ config('app.name') }}</span>
+                        <a href="{{ route('home') }}" class="flex items-center gap-2 text-white hover:text-gray-300 transition-colors" aria-label="{{ __('nav.home') }}">
+                            <i class="fas fa-video text-gray-400" aria-hidden="true"></i>
+                            <span class="font-semibold text-lg">{{ config('app.name') }}</span>
                         </a>
                     </div>
 
                     <!-- Desktop Navigation -->
                     <nav class="hidden md:flex items-center gap-1" role="navigation" aria-label="{{ __('nav.main_navigation') }}">
-                        <a href="{{ route('home') }}" class="px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('home') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('home') ? 'page' : null }}">
-                            <i class="fas fa-home mr-1.5" aria-hidden="true"></i>
+                        <a href="{{ route('home') }}" class="px-4 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('home') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('home') ? 'page' : null }}">
+                            <i class="fas fa-home mr-2" aria-hidden="true"></i>
                             {{ __('nav.home') }}
                         </a>
-                        <a href="{{ route('clips.list') }}" class="px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('clips.list') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('clips.*') ? 'page' : null }}">
-                            <i class="fas fa-film mr-1.5" aria-hidden="true"></i>
+                        <a href="{{ route('clips.list') }}" class="px-4 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('clips.*') && !request()->routeIs('clips.submit') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('clips.*') ? 'page' : null }}">
+                            <i class="fas fa-film mr-2" aria-hidden="true"></i>
                             {{ __('nav.clips') }}
                         </a>
-                        <a href="{{ route('games.list') }}" class="px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('games.*') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('games.*') ? 'page' : null }}">
-                            <i class="fas fa-gamepad mr-1.5" aria-hidden="true"></i>
+                        <a href="{{ route('games.list') }}" class="px-4 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('games.*') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('games.*') ? 'page' : null }}">
+                            <i class="fas fa-gamepad mr-2" aria-hidden="true"></i>
                             {{ __('nav.games') }}
                         </a>
                         @auth
-                            <a href="{{ route('clips.submit') }}" class="px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('clips.submit') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('clips.submit') ? 'page' : null }}">
-                                <i class="fas fa-plus mr-1.5" aria-hidden="true"></i>
+                            <a href="{{ route('clips.submit') }}" class="px-4 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('clips.submit') ? 'text-white bg-purple-600' : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-700' }}" aria-current="{{ request()->routeIs('clips.submit') ? 'page' : null }}">
+                                <i class="fas fa-plus-circle mr-2" aria-hidden="true"></i>
                                 {{ __('nav.submit') }}
                             </a>
                         @endauth
                     </nav>
 
                     <!-- User Menu -->
-                    <div class="flex items-center">
+                    <div class="flex items-center gap-3">
                         @auth
-                            <div class="relative" x-data="{ open: false }">
-                                <button @click="open = !open" class="flex items-center gap-2 text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors focus:outline-none" aria-expanded="false" aria-haspopup="true">
-                                    <i class="fas fa-user" aria-hidden="true"></i>
+                            <div class="relative hidden md:block">
+                                <button @click="userMenuOpen = !userMenuOpen" class="flex items-center gap-2 text-gray-400 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-700" aria-expanded="false" aria-haspopup="true">
+                                    <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-gray-300 font-medium text-sm">
+                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                    </div>
                                     <span class="hidden sm:block">{{ auth()->user()->name }}</span>
-                                    <i class="fas fa-chevron-down text-xs" aria-hidden="true"></i>
+                                    <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': userMenuOpen }" aria-hidden="true"></i>
                                 </button>
 
-                                <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1" class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md border border-gray-700 z-50" role="menu" aria-orientation="vertical">
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors duration-200" role="menuitem">
-                                        <i class="fas fa-user mr-2" aria-hidden="true"></i>
+                                <div x-show="userMenuOpen" @click.away="userMenuOpen = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-56 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-50 overflow-hidden" role="menu" aria-orientation="vertical" x-cloak>
+                                    <div class="px-4 py-3 border-b border-gray-700">
+                                        <p class="text-sm text-gray-400">{{ __('nav.signed_in_as') }}</p>
+                                        <p class="text-sm font-medium text-white truncate">{{ auth()->user()->twitch_display_name }}</p>
+                                    </div>
+                                    <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors" role="menuitem">
+                                        <i class="fas fa-user w-4 text-center" aria-hidden="true"></i>
                                         {{ __('nav.profile') }}
                                     </a>
-                                    <form method="POST" action="{{ route('auth.twitch.logout') }}">
-                                        @csrf
-                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors duration-200" role="menuitem">
-                                            <i class="fas fa-sign-out-alt mr-2" aria-hidden="true"></i>
-                                            {{ __('nav.logout') }}
-                                        </button>
-                                    </form>
+                                    <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors" role="menuitem">
+                                        <i class="fas fa-cog w-4 text-center" aria-hidden="true"></i>
+                                        {{ __('nav.settings') }}
+                                    </a>
+                                    <div class="border-t border-gray-700">
+                                        <form method="POST" action="{{ route('auth.twitch.logout') }}">
+                                            @csrf
+                                            <button type="submit" class="flex items-center gap-3 w-full text-left px-4 py-3 text-sm text-red-400 hover:text-red-300 hover:bg-gray-700 transition-colors" role="menuitem">
+                                                <i class="fas fa-sign-out-alt w-4 text-center" aria-hidden="true"></i>
+                                                {{ __('nav.logout') }}
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         @else
-                            <a href="{{ route('auth.login') }}" class="text-gray-300 hover:text-white px-4 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-gray-900">
-                                <i class="fas fa-sign-in-alt mr-1" aria-hidden="true"></i>
+                            <a href="{{ route('auth.login') }}" class="hidden md:flex items-center gap-2 text-white bg-purple-600 hover:bg-purple-700 px-5 py-2 rounded-lg text-sm font-medium transition-colors">
+                                <i class="fab fa-twitch" aria-hidden="true"></i>
                                 {{ __('nav.login') }}
                             </a>
                         @endauth
 
                         <!-- Mobile Menu Button -->
                         <button
-                            x-data="{ open: false }"
-                            @click="open = !open"
-                            class="md:hidden text-gray-400 hover:text-white p-2 transition-colors focus:outline-none"
+                            @click="mobileMenuOpen = !mobileMenuOpen"
+                            class="md:hidden text-gray-300 hover:text-white p-2 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
                             aria-expanded="false"
                             aria-label="{{ __('nav.toggle_menu') }}"
                         >
-                            <i class="fas fa-bars" aria-hidden="true"></i>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" x-cloak />
+                            </svg>
                         </button>
                     </div>
                 </div>
 
                 <!-- Mobile Navigation -->
                 <div
-                    x-data="{ open: false }"
-                    x-show="open"
-                    x-transition:enter="transition ease-out duration-150"
-                    x-transition:enter-start="opacity-0 -translate-y-1"
+                    x-show="mobileMenuOpen"
+                    @click.away="mobileMenuOpen = false"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0"
-                    x-transition:leave="transition ease-in duration-100"
+                    x-transition:leave="transition ease-in duration-150"
                     x-transition:leave-start="opacity-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 -translate-y-1"
-                    class="md:hidden border-t border-gray-800 py-2"
+                    x-transition:leave-end="opacity-0 -translate-y-2"
+                    class="md:hidden border-t border-gray-800 py-3"
                     x-cloak
                 >
-                    <nav class="flex flex-col gap-1 px-2" role="navigation" aria-label="{{ __('nav.main_navigation') }}">
-                        <a href="{{ route('home') }}" class="flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('home') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('home') ? 'page' : null }}">
-                            <i class="fas fa-home" aria-hidden="true"></i>
+                    <nav class="flex flex-col gap-2 px-3" role="navigation" aria-label="{{ __('nav.main_navigation') }}">
+                        <a href="{{ route('home') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('home') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('home') ? 'page' : null }}">
+                            <i class="fas fa-home w-5 text-center" aria-hidden="true"></i>
                             {{ __('nav.home') }}
                         </a>
-                        <a href="{{ route('clips.list') }}" class="flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('clips.list') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('clips.*') ? 'page' : null }}">
-                            <i class="fas fa-list" aria-hidden="true"></i>
+                        <a href="{{ route('clips.list') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('clips.*') && !request()->routeIs('clips.submit') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('clips.*') ? 'page' : null }}">
+                            <i class="fas fa-film w-5 text-center" aria-hidden="true"></i>
                             {{ __('nav.clips') }}
                         </a>
+                        <a href="{{ route('games.list') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('games.*') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('games.*') ? 'page' : null }}">
+                            <i class="fas fa-gamepad w-5 text-center" aria-hidden="true"></i>
+                            {{ __('nav.games') }}
+                        </a>
                         @auth
-                            <a href="{{ route('clips.submit') }}" class="flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('clips.submit') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('clips.submit') ? 'page' : null }}">
-                                <i class="fas fa-plus" aria-hidden="true"></i>
+                            <a href="{{ route('clips.submit') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('clips.submit') ? 'text-white bg-purple-600' : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-700' }}" aria-current="{{ request()->routeIs('clips.submit') ? 'page' : null }}">
+                                <i class="fas fa-plus-circle w-5 text-center" aria-hidden="true"></i>
                                 {{ __('nav.submit') }}
                             </a>
+                            
+                            <div class="border-t border-gray-800 mt-2 pt-2">
+                                <div class="px-4 py-2">
+                                    <p class="text-xs text-gray-500 uppercase tracking-wide">{{ __('nav.account') }}</p>
+                                </div>
+                                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-user w-5 text-center" aria-hidden="true"></i>
+                                    {{ __('nav.profile') }}
+                                </a>
+                                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-cog w-5 text-center" aria-hidden="true"></i>
+                                    {{ __('nav.settings') }}
+                                </a>
+                                <form method="POST" action="{{ route('auth.twitch.logout') }}">
+                                    @csrf
+                                    <button type="submit" class="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm text-red-400 hover:text-red-300 hover:bg-gray-800 transition-colors">
+                                        <i class="fas fa-sign-out-alt w-5 text-center" aria-hidden="true"></i>
+                                        {{ __('nav.logout') }}
+                                    </button>
+                                </form>
+                            </div>
+                        @else
+                            <div class="border-t border-gray-800 mt-2 pt-3">
+                                <a href="{{ route('auth.login') }}" class="flex items-center justify-center gap-2 w-full text-white bg-purple-600 hover:bg-purple-700 px-5 py-3 rounded-lg text-sm font-medium transition-colors">
+                                    <i class="fab fa-twitch" aria-hidden="true"></i>
+                                    {{ __('nav.login') }}
+                                </a>
+                            </div>
                         @endauth
                     </nav>
                 </div>
@@ -138,9 +184,9 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <!-- Brand Section -->
                     <div class="text-center md:text-left">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i class="fas fa-video text-purple-400" aria-hidden="true"></i>
-                            <span class="font-bold text-lg text-white">{{ config('app.name') }}</span>
+                        <div class=\"flex items-center gap-2 mb-4\">
+                            <i class=\"fas fa-video text-gray-400\" aria-hidden=\"true\"></i>
+                            <span class=\"font-semibold text-lg text-white\">{{ config('app.name') }}</span>
                         </div>
                         <p class="text-gray-400 text-sm leading-relaxed">
                             {{ __('footer.description') }}
@@ -180,7 +226,7 @@
                             {{ __('footer.made_with') }}
                             <i class="fas fa-heart text-red-400" aria-hidden="true"></i>
                             {{ __('footer.using') }}
-                            <span class="text-purple-400">Laravel</span>
+                            <span class="text-gray-300">Laravel</span>
                         </p>
                     </div>
                 </div>

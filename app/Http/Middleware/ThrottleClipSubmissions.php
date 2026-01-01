@@ -53,11 +53,13 @@ class ThrottleClipSubmissions
     }
 
     /**
-     * Get the maximum number of attempts based on user status.
+     * Get the maximum number of attempts.
+     *
+     * All authenticated users get the same limit.
      */
     protected function getMaxAttempts(Request $request): int
     {
-        return $request->user()->hasVerifiedEmail() ? 20 : 5;
+        return 20;
     }
 
     /**
