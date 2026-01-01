@@ -17,19 +17,20 @@ class DownloadTwitchImage implements ShouldQueue
 
     protected string $savePath;
 
-    protected string $type; // 'thumbnail' or 'profile'
+    protected string $type; // 'thumbnail', 'profile', or 'box_art'
 
-    protected ?int $clipId; // Optional clip ID for updating thumbnail path
+    protected ?int $gameId; // Optional game ID for updating box art path
 
     /**
      * Create a new job instance.
      */
-    public function __construct(string $url, string $savePath, string $type = 'thumbnail', ?int $clipId = null)
+    public function __construct(string $url, string $savePath, string $type = 'thumbnail', ?int $clipId = null, ?int $gameId = null)
     {
         $this->url      = $url;
         $this->savePath = $savePath;
         $this->type     = $type;
         $this->clipId   = $clipId;
+        $this->gameId   = $gameId;
     }
 
     /**
@@ -53,6 +54,14 @@ class DownloadTwitchImage implements ShouldQueue
             } elseif ($this->type === 'profile') {
                 $downloader->downloadProfileImage($this->url, $this->savePath);
                 Log::info(__('twitch.download_profile_success', ['url' => $this->url, 'path' => $this->savePath]));
+            } elseif ($this->type === 'box_art') {
+                $downloader->downloadBoxArt($this->url, $this->savePath);
+                Log::info(__('twitch.download_box_art_success', ['url' => $this->url, 'path' => $this->savePath]));
+
+                // Update game with local box art path if game ID provided
+                if ($this->gameId) {
+                    \App\Models\Game::where('id', $this->gameId)->update(['local_box_art_path' => $this->savePath]);
+                }
             }
         } catch (\Exception $e) {
             Log::error(__('twitch.download_failed', ['type' => $this->type, 'error' => $e->getMessage()]));

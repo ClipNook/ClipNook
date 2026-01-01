@@ -78,6 +78,18 @@ class TwitchMediaService implements DownloadInterface
     }
 
     /**
+     * Download box art image.
+     */
+    public function downloadBoxArt(string $url, string $savePath): bool
+    {
+        try {
+            return $this->downloadImage($url, $savePath);
+        } catch (\Exception $e) {
+            throw TwitchApiException::boxArtDownloadFailed($e->getMessage());
+        }
+    }
+
+    /**
      * Validate if URL is from trusted Twitch domains.
      */
     public function isValidImageUrl(string $url): bool
