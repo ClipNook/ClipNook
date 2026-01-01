@@ -72,9 +72,9 @@
                         @foreach($topGames as $game)
                             <a href="{{ route('games.view', $game) }}" class="group block bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors overflow-hidden">
                                 <div class="aspect-[3/4] bg-gray-700 relative">
-                                    @if($game->box_art_url)
+                                    @if($game->local_box_art_path)
                                         <img
-                                            src="{{ str_replace(['{width}', '{height}'], ['285', '380'], $game->box_art_url) }}"
+                                            src="{{ Storage::url($game->local_box_art_path) }}"
                                             alt="{{ $game->name }}"
                                             class="w-full h-full object-cover"
                                             loading="lazy"

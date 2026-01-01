@@ -5,10 +5,10 @@
             <div class="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
                 <div class="relative h-48 bg-gray-800">
                     <div class="absolute inset-0 flex items-center justify-center">
-                        @if($game->box_art_url)
+                        @if($game->local_box_art_path)
                             <div class="w-32 h-44 bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
                                 <img
-                                    src="{{ str_replace(['{width}', '{height}'], ['285', '380'], $game->box_art_url) }}"
+                                    src="{{ Storage::url($game->local_box_art_path) }}"
                                     alt="{{ $game->name }}"
                                     class="w-full h-full object-cover"
                                 >

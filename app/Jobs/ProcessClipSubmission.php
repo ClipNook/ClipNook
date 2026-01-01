@@ -155,7 +155,7 @@ class ProcessClipSubmission implements ShouldQueue
                 // Dispatch thumbnail download job
                 if ($clipData->thumbnailUrl) {
                     $thumbnailPath = 'clips/thumbnails/'.$clip->id.'.jpg';
-                    \App\Jobs\DownloadTwitchImage::dispatch($clipData->thumbnailUrl, $thumbnailPath, 'thumbnail', $clip->id);
+                    DownloadTwitchImage::dispatch($clipData->thumbnailUrl, $thumbnailPath, 'thumbnail', $clip->id);
                 }
 
                 // Dispatch event for notifications and further processing

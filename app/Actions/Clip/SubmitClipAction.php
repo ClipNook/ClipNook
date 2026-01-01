@@ -112,6 +112,11 @@ class SubmitClipAction
                 $this->downloadThumbnail($clip, $clipData->thumbnailUrl);
             }
 
+            // Download game box art synchronously if game exists
+            if ($game && $game->box_art_url) {
+                $this->downloadGameBoxArt($game, $game->box_art_url);
+            }
+
             return $clip;
         });
     }
@@ -196,6 +201,33 @@ class SubmitClipAction
             }
         } catch (\Exception $e) {
             Log::error('Thumbnail download failed', ['clip_id' => $clip->id, 'error' => $e->getMessage()]);
+        }
+    }
+
+    private function downloadGameBoxArt(\App\Models\Game $game, string $boxArtUrl): void
+    {
+        try {
+            $resolvedUrl = str_replace(
+                ['{width}', '{height}'],
+                ['285', '380'],
+                $boxArtUrl
+            );
+            $boxArtPath = 'games/box-art/'.$game->id.'.jpg';
+
+            // Ensure directory exists
+            Storage::disk('public')->makeDirectory(dirname($boxArtPath));
+
+            // Download the image
+            $imageContent = file_get_contents($resolvedUrl);
+            if ($imageContent !== false) {
+                Storage::disk('public')->put($boxArtPath, $imageContent);
+                $game->update(['local_box_art_path' => $boxArtPath]);
+                Log::info('Game box art downloaded successfully', ['game_id' => $game->id, 'path' => $boxArtPath]);
+            } else {
+                Log::warning('Failed to download game box art', ['game_id' => $game->id, 'url' => $resolvedUrl]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Game box art download failed', ['game_id' => $game->id, 'error' => $e->getMessage()]);
         }
     }
 
