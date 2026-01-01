@@ -27,7 +27,7 @@ class SubmitClip extends Component
 
     public ?string $errorMessage = null;
 
-    public array $clipInfo = [];
+    public ?array $clipInfo = null;
 
     public bool $showPlayer = false;
 
@@ -55,6 +55,7 @@ class SubmitClip extends Component
 
             if (! $clipData) {
                 $this->errorMessage = __('clips.clip_not_found');
+                $this->clipInfo = null;
 
                 return;
             }
@@ -158,6 +159,7 @@ class SubmitClip extends Component
     {
         $this->successMessage = null;
         $this->errorMessage   = null;
+        $this->clipInfo       = null;
     }
 
     private function extractClipId(string $input): string
