@@ -19,6 +19,15 @@ class GameList extends Component
         'sortBy' => ['except' => 'clips'],
     ];
 
+    /**
+     * Escape special characters in search terms for LIKE queries
+     */
+    protected function escapeSearchTerm(string $term): string
+    {
+        // Escape % and _ characters that have special meaning in LIKE
+        return str_replace(['%', '_'], ['\%', '\_'], $term);
+    }
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -28,7 +37,8 @@ class GameList extends Component
     {
         $games = Game::query()
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%'.$this->search.'%');
+                $escapedSearch = $this->escapeSearchTerm($this->search);
+                $query->where('name', 'like', '%'.$escapedSearch.'%');
             })
             ->withCount(['clips' => function ($query) {
                 $query->where('status', 'approved');

@@ -38,6 +38,15 @@ class ClipController extends Controller
     ) {}
 
     /**
+     * Escape special characters in search terms for LIKE queries
+     */
+    protected function escapeSearchTerm(string $term): string
+    {
+        // Escape % and _ characters that have special meaning in LIKE
+        return str_replace(['%', '_'], ['\%', '\_'], $term);
+    }
+
+    /**
      * Get a paginated list of approved clips.
      *
      * Supports filtering by featured status, user, and search terms.
@@ -61,7 +70,7 @@ class ClipController extends Controller
 
             // Search by title or description
             if ($request->has('search')) {
-                $search = $request->string('search');
+                $search = $this->escapeSearchTerm($request->string('search'));
                 $query->where(function ($q) use ($search) {
                     $q->where('title', 'like', "%{$search}%")
                         ->orWhere('description', 'like', "%{$search}%");

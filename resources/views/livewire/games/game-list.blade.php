@@ -47,7 +47,7 @@
                 <span class="text-sm text-gray-400">{{ __('games.active_filters') }}:</span>
                 <span class="inline-flex items-center gap-2 px-3 py-1 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-300">
                     <i class="fas fa-search text-xs text-gray-500" aria-hidden="true"></i>
-                    {{ $search }}
+                    {{ e($search) }}
                     <button wire:click="$set('search', '')" class="text-gray-400 hover:text-white transition-colors">
                         <i class="fas fa-times text-xs" aria-hidden="true"></i>
                     </button>
@@ -65,7 +65,7 @@
                         @if($game->box_art_url)
                             <img
                                 src="{{ str_replace(['{width}', '{height}'], ['285', '380'], $game->box_art_url) }}"
-                                alt="{{ $game->name }}"
+                                alt="{{ e($game->name) }}"
                                 class="w-full h-full object-cover"
                                 loading="lazy"
                             >
@@ -76,8 +76,8 @@
                         @endif
                     </div>
                     <div class="p-3">
-                        <h3 class="font-medium text-white text-sm mb-1 line-clamp-2" title="{{ $game->name }}">
-                            {{ $game->name }}
+                        <h3 class="font-medium text-white text-sm mb-1 line-clamp-2" title="{{ e($game->name) }}">
+                            {{ e($game->name) }}
                         </h3>
                         <p class="text-xs text-gray-500">
                             {{ number_format($game->clips_count) }} {{ trans_choice('games.clips_count', $game->clips_count) }}
@@ -100,7 +100,7 @@
             <h3 class="text-lg font-medium text-gray-300 mb-2">{{ __('games.no_games_found') }}</h3>
             <p class="text-sm text-gray-500 mb-6">
                 @if($search)
-                    {{ __('games.no_games_search', ['search' => $search]) }}
+                    {{ __('games.no_games_search', ['search' => e($search)]) }}
                 @else
                     {{ __('games.no_games_yet') }}
                 @endif
