@@ -20,8 +20,8 @@ use App\Services\Twitch\Exceptions\TwitchApiException;
 use App\Services\Twitch\Traits\ApiCaching;
 use App\Services\Twitch\Traits\ApiLogging;
 use App\Services\Twitch\Traits\ApiRateLimiting;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 class TwitchService implements DownloadInterface, TwitchApiInterface
@@ -69,7 +69,7 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
             return;
         }
 
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($user && $user->twitch_access_token) {
             $this->userId         = $user->id;
@@ -127,7 +127,7 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
         }
 
         // Use cache lock to prevent race conditions during token refresh
-        $userId  = $this->userId ?? auth()->id();
+        $userId  = $this->userId ?? Auth::id();
         $lockKey = "twitch_token_refresh_{$userId}";
         $lock    = Cache::lock($lockKey, config('constants.lock.twitch_api_timeout_seconds')); // 30 second lock
 
@@ -158,8 +158,8 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
             ));
 
             // Update user tokens in database
-            $user = $this->userId ? User::find($this->userId) : auth()->user();
-            if ($user) {
+            $user = $this->userId ? User::find($this->userId) : Auth::user();
+            if ($user instanceof User) {
                 $user->update([
                     'twitch_access_token'     => $token->accessToken,
                     'twitch_refresh_token'    => $token->refreshToken,
@@ -167,7 +167,7 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
                 ]);
             }
 
-            TwitchTokenRefreshed::dispatch($this->userId ?? auth()->id() ?? 'guest', true);
+            TwitchTokenRefreshed::dispatch($this->userId ?? Auth::id() ?? 'guest', true);
 
             return $token;
         } finally {
@@ -180,7 +180,7 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
      */
     protected function getUserCachePrefix(): string
     {
-        $userId = $this->userId ?? auth()->id();
+        $userId = $this->userId ?? Auth::id();
 
         return $userId ? "user_{$userId}:" : 'guest_'.session()->getId().':';
     }
@@ -481,21 +481,22 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
         // Validate URL security
         $this->imageValidator->validateUrl($url);
 
-        $response = Http::timeout(config('constants.http.timeout_seconds'))
+        /** @var \Illuminate\Http\Client\Response $response */
+        $response = \Illuminate\Support\Facades\Http::timeout(config('constants.http.timeout_seconds'))
             ->retry(config('constants.http.retry_count'), config('constants.http.retry_delay_ms'))
             ->get($url);
 
         if (! $response->successful()) {
-            throw new \Exception('Failed to download image: HTTP '.$response->status());
+            throw new \Exception('Failed to download image: HTTP '.($response->status() ?? 'unknown'));
         }
 
-        $image = $response->body();
+        $image = (string) $response->getBody();
 
         // Validate image MIME type
         $this->imageValidator->validateMimeType($image);
 
         // Validate file size
-        $this->imageValidator->validateSize($image);
+        $this->imageValidator->validateSize($image, config('twitch.privacy.avatar_max_bytes', 2097152));
 
         Storage::disk('public')->put($savePath, $image);
 

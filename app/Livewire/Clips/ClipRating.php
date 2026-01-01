@@ -5,6 +5,7 @@ namespace App\Livewire\Clips;
 use App\Enums\VoteType;
 use App\Models\Clip;
 use App\Models\ClipVote;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
@@ -24,7 +25,7 @@ class ClipRating extends Component
         $this->upvotes   = $this->clip->upvotes;
         $this->downvotes = $this->clip->downvotes;
 
-        if ($user = auth()->user()) {
+        if ($user = Auth::user()) {
             $this->userVote = ClipVote::query()
                 ->where('clip_id', $this->clip->id)
                 ->where('user_id', $user->id)
@@ -34,7 +35,7 @@ class ClipRating extends Component
 
     public function vote(string $type): void
     {
-        if (! auth()->check()) {
+        if (! Auth::check()) {
             $this->redirect(route('auth.login'));
 
             return;
@@ -43,7 +44,7 @@ class ClipRating extends Component
         $voteType = VoteType::from($type);
 
         // Rate limiting: 10 votes per minute
-        $key = 'vote:'.auth()->id();
+        $key = 'vote:'.Auth::user()->id;
         if (RateLimiter::tooManyAttempts($key, config('constants.rate_limiting.vote_max_attempts'))) {
             session()->flash('error', __('clips.too_many_votes'));
 
@@ -55,7 +56,7 @@ class ClipRating extends Component
         DB::transaction(function () use ($voteType) {
             $existingVote = ClipVote::query()
                 ->where('clip_id', $this->clip->id)
-                ->where('user_id', auth()->id())
+                ->where('user_id', Auth::user()->id)
                 ->first();
 
             if ($existingVote) {
@@ -77,7 +78,7 @@ class ClipRating extends Component
                 // New vote
                 ClipVote::create([
                     'clip_id'   => $this->clip->id,
-                    'user_id'   => auth()->id(),
+                    'user_id'   => Auth::id(),
                     'vote_type' => $voteType,
                 ]);
                 $this->incrementVote($voteType);
