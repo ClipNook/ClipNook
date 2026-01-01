@@ -44,11 +44,7 @@ class ClipController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $query = Clip::with([
-                'user:id,twitch_display_name,twitch_login',
-                'broadcaster:id,name,login',
-                'game:id,name',
-            ])
+            $query = Clip::withRelations()
                 ->approved()
                 ->orderBy('created_at', 'desc');
 
@@ -105,8 +101,8 @@ class ClipController extends Controller
                 return response()->json([
                     'message' => 'Clip submitted successfully and is pending moderation.',
                     'clip'    => $clip->load([
-                        'user:id,twitch_display_name,twitch_login',
-                        'broadcaster:id,name,login',
+                        'submitter:id,twitch_display_name,twitch_login',
+                        'broadcaster:id,twitch_display_name,twitch_login',
                         'game:id,name',
                     ]),
                 ], 201);
@@ -163,8 +159,8 @@ class ClipController extends Controller
 
         return response()->json(
             $clip->load([
-                'user:id,twitch_display_name,twitch_login',
-                'broadcaster:id,name,login',
+                'submitter:id,twitch_display_name,twitch_login',
+                'broadcaster:id,twitch_display_name,twitch_login',
                 'game:id,name',
                 'moderator:id,twitch_display_name',
             ])
@@ -205,8 +201,8 @@ class ClipController extends Controller
             return response()->json([
                 'message' => $message,
                 'clip'    => $clip->load([
-                    'user:id,twitch_display_name,twitch_login',
-                    'broadcaster:id,name,login',
+                    'submitter:id,twitch_display_name,twitch_login',
+                    'broadcaster:id,twitch_display_name,twitch_login',
                     'game:id,name',
                     'moderator:id,twitch_display_name',
                 ]),
@@ -255,8 +251,8 @@ class ClipController extends Controller
 
         try {
             $clips = Clip::with([
-                'user:id,twitch_display_name,twitch_login',
-                'broadcaster:id,name,login',
+                'submitter:id,twitch_display_name,twitch_login',
+                'broadcaster:id,twitch_display_name,twitch_login',
                 'game:id,name',
             ])
                 ->pending()
@@ -286,8 +282,8 @@ class ClipController extends Controller
             }
 
             $clips = $query->with([
-                'user:id,twitch_display_name,twitch_login',
-                'broadcaster:id,name,login',
+                'submitter:id,twitch_display_name,twitch_login',
+                'broadcaster:id,twitch_display_name,twitch_login',
                 'game:id,name',
             ])
                 ->orderBy('created_at', 'desc')
@@ -314,8 +310,8 @@ class ClipController extends Controller
 
             return response()->json([
                 'data' => $clips->load([
-                    'user:id,twitch_display_name,twitch_login',
-                    'broadcaster:id,name,login',
+                    'submitter:id,twitch_display_name,twitch_login',
+                    'broadcaster:id,twitch_display_name,twitch_login',
                     'game:id,name',
                 ]),
             ]);
@@ -339,8 +335,8 @@ class ClipController extends Controller
 
             return response()->json([
                 'data' => $clips->load([
-                    'user:id,twitch_display_name,twitch_login',
-                    'broadcaster:id,name,login',
+                    'submitter:id,twitch_display_name,twitch_login',
+                    'broadcaster:id,twitch_display_name,twitch_login',
                     'game:id,name',
                 ]),
             ]);
@@ -369,8 +365,8 @@ class ClipController extends Controller
 
             return response()->json([
                 'data' => $clips->load([
-                    'user:id,twitch_display_name,twitch_login',
-                    'broadcaster:id,name,login',
+                    'submitter:id,twitch_display_name,twitch_login',
+                    'broadcaster:id,twitch_display_name,twitch_login',
                     'game:id,name',
                 ]),
             ]);

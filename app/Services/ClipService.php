@@ -69,15 +69,25 @@ class ClipService
     }
 
     /**
-     * Search clips by title or tags
+     * Search clips by title or tags with improved security
      */
     public function searchClips(string $query, int $perPage = 15): LengthAwarePaginator
     {
-        return Clip::where(function ($q) use ($query) {
-            $q->where('title', 'like', "%{$query}%")
-                ->orWhereJsonContains('tags', $query);
+        // Sanitize and prepare search query
+        $searchTerm = trim($query);
+        $searchTerm = preg_replace('/[^\w\s\-]/', '', $searchTerm); // Remove special characters
+
+        if (empty($searchTerm) || strlen($searchTerm) < 2) {
+            return Clip::whereRaw('1 = 0')->paginate($perPage); // Return empty result
+        }
+
+        return Clip::where(function ($q) use ($searchTerm) {
+            // Use parameterized queries for better security
+            $q->where('title', 'LIKE', '%'.$searchTerm.'%')
+                ->orWhereJsonContains('tags', $searchTerm);
         })
-            ->with(['user', 'broadcaster', 'game'])
+            ->withRelations() // Use the optimized scope
+            ->approved()
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
     }

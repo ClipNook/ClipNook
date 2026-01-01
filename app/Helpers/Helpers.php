@@ -103,18 +103,13 @@ if (! function_exists('mask_ip')) {
 // =============================================================================
 if (! function_exists('pseudonymize_ip')) {
     /**
-     * Pseudonymize IP address with keyed hash (GDPR compliant).
-     * Uses HMAC-SHA256 with app key for deterministic, irreversible pseudonymization.
-     * This allows for rate limiting and analytics while maintaining privacy.
+     * Pseudonymize IP address with rotating keyed hash (GDPR compliant).
+     * Uses HMAC-SHA256 with rotating salts for enhanced privacy.
+     * This allows for rate limiting and analytics while maintaining privacy
+     * and making long-term correlation more difficult.
      */
     function pseudonymize_ip(?string $ip): ?string
     {
-        if (empty($ip)) {
-            return null;
-        }
-
-        $salt = config('app.key');
-
-        return hash_hmac('sha256', $ip, $salt);
+        return \App\Models\IpPseudonymizationSalt::pseudonymizeIp($ip);
     }
 }

@@ -86,6 +86,16 @@ class Clip extends Model
     }
 
     // Scopes
+    public function scopeWithRelations($query)
+    {
+        return $query->with([
+            'submitter:id,twitch_display_name,twitch_login,twitch_avatar',
+            'broadcaster:id,twitch_display_name,twitch_login,twitch_avatar',
+            'moderator:id,twitch_display_name,twitch_login',
+            'game:id,name,box_art_url',
+        ]);
+    }
+
     public function scopePending($query)
     {
         return $query->where('status', \App\Enums\ClipStatus::PENDING);

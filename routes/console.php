@@ -14,3 +14,18 @@ Schedule::command('gdpr:enforce-retention')
     ->at('02:00')
     ->withoutOverlapping()
     ->runInBackground();
+
+// Schedule cleanup of expired API tokens
+Schedule::command('tokens:cleanup')
+    ->daily()
+    ->at('03:00')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+// Schedule IP salt rotation for GDPR compliance
+Schedule::command('gdpr:rotate-ip-salts --cleanup')
+    ->weekly()
+    ->sundays()
+    ->at('04:00')
+    ->withoutOverlapping()
+    ->runInBackground();

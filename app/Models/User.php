@@ -719,4 +719,36 @@ class User extends Authenticatable
             ->where('user_id', $user->id)
             ->update(['can_moderate_clips' => false]);
     }
+
+    /**
+     * Rotate API tokens for enhanced security.
+     * Revokes old tokens and creates a new one with the same abilities.
+     */
+    public function rotateApiTokens(): string
+    {
+        // Revoke all existing tokens
+        $this->tokens()->delete();
+
+        // Create a new token with a secure name
+        $tokenName = 'api-token-'.now()->format('Y-m-d-H-i-s').'-'.substr(md5(uniqid()), 0, 8);
+
+        return $this->createToken($tokenName)->plainTextToken;
+    }
+
+    /**
+     * Clean up expired tokens periodically.
+     */
+    public static function cleanupExpiredTokens(): int
+    {
+        return static::query()
+            ->whereHas('tokens', function ($query) {
+                $query->where('expires_at', '<', now());
+            })
+            ->with('tokens')
+            ->get()
+            ->each(function ($user) {
+                $user->tokens()->where('expires_at', '<', now())->delete();
+            })
+            ->count();
+    }
 }

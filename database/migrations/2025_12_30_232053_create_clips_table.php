@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -41,7 +42,24 @@ return new class extends Migration
             $table->index('twitch_clip_id');
             $table->index('is_featured');
             $table->index(['upvotes', 'downvotes']);
+
+            // Critical performance indexes for fresh installations
+            $table->index(['broadcaster_id', 'status', 'submitted_at'], 'idx_clips_broadcaster_moderation');
+            $table->index(['submitter_id', 'status', 'is_featured'], 'idx_clips_submitter_dashboard');
+            $table->index(['is_featured', 'view_count', 'created_at'], 'idx_clips_featured_popular');
+
+            // Additional performance indexes
+            $table->index('broadcaster_id', 'idx_clips_broadcaster_id');
+            $table->index('game_id', 'idx_clips_game_id');
+            $table->index(['broadcaster_id', 'status', 'created_at'], 'idx_clips_broadcaster_status_created');
+            $table->index(['status', 'is_featured', 'created_at'], 'idx_clips_status_featured_created');
+            $table->index(['submitter_id', 'status', 'created_at'], 'idx_clips_submitter_status_created');
         });
+
+        // Full-text search index for clips (MySQL)
+        if (DB::connection()->getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE clips ADD FULLTEXT idx_clips_fulltext (title, description)');
+        }
     }
 
     /**

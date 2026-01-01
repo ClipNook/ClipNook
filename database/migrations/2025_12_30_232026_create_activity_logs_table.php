@@ -22,6 +22,10 @@ return new class extends Migration
 
             $table->index(['user_id', 'action']);
             $table->index('performed_at');
+
+            // Additional performance indexes
+            $table->index(['user_id', 'performed_at'], 'idx_activity_user_performed');
+            $table->index(['action', 'performed_at'], 'idx_activity_action_performed');
         });
     }
 
