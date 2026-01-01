@@ -22,6 +22,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
+use function abort;
+use function compact;
+use function config;
+use function response;
+use function view;
+
 /**
  * Controller for managing clip operations.
  *
@@ -32,12 +38,12 @@ use Illuminate\Support\Facades\Log;
  * - Managing featured clips
  * - User-specific clip listings
  */
-class ClipController extends Controller
+final class ClipController extends Controller
 {
     public function __construct(
         private SubmitClipAction $submitClipAction,
         private QueryCacheService $queryCache,
-        private ClipService $clipService
+        private ClipService $clipService,
     ) {}
 
     /**
@@ -176,7 +182,7 @@ class ClipController extends Controller
 
         $relatedClips = Clip::query()
             ->where('id', '!=', $clip->id)
-            ->where(fn ($q) => $q->where('game_id', $clip->game_id)->orWhere('broadcaster_id', $clip->broadcaster_id))
+            ->where(static fn ($q) => $q->where('game_id', $clip->game_id)->orWhere('broadcaster_id', $clip->broadcaster_id))
             ->approved()
             ->with(['broadcaster:id,twitch_display_name,twitch_login,twitch_avatar', 'game:id,name,box_art_url,local_box_art_path', 'submitter:id,twitch_display_name,twitch_login'])
             ->limit(6)
@@ -198,21 +204,22 @@ class ClipController extends Controller
                 case 'approve':
                     $clip->approve($moderator);
                     $message = 'Clip approved successfully.';
-                    break;
 
+                    break;
                 case 'reject':
                     $clip->reject($request->string('reason'), $moderator);
                     $message = 'Clip rejected successfully.';
-                    break;
 
+                    break;
                 case 'flag':
                     $clip->flag($request->string('reason'), $moderator);
                     $message = 'Clip flagged successfully.';
-                    break;
 
+                    break;
                 case 'toggle_featured':
                     $this->clipService->toggleFeatured($clip);
                     $message = $clip->is_featured ? 'Clip marked as featured.' : 'Clip removed from featured.';
+
                     break;
             }
 
@@ -260,8 +267,8 @@ class ClipController extends Controller
     public function pending(Request $request): JsonResponse
     {
         // Check if user has any moderation permissions
-        $hasModerationPermission = Auth::user()->broadcasterSettings ||
-            Auth::user()->clipPermissionsReceived()->where('can_moderate_clips', true)->exists();
+        $hasModerationPermission = Auth::user()->broadcasterSettings
+            || Auth::user()->clipPermissionsReceived()->where('can_moderate_clips', true)->exists();
 
         if (! $hasModerationPermission) {
             abort(403, 'Unauthorized');
@@ -317,7 +324,7 @@ class ClipController extends Controller
     }
 
     /**
-     * Get featured clips
+     * Get featured clips.
      */
     public function featured(Request $request): JsonResponse
     {
@@ -342,7 +349,7 @@ class ClipController extends Controller
     }
 
     /**
-     * Get recent clips
+     * Get recent clips.
      */
     public function recent(Request $request): JsonResponse
     {
@@ -367,7 +374,7 @@ class ClipController extends Controller
     }
 
     /**
-     * Search clips
+     * Search clips.
      */
     public function search(Request $request): JsonResponse
     {
@@ -397,7 +404,7 @@ class ClipController extends Controller
     }
 
     /**
-     * Get user clip statistics
+     * Get user clip statistics.
      */
     public function stats(Request $request, User $user): JsonResponse
     {

@@ -11,9 +11,15 @@ use App\Models\Clip;
 use Livewire\Component;
 use Livewire\WithPagination as LivewirePagination;
 
-class ClipList extends Component
+use function auth;
+use function view;
+
+final class ClipList extends Component
 {
-    use LivewirePagination, WithPagination, WithSearch, WithSorting;
+    use LivewirePagination;
+    use WithPagination;
+    use WithSearch;
+    use WithSorting;
 
     protected array $sortableColumns = ['created_at', 'upvotes', 'view_count', 'duration'];
 

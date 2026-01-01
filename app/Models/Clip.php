@@ -13,9 +13,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Clip extends Model
+use function __;
+use function asset;
+use function config;
+use function now;
+
+final class Clip extends Model
 {
-    use HasFactory, HasMedia, HasModeration, HasVoting;
+    use HasFactory;
+    use HasMedia;
+    use HasModeration;
+    use HasVoting;
 
     protected $fillable = [
         // Core Twitch Data
@@ -152,7 +160,7 @@ class Clip extends Model
 
     public function scopeSearch($query, string $searchTerm)
     {
-        return $query->where(function ($q) use ($searchTerm) {
+        return $query->where(static function ($q) use ($searchTerm): void {
             $q->where('title', 'like', "%{$searchTerm}%")
                 ->orWhere('description', 'like', "%{$searchTerm}%")
                 ->orWhere('twitch_clip_id', 'like', "%{$searchTerm}%");
@@ -238,7 +246,7 @@ class Clip extends Model
         $score      = $this->score;
 
         // Reddit-style algorithm: score / (age_in_hours + 2)^1.8
-        return $score / pow($ageInHours + 2, 1.8);
+        return $score / ($ageInHours + 2) ** 1.8;
     }
 
     public function getTwitchUrlAttribute(): string
@@ -362,14 +370,13 @@ class Clip extends Model
                 $this->decrement('upvotes');
 
                 return false;
-            } else {
-                // Change from downvote to upvote
-                $existingVote->update(['vote_type' => \App\Enums\VoteType::UPVOTE]);
-                $this->increment('upvotes');
-                $this->decrement('downvotes');
-
-                return true;
             }
+            // Change from downvote to upvote
+            $existingVote->update(['vote_type' => \App\Enums\VoteType::UPVOTE]);
+            $this->increment('upvotes');
+            $this->decrement('downvotes');
+
+            return true;
         }
 
         // New upvote
@@ -394,14 +401,13 @@ class Clip extends Model
                 $this->decrement('downvotes');
 
                 return false;
-            } else {
-                // Change from upvote to downvote
-                $existingVote->update(['vote_type' => \App\Enums\VoteType::DOWNVOTE]);
-                $this->decrement('upvotes');
-                $this->increment('downvotes');
-
-                return true;
             }
+            // Change from upvote to downvote
+            $existingVote->update(['vote_type' => \App\Enums\VoteType::DOWNVOTE]);
+            $this->decrement('upvotes');
+            $this->increment('downvotes');
+
+            return true;
         }
 
         // New downvote
