@@ -99,24 +99,39 @@ class ProcessClipSubmission implements ShouldQueue
                     $game = $gameService->getOrCreateGame($clipData->gameId);
                 }
 
-                // Create the clip
-                $clip = Clip::create([
-                    'submitter_id'         => $this->user->id,
-                    'submitted_at'         => now(),
-                    'twitch_clip_id'       => $this->twitchClipId,
-                    'title'                => $clipData->title,
-                    'description'          => null, // DTO has no description
-                    'url'                  => $clipData->url,
-                    'thumbnail_url'        => $clipData->thumbnailUrl,
-                    'local_thumbnail_path' => null, // Will be set after download
-                    'duration'             => $clipData->duration,
-                    'view_count'           => $clipData->viewCount,
-                    'created_at_twitch'    => $clipData->createdAt,
-                    'clip_creator_name'    => $clipData->creatorName,
-                    'broadcaster_id'       => $broadcaster->id,
-                    'game_id'              => $game?->id,
-                    'tags'                 => $this->extractTags($clipData),
-                ]);
+                // Create the clip with race condition protection
+                try {
+                    $clip = Clip::create([
+                        'submitter_id'         => $this->user->id,
+                        'submitted_at'         => now(),
+                        'twitch_clip_id'       => $this->twitchClipId,
+                        'title'                => $clipData->title,
+                        'description'          => null, // DTO has no description
+                        'url'                  => $clipData->url,
+                        'thumbnail_url'        => $clipData->thumbnailUrl,
+                        'local_thumbnail_path' => null, // Will be set after download
+                        'duration'             => $clipData->duration,
+                        'view_count'           => $clipData->viewCount,
+                        'created_at_twitch'    => $clipData->createdAt,
+                        'clip_creator_name'    => $clipData->creatorName,
+                        'broadcaster_id'       => $broadcaster->id,
+                        'game_id'              => $game?->id,
+                        'tags'                 => $this->extractTags($clipData),
+                    ]);
+                } catch (\Illuminate\Database\QueryException $e) {
+                    // Handle race condition - another request created the clip
+                    if ($e->getCode() === '23000' || str_contains($e->getMessage(), 'Duplicate entry')) {
+                        Log::info('Clip already exists (race condition handled)', [
+                            'user_id'        => $this->user->id,
+                            'twitch_clip_id' => $this->twitchClipId,
+                        ]);
+                        DB::rollBack();
+                        Cache::forget("processing_clip_{$this->twitchClipId}");
+
+                        return;
+                    }
+                    throw $e;
+                }
 
                 Log::info('Clip created via job', [
                     'clip_id'        => $clip->id,

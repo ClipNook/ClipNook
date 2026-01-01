@@ -14,6 +14,15 @@ class ClipService
     public function __construct(private SubmitClipAction $submitClipAction) {}
 
     /**
+     * Escape special characters in search terms for LIKE queries
+     */
+    protected function escapeSearchTerm(string $term): string
+    {
+        // Escape % and _ characters that have special meaning in LIKE
+        return str_replace(['%', '_'], ['\%', '\_'], $term);
+    }
+
+    /**
      * Submit a clip for a user
      */
     public function submitClip(User $user, string $clipId): Clip
@@ -82,8 +91,9 @@ class ClipService
         }
 
         return Clip::where(function ($q) use ($searchTerm) {
-            // Use parameterized queries for better security
-            $q->where('title', 'LIKE', '%'.$searchTerm.'%')
+            // Escape special characters to prevent LIKE injection
+            $escapedTerm = $this->escapeSearchTerm($searchTerm);
+            $q->where('title', 'LIKE', '%'.$escapedTerm.'%')
                 ->orWhereJsonContains('tags', $searchTerm);
         })
             ->withRelations() // Use the optimized scope

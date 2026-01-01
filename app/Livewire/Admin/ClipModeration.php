@@ -28,6 +28,15 @@ class ClipModeration extends Component
 
     public bool $showRejectModal = false;
 
+    /**
+     * Escape special characters in search terms for LIKE queries
+     */
+    protected function escapeSearchTerm(string $term): string
+    {
+        // Escape % and _ characters that have special meaning in LIKE
+        return str_replace(['%', '_'], ['\%', '\_'], $term);
+    }
+
     protected $queryString = [
         'statusFilter' => ['except' => 'pending'],
         'searchQuery'  => ['except' => ''],
@@ -50,14 +59,15 @@ class ClipModeration extends Component
                 $query->where('status', $this->statusFilter);
             })
             ->when($this->searchQuery, function ($query) {
-                $query->where(function ($q) {
-                    $q->where('title', 'like', '%'.$this->searchQuery.'%')
-                        ->orWhere('twitch_clip_id', 'like', '%'.$this->searchQuery.'%')
-                        ->orWhereHas('broadcaster', function ($q) {
-                            $q->where('twitch_display_name', 'like', '%'.$this->searchQuery.'%');
+                $escapedQuery = $this->escapeSearchTerm($this->searchQuery);
+                $query->where(function ($q) use ($escapedQuery) {
+                    $q->where('title', 'like', '%'.$escapedQuery.'%')
+                        ->orWhere('twitch_clip_id', 'like', '%'.$escapedQuery.'%')
+                        ->orWhereHas('broadcaster', function ($q) use ($escapedQuery) {
+                            $q->where('twitch_display_name', 'like', '%'.$escapedQuery.'%');
                         })
-                        ->orWhereHas('submitter', function ($q) {
-                            $q->where('twitch_display_name', 'like', '%'.$this->searchQuery.'%');
+                        ->orWhereHas('submitter', function ($q) use ($escapedQuery) {
+                            $q->where('twitch_display_name', 'like', '%'.$escapedQuery.'%');
                         });
                 });
             })

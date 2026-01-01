@@ -54,13 +54,13 @@
             <div class="space-y-3">
                 <div>
                     <div class="text-xs text-gray-500 uppercase mb-1">{{ __('clips.title_label') }}</div>
-                    <div class="text-white">{{ $clipInfo['title'] }}</div>
+                    <div class="text-white">{{ e($clipInfo['title']) }}</div>
                 </div>
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
                         <div class="text-xs text-gray-500 uppercase mb-1">{{ __('clips.broadcaster_label') }}</div>
-                        <div class="text-white">{{ $clipInfo['broadcasterName'] }}</div>
+                        <div class="text-white">{{ e($clipInfo['broadcasterName']) }}</div>
                     </div>
                     
                     <div>
@@ -109,7 +109,7 @@
     <!-- Messages -->
     @if($successMessage)
         <div class="bg-green-900/50 border border-green-700 rounded-md p-4">
-            <p class="text-green-200">{{ $successMessage }}</p>
+            <p class="text-green-200">{{ e($successMessage) }}</p>
         </div>
     @endif
 

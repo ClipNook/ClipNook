@@ -19,6 +19,7 @@ use App\Services\Twitch\Exceptions\TwitchApiException;
 use App\Services\Twitch\Traits\ApiCaching;
 use App\Services\Twitch\Traits\ApiLogging;
 use App\Services\Twitch\Traits\ApiRateLimiting;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
@@ -123,37 +124,53 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
             throw TwitchApiException::noRefreshToken();
         }
 
-        $data = $this->tokenManager->refreshUserToken($this->refreshToken);
+        // Use cache lock to prevent race conditions during token refresh
+        $userId  = $this->userId ?? auth()->id();
+        $lockKey = "twitch_token_refresh_{$userId}";
+        $lock    = Cache::lock($lockKey, 30); // 30 second lock
 
-        $token = new TokenDTO(
-            accessToken: $data['access_token'],
-            refreshToken: $data['refresh_token'] ?? $this->refreshToken,
-            expiresIn: $data['expires_in'],
-            tokenType: $data['token_type'],
-            scope: $data['scope'] ?? null,
-            issuedAt: time(),
-        );
+        try {
+            $lock->block(10); // Wait up to 10 seconds to acquire lock
 
-        $this->setTokens($token);
-        $this->logApiCall(new ApiLogEntryDTO(
-            endpoint: 'https://id.twitch.tv/oauth2/token',
-            params: ['grant_type' => 'refresh_token'],
-            response: ['success' => true]
-        ));
+            // Double-check token expiry after acquiring lock
+            if ($this->tokenExpiresAt && time() < $this->tokenExpiresAt) {
+                return null; // Token was refreshed by another process
+            }
 
-        // Update user tokens in database
-        $user = $this->userId ? User::find($this->userId) : auth()->user();
-        if ($user) {
-            $user->update([
-                'twitch_access_token'     => $token->accessToken,
-                'twitch_refresh_token'    => $token->refreshToken,
-                'twitch_token_expires_at' => now()->addSeconds($token->expiresIn),
-            ]);
+            $data = $this->tokenManager->refreshUserToken($this->refreshToken);
+
+            $token = new TokenDTO(
+                accessToken: $data['access_token'],
+                refreshToken: $data['refresh_token'] ?? $this->refreshToken,
+                expiresIn: $data['expires_in'],
+                tokenType: $data['token_type'],
+                scope: $data['scope'] ?? null,
+                issuedAt: time(),
+            );
+
+            $this->setTokens($token);
+            $this->logApiCall(new ApiLogEntryDTO(
+                endpoint: 'https://id.twitch.tv/oauth2/token',
+                params: ['grant_type' => 'refresh_token'],
+                response: ['success' => true]
+            ));
+
+            // Update user tokens in database
+            $user = $this->userId ? User::find($this->userId) : auth()->user();
+            if ($user) {
+                $user->update([
+                    'twitch_access_token'     => $token->accessToken,
+                    'twitch_refresh_token'    => $token->refreshToken,
+                    'twitch_token_expires_at' => now()->addSeconds($token->expiresIn),
+                ]);
+            }
+
+            TwitchTokenRefreshed::dispatch($this->userId ?? auth()->id() ?? 'guest', true);
+
+            return $token;
+        } finally {
+            $lock->release();
         }
-
-        TwitchTokenRefreshed::dispatch($this->userId ?? auth()->id() ?? 'guest', true);
-
-        return $token;
     }
 
     /**
@@ -163,7 +180,7 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
     {
         $userId = $this->userId ?? auth()->id();
 
-        return $userId ? "user_{$userId}:" : 'guest_' . session()->getId() . ':';
+        return $userId ? "user_{$userId}:" : 'guest_'.session()->getId().':';
     }
 
     protected function makeApiRequest(string $endpoint, array $params, RequestType $type): ?array
