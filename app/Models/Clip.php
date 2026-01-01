@@ -58,6 +58,7 @@ class Clip extends Model
         'downvotes'         => 'integer',
         'view_count'        => 'integer',
         'duration'          => 'integer',
+        'status'            => \App\Enums\ClipStatus::class,
     ];
 
     protected $attributes = [

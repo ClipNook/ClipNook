@@ -34,3 +34,8 @@ Route::group(['prefix' => 'games', 'as' => 'games.'], function () {
     Route::get('/', [GameController::class, 'index'])->name('list');
     Route::get('/{game}', [GameController::class, 'show'])->name('view');
 });
+
+// Admin
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function () {
+    Route::get('/clips', fn () => view('admin.clips'))->name('clips');
+});
