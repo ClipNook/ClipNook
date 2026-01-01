@@ -223,10 +223,6 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
         // Twitch API returns an array even for single items, take the first one
         $clipData = $data && is_array($data) && count($data) > 0 ? $data[0] : null;
 
-        if ($clipData) {
-            \Log::debug('Twitch API Clip Response', $clipData);
-        }
-
         return $clipData ? new ClipDTO(
             id: $clipData['id'],
             url: $this->sanitizer->sanitizeUrl($clipData['url']),

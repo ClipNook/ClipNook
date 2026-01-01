@@ -7,7 +7,9 @@ use Livewire\Component;
 class TwitchPlayerConsent extends Component
 {
     public bool $consented = false;
+
     public bool $showPlayer = false;
+
     public ?array $clipInfo = null;
 
     public function mount(?array $clipInfo = null)

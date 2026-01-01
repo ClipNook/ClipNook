@@ -2,16 +2,18 @@
 
 namespace App\Livewire\Clips;
 
+use App\Enums\VoteType;
 use App\Models\Clip;
 use App\Models\ClipVote;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
 
 class ClipRating extends Component
 {
-    public Clip $clip;
+    public readonly Clip $clip;
 
-    public ?string $userVote = null;
+    public ?VoteType $userVote = null;
 
     public int $upvotes = 0;
 
@@ -22,13 +24,11 @@ class ClipRating extends Component
         $this->upvotes   = $this->clip->upvotes;
         $this->downvotes = $this->clip->downvotes;
 
-        if (auth()->check()) {
-            $existingVote = ClipVote::query()
+        if ($user = auth()->user()) {
+            $this->userVote = ClipVote::query()
                 ->where('clip_id', $this->clip->id)
-                ->where('user_id', auth()->id())
-                ->first();
-
-            $this->userVote = $existingVote?->vote_type;
+                ->where('user_id', $user->id)
+                ->value('vote_type');
         }
     }
 
@@ -40,25 +40,37 @@ class ClipRating extends Component
             return;
         }
 
-        DB::transaction(function () use ($type) {
+        $voteType = VoteType::from($type);
+
+        // Rate limiting: 10 votes per minute
+        $key = 'vote:'.auth()->id();
+        if (RateLimiter::tooManyAttempts($key, 10)) {
+            session()->flash('error', __('clips.too_many_votes'));
+
+            return;
+        }
+
+        RateLimiter::hit($key, 60);
+
+        DB::transaction(function () use ($voteType) {
             $existingVote = ClipVote::query()
                 ->where('clip_id', $this->clip->id)
                 ->where('user_id', auth()->id())
                 ->first();
 
             if ($existingVote) {
-                if ($existingVote->vote_type === $type) {
+                if ($existingVote->vote_type === $voteType) {
                     // Remove vote
                     $existingVote->delete();
-                    $this->decrementVote($type);
+                    $this->decrementVote($voteType);
                     $this->userVote = null;
                     session()->flash('message', __('clips.vote_removed'));
                 } else {
                     // Change vote
                     $this->decrementVote($existingVote->vote_type);
-                    $existingVote->update(['vote_type' => $type]);
-                    $this->incrementVote($type);
-                    $this->userVote = $type;
+                    $existingVote->update(['vote_type' => $voteType]);
+                    $this->incrementVote($voteType);
+                    $this->userVote = $voteType;
                     session()->flash('message', __('clips.vote_success'));
                 }
             } else {
@@ -66,18 +78,18 @@ class ClipRating extends Component
                 ClipVote::create([
                     'clip_id'   => $this->clip->id,
                     'user_id'   => auth()->id(),
-                    'vote_type' => $type,
+                    'vote_type' => $voteType,
                 ]);
-                $this->incrementVote($type);
-                $this->userVote = $type;
+                $this->incrementVote($voteType);
+                $this->userVote = $voteType;
                 session()->flash('message', __('clips.vote_success'));
             }
         });
     }
 
-    protected function incrementVote(string $type): void
+    protected function incrementVote(VoteType $type): void
     {
-        if ($type === 'upvote') {
+        if ($type === VoteType::UPVOTE) {
             $this->clip->increment('upvotes');
             $this->upvotes++;
         } else {
@@ -86,9 +98,9 @@ class ClipRating extends Component
         }
     }
 
-    protected function decrementVote(string $type): void
+    protected function decrementVote(VoteType $type): void
     {
-        if ($type === 'upvote') {
+        if ($type === VoteType::UPVOTE) {
             $this->clip->decrement('upvotes');
             $this->upvotes--;
         } else {

@@ -12,5 +12,5 @@
 */
 
 return [
-	'description' => 'Submit and manage your favorite Twitch clips with ease.',
+    'description' => 'Submit and manage your favorite Twitch clips with ease.',
 ];

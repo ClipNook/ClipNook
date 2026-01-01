@@ -28,6 +28,16 @@
                                 <i class="fas fa-calendar mr-1"></i>
                                 {{ $clip->created_at_twitch->format('M j, Y') }}
                             </span>
+                            <span>•</span>
+                            <div class="flex items-center gap-1">
+                                <i class="fas fa-clock mr-1"></i>
+                                <span>{{ __('clips.duration_seconds', ['seconds' => number_format($clip->duration, 2)]) }}</span>
+                            </div>
+                            <span>•</span>
+                            <span>
+                                <i class="fas fa-plus mr-1"></i>
+                                <span>{{ __('clips.added_on_label', ['date' => $clip->created_at->format('M j, Y')]) }}</span>
+                            </span>
                         </div>
                     </div>
 

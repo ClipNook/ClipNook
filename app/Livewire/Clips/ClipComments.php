@@ -4,12 +4,13 @@ namespace App\Livewire\Clips;
 
 use App\Models\Clip;
 use App\Models\ClipComment;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 class ClipComments extends Component
 {
-    public Clip $clip;
+    public readonly Clip $clip;
 
     #[Validate('required|min:1|max:1000')]
     public string $newComment = '';
@@ -23,6 +24,18 @@ class ClipComments extends Component
 
             return;
         }
+
+        $this->authorize('create', ClipComment::class);
+
+        // Rate limiting: 10 comments per minute
+        $key = 'comment:'.auth()->id();
+        if (RateLimiter::tooManyAttempts($key, 10)) {
+            session()->flash('error', __('clips.too_many_comments'));
+
+            return;
+        }
+
+        RateLimiter::hit($key, 60);
 
         $this->validate();
 
@@ -43,9 +56,7 @@ class ClipComments extends Component
     {
         $comment = ClipComment::query()->findOrFail($commentId);
 
-        if ($comment->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('delete', $comment);
 
         $comment->update([
             'is_deleted' => true,

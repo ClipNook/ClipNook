@@ -18,9 +18,9 @@ class UserFactory extends Factory
     {
         return [
             'twitch_id'           => $this->faker->unique()->randomNumber(7),
-            'twitch_login'        => 'testuser' . $this->faker->unique()->randomNumber(3),
-            'twitch_display_name' => 'Test User ' . $this->faker->unique()->randomNumber(3),
-            'twitch_email'        => 'test' . $this->faker->unique()->randomNumber(3) . '@example.com',
+            'twitch_login'        => 'testuser'.$this->faker->unique()->randomNumber(3),
+            'twitch_display_name' => 'Test User '.$this->faker->unique()->randomNumber(3),
+            'twitch_email'        => 'test'.$this->faker->unique()->randomNumber(3).'@example.com',
             'email_verified_at'   => now(),
             'is_viewer'           => true,
             'is_cutter'           => false,

@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use Laravel\Sanctum\PersonalAccessToken;
 
 test('tokens have proper expiration', function () {
     // Verify Sanctum configuration has expiration set
@@ -35,7 +34,7 @@ test('expired tokens are cleaned up', function () {
     $user = User::factory()->create();
 
     // Create a token and manually expire it
-    $token = $user->createToken('test-token');
+    $token                          = $user->createToken('test-token');
     $token->accessToken->expires_at = now()->subDay();
     $token->accessToken->save();
 
@@ -49,7 +48,7 @@ test('expired tokens are cleaned up', function () {
 
 test('ip pseudonymization uses rotating salts', function () {
     // Test that pseudonymize_ip function works
-    $ip = '192.168.1.1';
+    $ip             = '192.168.1.1';
     $pseudonymized1 = pseudonymize_ip($ip);
 
     expect($pseudonymized1)->not->toBeNull();
@@ -61,7 +60,7 @@ test('ip pseudonymization uses rotating salts', function () {
     expect($pseudonymized2)->toBe($pseudonymized1);
 
     // Different IP should give different result
-    $differentIp = '192.168.1.2';
+    $differentIp    = '192.168.1.2';
     $pseudonymized3 = pseudonymize_ip($differentIp);
     expect($pseudonymized3)->not->toBe($pseudonymized1);
 });

@@ -52,6 +52,13 @@ return [
     // Rate Limiting Messages
     'rate_limit_exceeded' => 'Too many submissions. Try again in :seconds seconds.',
 
+    // Validation Messages
+    'validation_clip_id_required' => 'Clip ID is required.',
+    'validation_clip_id_string'   => 'Clip ID must be a string.',
+    'validation_clip_id_min'      => 'Clip ID must be at least 5 characters.',
+    'validation_clip_id_max'      => 'Clip ID cannot exceed 100 characters.',
+    'validation_clip_id_format'   => 'Clip ID contains invalid characters. Only letters, numbers, underscores, and hyphens are allowed.',
+
     // Success Messages
     'submission_success' => 'Clip submitted successfully! It will be processed in the background.',
 
@@ -59,6 +66,7 @@ return [
     'clip_not_found'             => 'This clip was not found on Twitch. Please check the ID and try again.',
     'broadcaster_not_registered' => 'The broadcaster of this clip is not registered with our service.',
     'permission_denied'          => 'You do not have permission to submit clips for this broadcaster.',
+    'unauthorized'               => 'You must be logged in to submit clips.',
     'unexpected_error'           => 'An unexpected error occurred. Please try again later.',
 
     // Step Labels
@@ -96,6 +104,8 @@ return [
     // Clip View Page
     'view_page_title'    => 'View Clip',
     'views_count'        => ':count views',
+    'duration_seconds'   => ':seconds seconds',
+    'added_on_label'     => 'Added on :date',
     'share'              => 'Share',
     'submitted_by_label' => 'Submitted by',
     'created_by_label'   => 'Created by',
@@ -148,4 +158,9 @@ return [
     'status_approved' => 'Approved',
     'status_rejected' => 'Rejected',
     'status_flagged'  => 'Flagged',
+
+    // Rate Limiting
+    'too_many_votes'    => 'Too many votes. Please slow down.',
+    'too_many_comments' => 'Too many comments. Please slow down.',
+    'too_many_reports'  => 'Too many reports. Please slow down.',
 ];

@@ -34,7 +34,7 @@
                             <i class="fas fa-home mr-1.5" aria-hidden="true"></i>
                             {{ __('nav.home') }}
                         </a>
-                        <a href="{{ route('clips.list') }}" class="px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('clips.*') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('clips.*') ? 'page' : null }}">
+                        <a href="{{ route('clips.list') }}" class="px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('clips.list') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('clips.*') ? 'page' : null }}">
                             <i class="fas fa-film mr-1.5" aria-hidden="true"></i>
                             {{ __('nav.clips') }}
                         </a>
@@ -112,7 +112,7 @@
                             <i class="fas fa-home" aria-hidden="true"></i>
                             {{ __('nav.home') }}
                         </a>
-                        <a href="{{ route('clips.list') }}" class="flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('clips.*') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('clips.*') ? 'page' : null }}">
+                        <a href="{{ route('clips.list') }}" class="flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('clips.list') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}" aria-current="{{ request()->routeIs('clips.*') ? 'page' : null }}">
                             <i class="fas fa-list" aria-hidden="true"></i>
                             {{ __('nav.clips') }}
                         </a>

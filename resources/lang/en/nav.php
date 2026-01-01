@@ -12,10 +12,10 @@
 */
 
 return [
-	'home' => 'Home',
-	'library' => 'Library',
-	'submit' => 'Submit',
-	'login' => 'Login',
-	'logout' => 'Logout',
-	'toggle_menu' => 'Toggle menu',
+    'home'        => 'Home',
+    'library'     => 'Library',
+    'submit'      => 'Submit',
+    'login'       => 'Login',
+    'logout'      => 'Logout',
+    'toggle_menu' => 'Toggle menu',
 ];

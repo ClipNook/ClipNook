@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 class IpPseudonymizationSalt extends Model
 {
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [

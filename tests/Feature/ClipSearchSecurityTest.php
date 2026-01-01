@@ -8,9 +8,9 @@ test('search sanitizes input and prevents sql injection', function () {
     // Create test data
     $user = User::factory()->create();
     Clip::factory()->create([
-        'title' => 'Test Clip Title',
+        'title'        => 'Test Clip Title',
         'submitter_id' => $user->id,
-        'status' => 'approved',
+        'status'       => 'approved',
     ]);
 
     $clipService = app(ClipService::class);
@@ -39,9 +39,9 @@ test('search sanitizes input and prevents sql injection', function () {
 test('search uses optimized query with eager loading', function () {
     $user = User::factory()->create();
     Clip::factory()->create([
-        'title' => 'Performance Test Clip',
+        'title'        => 'Performance Test Clip',
         'submitter_id' => $user->id,
-        'status' => 'approved',
+        'status'       => 'approved',
     ]);
 
     $clipService = app(ClipService::class);

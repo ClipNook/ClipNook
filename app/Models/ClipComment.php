@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use Database\Factories\ClipCommentFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ClipComment extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'clip_id',
         'user_id',
@@ -23,6 +27,11 @@ class ClipComment extends Model
             'is_deleted' => 'boolean',
             'deleted_at' => 'datetime',
         ];
+    }
+
+    protected static function newFactory(): ClipCommentFactory
+    {
+        return ClipCommentFactory::new();
     }
 
     public function clip(): BelongsTo

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\VoteType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,6 +13,13 @@ class ClipVote extends Model
         'user_id',
         'vote_type',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'vote_type' => VoteType::class,
+        ];
+    }
 
     public function clip(): BelongsTo
     {
