@@ -40,7 +40,7 @@ class ValidClipId implements ValidationRule
             return;
         }
 
-        if (strlen($clipId) < 5 || strlen($clipId) > 100) {
+        if (strlen($clipId) < config('constants.limits.clip_id_min_length') || strlen($clipId) > config('constants.limits.clip_id_max_length')) {
             $fail(__('clips.validation_clip_id_min'));
 
             return;

@@ -135,8 +135,10 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getPopular(int $limit = 10): Collection
+    public function getPopular(?int $limit = null): Collection
     {
+        $limit ??= config('constants.limits.popular_clips');
+
         return $this->model->approved()
             ->orderBy('view_count', 'desc')
             ->limit($limit)
@@ -146,8 +148,10 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getRecent(int $limit = 10): Collection
+    public function getRecent(?int $limit = null): Collection
     {
+        $limit ??= config('constants.limits.recent_clips');
+
         return $this->model->approved()
             ->orderBy('created_at', 'desc')
             ->limit($limit)

@@ -14,9 +14,11 @@ use Livewire\Component;
 
 class SubmitClip extends Component
 {
+    private const TWITCH_CLIP_URL_REGEX = '/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]{1,100})$/';
+
     protected ?TwitchService $twitchService = null;
 
-    #[Validate('required|string|regex:/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]{1,100})$/')]
+    #[Validate('required|string|regex:'.self::TWITCH_CLIP_URL_REGEX)]
     public string $twitchClipId = '';
 
     public bool $isSubmitting = false;
@@ -169,7 +171,7 @@ class SubmitClip extends Component
 
     private function extractClipId(string $input): string
     {
-        if (preg_match('/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]+)$/', $input, $matches)) {
+        if (preg_match(self::TWITCH_CLIP_URL_REGEX, $input, $matches)) {
             return $matches[1];
         }
 

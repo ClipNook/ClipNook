@@ -356,7 +356,7 @@ class Clip extends Model
 
     public function isPopular(): bool
     {
-        return $this->score > 10 && $this->view_count > 100;
+        return $this->score > config('constants.limits.clip_score_threshold') && $this->view_count > config('constants.limits.clip_view_threshold');
     }
 
     public function isTrending(): bool

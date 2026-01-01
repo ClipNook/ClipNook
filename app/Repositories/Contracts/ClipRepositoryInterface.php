@@ -82,12 +82,12 @@ interface ClipRepositoryInterface extends RepositoryInterface
     /**
      * Get popular clips (by view count).
      */
-    public function getPopular(int $limit = 10): Collection;
+    public function getPopular(?int $limit = null): Collection;
 
     /**
      * Get recent clips.
      */
-    public function getRecent(int $limit = 10): Collection;
+    public function getRecent(?int $limit = null): Collection;
 
     /**
      * Search clips by title or description.

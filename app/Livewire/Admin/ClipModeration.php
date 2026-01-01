@@ -62,7 +62,7 @@ class ClipModeration extends Component
                 });
             })
             ->orderBy('submitted_at', 'desc')
-            ->paginate(20);
+            ->paginate(config('constants.pagination.moderation_per_page'));
 
         $stats = [
             'pending'  => Clip::where('status', ClipStatus::PENDING)->count(),
@@ -105,7 +105,7 @@ class ClipModeration extends Component
     public function rejectClip(): void
     {
         $this->validate([
-            'rejectReason' => 'required|string|min:10|max:500',
+            'rejectReason' => 'required|string|min:'.config('constants.limits.reject_reason_min_length').'|max:'.config('constants.limits.reject_reason_max_length'),
         ]);
 
         $clip = Clip::findOrFail($this->selectedClipId);
