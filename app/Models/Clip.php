@@ -353,14 +353,14 @@ class Clip extends Model
         $existingVote = $this->votes()->where('user_id', $user->id)->first();
 
         if ($existingVote) {
-            if ($existingVote->vote_type === \App\Enums\VoteType::UP) {
+            if ($existingVote->vote_type === \App\Enums\VoteType::UPVOTE) {
                 // Already upvoted, remove vote
                 $existingVote->delete();
                 $this->decrement('upvotes');
                 return false;
             } else {
                 // Change from downvote to upvote
-                $existingVote->update(['vote_type' => \App\Enums\VoteType::UP]);
+                $existingVote->update(['vote_type' => \App\Enums\VoteType::UPVOTE]);
                 $this->increment('upvotes');
                 $this->decrement('downvotes');
                 return true;
@@ -370,7 +370,7 @@ class Clip extends Model
         // New upvote
         $this->votes()->create([
             'user_id'   => $user->id,
-            'vote_type' => \App\Enums\VoteType::UP,
+            'vote_type' => \App\Enums\VoteType::UPVOTE,
         ]);
         $this->increment('upvotes');
         return true;
@@ -382,14 +382,14 @@ class Clip extends Model
         $existingVote = $this->votes()->where('user_id', $user->id)->first();
 
         if ($existingVote) {
-            if ($existingVote->vote_type === \App\Enums\VoteType::DOWN) {
+            if ($existingVote->vote_type === \App\Enums\VoteType::DOWNVOTE) {
                 // Already downvoted, remove vote
                 $existingVote->delete();
                 $this->decrement('downvotes');
                 return false;
             } else {
                 // Change from upvote to downvote
-                $existingVote->update(['vote_type' => \App\Enums\VoteType::DOWN]);
+                $existingVote->update(['vote_type' => \App\Enums\VoteType::DOWNVOTE]);
                 $this->decrement('upvotes');
                 $this->increment('downvotes');
                 return true;
@@ -399,7 +399,7 @@ class Clip extends Model
         // New downvote
         $this->votes()->create([
             'user_id'   => $user->id,
-            'vote_type' => \App\Enums\VoteType::DOWN,
+            'vote_type' => \App\Enums\VoteType::DOWNVOTE,
         ]);
         $this->increment('downvotes');
         return true;
