@@ -99,7 +99,15 @@ class ProcessClipSubmission implements ShouldQueue
                 // Get or create game if available
                 $game = null;
                 if ($clipData->gameId) {
-                    $game = $gameService->getOrCreateGame($clipData->gameId);
+                    $gameDTO = $gameService->getGame($clipData->gameId, $accessToken);
+                    if ($gameDTO) {
+                        $game = \App\Models\Game::findOrCreateFromTwitch([
+                            'id'          => $gameDTO->id,
+                            'name'        => $gameDTO->name,
+                            'box_art_url' => $gameDTO->boxArtUrl,
+                            'igdb_id'     => null,
+                        ]);
+                    }
                 }
 
                 // Create the clip with race condition protection

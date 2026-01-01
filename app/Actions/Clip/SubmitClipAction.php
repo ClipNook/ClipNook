@@ -85,7 +85,7 @@ class SubmitClipAction
             $this->checkPermissions($user, $broadcaster);
 
             $game = $clipData->gameId
-                ? $this->getOrCreateGame($clipData->gameId)
+                ? $this->getOrCreateGame($clipData->gameId, $this->tokenManager->getValidAccessToken($user))
                 : null;
 
             $clip = Clip::create([
@@ -214,9 +214,9 @@ class SubmitClipAction
         }
     }
 
-    private function getOrCreateGame(string $gameId): ?\App\Models\Game
+    private function getOrCreateGame(string $gameId, ?string $accessToken = null): ?\App\Models\Game
     {
-        $gameDTO = $this->gameApiService->getGame($gameId);
+        $gameDTO = $this->gameApiService->getGame($gameId, $accessToken);
 
         if (! $gameDTO) {
             return null;
