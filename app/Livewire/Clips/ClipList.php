@@ -24,7 +24,7 @@ class ClipList extends Component
 
     public function render(): \Illuminate\View\View
     {
-        $clips = Clip::with(['submitter', 'broadcaster', 'game'])
+        $clips = Clip::withRelations()
             ->approved()
             ->when($this->search, fn ($query) => $query->search($this->search))
             ->orderBy($this->sortBy, $this->sortDirection)

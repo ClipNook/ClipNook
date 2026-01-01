@@ -14,6 +14,7 @@ use App\Models\Clip;
 use App\Models\User;
 use App\Services\Cache\QueryCacheService;
 use App\Services\Clip\ClipService;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -76,7 +77,7 @@ class ClipController extends Controller
             return response()->json([
                 'data' => $clips,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve clips.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -132,7 +133,7 @@ class ClipController extends Controller
                 'message' => $e->getMessage(),
                 'error'   => 'permission_denied',
             ], 403);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Clip submission failed', [
                 'error'        => $e->getMessage(),
                 'user_id'      => Auth::id(),
@@ -177,7 +178,7 @@ class ClipController extends Controller
             ->where('id', '!=', $clip->id)
             ->where(fn ($q) => $q->where('game_id', $clip->game_id)->orWhere('broadcaster_id', $clip->broadcaster_id))
             ->approved()
-            ->with(['broadcaster', 'game'])
+            ->with(['broadcaster:id,twitch_display_name,twitch_login,twitch_avatar', 'game:id,name,box_art_url,local_box_art_path', 'submitter:id,twitch_display_name,twitch_login'])
             ->limit(6)
             ->get();
 
@@ -224,7 +225,7 @@ class ClipController extends Controller
                     'moderator:id,twitch_display_name',
                 ]),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to update clip.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -245,7 +246,7 @@ class ClipController extends Controller
             return response()->json([
                 'message' => 'Clip deleted successfully.',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to delete clip.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -277,7 +278,7 @@ class ClipController extends Controller
                 ->paginate(20);
 
             return response()->json($clips);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve pending clips.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -307,7 +308,7 @@ class ClipController extends Controller
                 ->paginate(20);
 
             return response()->json($clips);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve user clips.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -332,7 +333,7 @@ class ClipController extends Controller
                     'game:id,name',
                 ]),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve featured clips.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -357,7 +358,7 @@ class ClipController extends Controller
                     'game:id,name',
                 ]),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve recent clips.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -387,7 +388,7 @@ class ClipController extends Controller
                     'game:id,name',
                 ]),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to search clips.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -411,7 +412,7 @@ class ClipController extends Controller
             return response()->json([
                 'data' => $stats,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve user statistics.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
