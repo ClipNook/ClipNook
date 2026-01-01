@@ -85,6 +85,7 @@ class ClipPolicy
      * Determine whether the user can moderate a specific clip.
      *
      * Moderation includes approving, rejecting, or flagging clips.
+     * Admins and moderators can moderate any clip.
      *
      * @param  User  $user  The authenticated user
      * @param  Clip  $clip  The clip being moderated
@@ -92,6 +93,11 @@ class ClipPolicy
      */
     public function moderate(User $user, Clip $clip): bool
     {
+        // Admins and moderators can moderate any clip
+        if ($user->isStaff()) {
+            return true;
+        }
+
         return $clip->canBeModeratedBy($user);
     }
 

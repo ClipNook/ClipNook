@@ -96,6 +96,15 @@ return [
     'sort_views'         => 'Most Viewed',
     'active_filters'     => 'Active filters',
 
+    // Search & Filters
+    'active_filters'     => 'Active filters',
+    'sort_recent'        => 'Recently Added',
+    'sort_popular'       => 'Most Popular',
+    'sort_views'         => 'Most Viewed',
+    'sort_by'            => 'Sort by',
+    'clear_search'       => 'Clear search',
+    'search_placeholder' => 'Search clips...',
+
     // Empty States
     'no_clips_found'  => 'No clips found',
     'no_clips_yet'    => 'No clips have been submitted yet',
@@ -111,7 +120,7 @@ return [
 
     // Twitch Player Consent
     'twitch_consent_title'             => 'Twitch Clip Player',
-    'twitch_consent_description'       => 'This clip is hosted on Twitch. By clicking "Load Clip", you agree to load content from Twitch.tv.',
+    'twitch_consent_description'       => 'This clip is hosted on Twitch. By clicking on the player, you agree to load content from Twitch.tv.',
     'twitch_consent_privacy_title'     => 'Privacy Notice',
     'twitch_consent_privacy_notice'    => 'This content is provided by Twitch and may use cookies or tracking technologies. By loading, you agree to Twitch\'s privacy policy.',
     'twitch_consent_load_button'       => 'Load Clip',
@@ -170,13 +179,14 @@ return [
     'no_related_clips' => 'No related clips',
 
     // Status
-    'status_pending'  => 'Pending',
-    'status_approved' => 'Approved',
-    'status_rejected' => 'Rejected',
-    'status_flagged'  => 'Flagged',
+    'status' => [
+        'pending'  => 'Pending',
+        'approved' => 'Approved',
+        'rejected' => 'Rejected',
+        'flagged'  => 'Flagged',
+    ],
 
-    // Rate Limiting
-    'too_many_votes'    => 'Too many votes. Please slow down.',
-    'too_many_comments' => 'Too many comments. Please slow down.',
-    'too_many_reports'  => 'Too many reports. Please slow down.',
+    // Moderation
+    'clip_approved' => 'Clip has been approved successfully',
+    'clip_rejected' => 'Clip has been rejected',
 ];

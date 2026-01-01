@@ -26,6 +26,7 @@ class ClipList extends Component
     public function render()
     {
         $clips = Clip::with(['submitter', 'broadcaster'])
+            ->approved()
             ->when($this->search, function ($query) {
                 $query->where('title', 'like', '%'.$this->search.'%')
                     ->orWhere('twitch_clip_id', 'like', '%'.$this->search.'%');

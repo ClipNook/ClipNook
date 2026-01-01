@@ -21,6 +21,7 @@ return [
     'logout'           => 'Logout',
     'profile'          => 'Profile',
     'settings'         => 'Settings',
+    'admin'            => 'Admin',
     'account'          => 'Account',
     'signed_in_as'     => 'Signed in as',
     'toggle_menu'      => 'Toggle menu',

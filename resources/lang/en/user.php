@@ -33,6 +33,8 @@ return [
         'account_reactivated' => 'Account reactivated successfully.',
     ],
 
+    'never' => 'Never',
+
     // User Profile Labels
     'labels' => [
         'display_name'       => 'Display Name',

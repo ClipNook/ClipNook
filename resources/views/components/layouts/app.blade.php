@@ -77,6 +77,14 @@
                                         <i class="fas fa-cog w-4 text-center" aria-hidden="true"></i>
                                         {{ __('nav.settings') }}
                                     </a>
+                                    @if(auth()->user()->isStaff())
+                                        <div class="border-t border-gray-700">
+                                            <a href="{{ route('admin.clips') }}" class="flex items-center gap-3 px-4 py-3 text-sm text-purple-400 hover:text-purple-300 hover:bg-gray-700 transition-colors" role="menuitem">
+                                                <i class="fas fa-shield-alt w-4 text-center" aria-hidden="true"></i>
+                                                {{ __('nav.admin') }}
+                                            </a>
+                                        </div>
+                                    @endif
                                     <div class="border-t border-gray-700">
                                         <form method="POST" action="{{ route('auth.twitch.logout') }}">
                                             @csrf
@@ -154,6 +162,12 @@
                                     <i class="fas fa-cog w-5 text-center" aria-hidden="true"></i>
                                     {{ __('nav.settings') }}
                                 </a>
+                                @if(auth()->user()->isStaff())
+                                    <a href="{{ route('admin.clips') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-purple-400 hover:text-purple-300 hover:bg-gray-800 transition-colors">
+                                        <i class="fas fa-shield-alt w-5 text-center" aria-hidden="true"></i>
+                                        {{ __('nav.admin') }}
+                                    </a>
+                                @endif
                                 <form method="POST" action="{{ route('auth.twitch.logout') }}">
                                     @csrf
                                     <button type="submit" class="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm text-red-400 hover:text-red-300 hover:bg-gray-800 transition-colors">

@@ -80,19 +80,6 @@
                         <div class="absolute bottom-2 right-2 bg-black/80 text-white text-xs font-medium px-2 py-0.5 rounded">
                             {{ round($clip->duration, 1) }}s
                         </div>
-
-                        <!-- Status Badge -->
-                        @if($clip->status !== 'approved')
-                            <div class="absolute top-2 left-2">
-                                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium
-                                    @if($clip->status === 'pending') bg-yellow-900/95 text-yellow-100 border border-yellow-800
-                                    @elseif($clip->status === 'rejected') bg-red-900/95 text-red-100 border border-red-800
-                                    @else bg-gray-900/95 text-gray-100 border border-gray-800
-                                    @endif">
-                                    {{ ucfirst($clip->status ?? 'unknown') }}
-                                </span>
-                            </div>
-                        @endif
                     </div>
 
                     <!-- Content -->

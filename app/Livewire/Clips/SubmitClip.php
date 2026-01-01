@@ -14,7 +14,7 @@ use Livewire\Component;
 
 class SubmitClip extends Component
 {
-    public TwitchService $twitchService;
+    protected ?TwitchService $twitchService = null;
 
     #[Validate('required|string|regex:/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]{1,100})$/')]
     public string $twitchClipId = '';
@@ -27,7 +27,7 @@ class SubmitClip extends Component
 
     public ?string $errorMessage = null;
 
-    public ?array $clipInfo = null;
+    public array $clipInfo = [];
 
     public bool $showPlayer = false;
 
@@ -50,7 +50,8 @@ class SubmitClip extends Component
             $this->validate();
 
             $clipId   = $this->extractClipId($this->twitchClipId);
-            $clipData = $this->twitchService->getClip($clipId);
+            $service  = $this->twitchService ??= app(TwitchService::class);
+            $clipData = $service->getClip($clipId);
 
             if (! $clipData) {
                 $this->errorMessage = __('clips.clip_not_found');
@@ -89,7 +90,7 @@ class SubmitClip extends Component
 
     public function resetClip()
     {
-        $this->clipInfo     = null;
+        $this->clipInfo     = [];
         $this->showPlayer   = false;
         $this->twitchClipId = '';
         $this->resetMessages();
@@ -118,7 +119,7 @@ class SubmitClip extends Component
 
         try {
             $clipId = $this->clipInfo['id'];
-            app(SubmitClipAction::class)->execute(auth()->user(), $clipId);
+            app(SubmitClipAction::class)->executeSync(auth()->user(), $clipId);
 
             RateLimiter::hit($key);
 

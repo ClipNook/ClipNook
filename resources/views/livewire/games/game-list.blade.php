@@ -80,7 +80,7 @@
                             {{ $game->name }}
                         </h3>
                         <p class="text-xs text-gray-500">
-                            {{ number_format($game->clips_count) }} {{ __('games.clips_count', ['count' => $game->clips_count]) }}
+                            {{ number_format($game->clips_count) }} {{ trans_choice('games.clips_count', $game->clips_count) }}
                         </p>
                     </div>
                 </a>
