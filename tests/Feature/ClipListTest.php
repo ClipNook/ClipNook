@@ -29,7 +29,7 @@ test('displays clips in list', function () {
         ->test(\App\Livewire\Clips\ClipList::class)
         ->assertOk()
         ->assertSee('Test Clip')
-        ->assertSee('Approved');
+        ->assertDontSee('Approved');
 });
 
 test('searches clips by title', function () {

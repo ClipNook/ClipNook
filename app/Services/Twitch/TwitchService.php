@@ -56,25 +56,6 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
         }
     }
 
-    protected function saveTokensToSession(string $accessToken, ?string $refreshToken, ?int $expiresAt): void
-    {
-        session([
-            'twitch_access_token'     => $accessToken,
-            'twitch_refresh_token'    => $refreshToken,
-            'twitch_token_expires_at' => $expiresAt,
-        ]);
-        $this->accessToken    = $accessToken;
-        $this->refreshToken   = $refreshToken;
-        $this->tokenExpiresAt = $expiresAt;
-    }
-
-    protected function loadTokensFromSession(): void
-    {
-        $this->accessToken    = session('twitch_access_token');
-        $this->refreshToken   = session('twitch_refresh_token');
-        $this->tokenExpiresAt = session('twitch_token_expires_at');
-    }
-
     protected function loadTokensFromUser(): void
     {
         $user = auth()->user();
@@ -107,13 +88,14 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
 
     public function setAccessToken(string $token): void
     {
-        $this->saveTokensToSession($token, $this->refreshToken, $this->tokenExpiresAt);
+        $this->accessToken = $token;
     }
 
     public function setTokens(TokenDTO $token): void
     {
-        $expiresAt = time() + $token->expiresIn - config('twitch.token_refresh_buffer', 300);
-        $this->saveTokensToSession($token->accessToken, $token->refreshToken, $expiresAt);
+        $this->accessToken    = $token->accessToken;
+        $this->refreshToken   = $token->refreshToken;
+        $this->tokenExpiresAt = time() + $token->expiresIn - config('twitch.token_refresh_buffer', 300);
     }
 
     public function refreshAccessToken(): ?TokenDTO

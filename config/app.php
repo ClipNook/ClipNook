@@ -139,4 +139,16 @@ return [
 
     'use_sync_clip_submission' => env('USE_SYNC_CLIP_SUBMISSION', false),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Home Page Items Limit
+    |--------------------------------------------------------------------------
+    |
+    | Number of items to display on the home page for latest clips, top clips,
+    | and top games sections.
+    |
+    */
+
+    'home_items_limit' => env('HOME_ITEMS_LIMIT', 6),
+
 ];

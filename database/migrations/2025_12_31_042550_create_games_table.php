@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('twitch_game_id')->unique();
             $table->string('name');
+            $table->string('slug')->nullable()->unique();
             $table->string('box_art_url');
             $table->string('local_box_art_path')->nullable();
             $table->string('igdb_id')->nullable();

@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('clips', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('twitch_clip_id')->unique(); // Twitch's clip ID
             $table->string('title');
             $table->text('description')->nullable();

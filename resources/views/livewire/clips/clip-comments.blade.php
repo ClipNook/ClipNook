@@ -50,7 +50,7 @@
             <div class="border-t border-gray-800 pt-4">
                 <div class="flex gap-3">
                     <img 
-                        src="{{ $comment->user->twitch_avatar ?? 'https://via.placeholder.com/40' }}" 
+                        src="{{ $comment->user->avatar_url }}" 
                         alt="{{ $comment->user->twitch_display_name }}" 
                         class="w-10 h-10 rounded-md"
                     >
@@ -84,7 +84,7 @@
                                 @foreach ($comment->replies as $reply)
                                     <div class="flex gap-3">
                                         <img 
-                                            src="{{ $reply->user->twitch_avatar ?? 'https://via.placeholder.com/32' }}" 
+                                            src="{{ $reply->user->avatar_url }}" 
                                             alt="{{ $reply->user->twitch_display_name }}" 
                                             class="w-8 h-8 rounded-md"
                                         >

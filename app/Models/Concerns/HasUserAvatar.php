@@ -18,7 +18,12 @@ trait HasUserAvatar
             return Storage::url($this->custom_avatar_path);
         }
 
-        return $this->twitch_avatar;
+        if ($this->twitch_avatar) {
+            return $this->twitch_avatar;
+        }
+
+        // Return default avatar if no other avatar is available
+        return asset('images/avatar-default.svg');
     }
 
     public function deleteAvatar(): void

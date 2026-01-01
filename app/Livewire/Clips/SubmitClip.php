@@ -14,6 +14,8 @@ use Livewire\Component;
 
 class SubmitClip extends Component
 {
+    public TwitchService $twitchService;
+
     #[Validate('required|string|regex:/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]{1,100})$/')]
     public string $twitchClipId = '';
 
@@ -34,6 +36,11 @@ class SubmitClip extends Component
         'twitch-player-loaded' => 'handlePlayerLoaded',
     ];
 
+    public function mount(TwitchService $twitchService)
+    {
+        $this->twitchService = $twitchService;
+    }
+
     public function checkClip()
     {
         $this->resetMessages();
@@ -43,7 +50,7 @@ class SubmitClip extends Component
             $this->validate();
 
             $clipId   = $this->extractClipId($this->twitchClipId);
-            $clipData = app(TwitchService::class)->getClip($clipId);
+            $clipData = $this->twitchService->getClip($clipId);
 
             if (! $clipData) {
                 $this->errorMessage = __('clips.clip_not_found');

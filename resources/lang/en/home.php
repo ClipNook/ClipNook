@@ -13,16 +13,16 @@ return [
     |
     */
 
-    'login_with_twitch_button' => 'Login with Twitch',
-    'sign_in_prompt'           => 'Sign in with your Twitch account to get started.',
-    // Guest User
-    'submit_clip_button'    => 'Submit a Clip',
-    'logout_button'         => 'Logout',
-    'logged_in_with_twitch' => 'You are logged in with Twitch.',
-    'welcome_back'          => 'Welcome back, :name!',
-    // Authenticated User
-    'welcome_subtitle' => 'Manage your Twitch clips with ease',
-    'welcome_title'    => 'Welcome to :app_name',
     // Page Content
+    'welcome_title'     => 'Welcome to :app_name',
+    'welcome_subtitle'  => 'Manage your Twitch clips with ease',
+    'welcome_back'      => 'Welcome back, :name!',
+    'ready_to_submit'   => 'Ready to share your clips?',
+    'guest_description' => 'Submit and discover amazing Twitch clips',
+
+    // Actions
+    'submit_clip'  => 'Submit Clip',
+    'browse_clips' => 'Browse Clips',
+    'view_all'     => 'View all',
 
 ];

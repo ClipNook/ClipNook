@@ -399,6 +399,25 @@ php artisan make:seeder FeatureSeeder
 php artisan db:seed
 ```
 
+### User Management
+
+```bash
+# Set user as admin (by user ID)
+php artisan user:role 1 --role=admin
+
+# Set user as admin (by Twitch login)
+php artisan user:role zurret --role=admin
+
+# Set user as moderator
+php artisan user:role zurret --role=moderator
+
+# Remove admin role
+php artisan user:role zurret --role=admin --remove
+
+# Remove moderator role
+php artisan user:role zurret --role=moderator --remove
+```
+
 ### Asset Compilation
 
 ```bash

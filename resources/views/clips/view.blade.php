@@ -70,7 +70,7 @@
                     @if ($clip->submitter)
                         <span class="px-3 py-1 bg-gray-800 text-gray-400 rounded-md text-sm">
                             <i class="fas fa-user-edit mr-1"></i>
-                            {{ __('clips.submitted_by_label') }}: {{ $clip->submitter->twitch_display_name }}
+                            {{ __('clips.submitted_by_label') }}: {{ $clip->submitter->twitch_login }}
                         </span>
                     @endif
                     <span class="px-3 py-1 bg-gray-800 text-gray-400 rounded-md text-sm">
@@ -97,7 +97,7 @@
                     </h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         @foreach ($relatedClips as $relatedClip)
-                            <a href="{{ route('clips.view', $relatedClip->id) }}" class="group block bg-gray-800 rounded-md overflow-hidden hover:bg-gray-750 transition-colors">
+                            <a href="{{ route('clips.view', $relatedClip) }}" class="group block bg-gray-800 rounded-md overflow-hidden hover:bg-gray-750 transition-colors">
                                 <div class="aspect-video relative overflow-hidden bg-gray-900">
                                     <img src="{{ $relatedClip->thumbnail_url }}" alt="{{ $relatedClip->title }}" class="w-full h-full object-cover">
                                 </div>

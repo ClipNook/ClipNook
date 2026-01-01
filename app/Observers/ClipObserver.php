@@ -11,6 +11,13 @@ class ClipObserver
         private QueryCacheService $cache
     ) {}
 
+    public function creating(Clip $clip): void
+    {
+        if (empty($clip->uuid)) {
+            $clip->uuid = (string) \Illuminate\Support\Str::uuid();
+        }
+    }
+
     public function saved(Clip $clip): void
     {
         // Invalidate all clip-related caches

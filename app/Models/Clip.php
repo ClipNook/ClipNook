@@ -17,6 +17,7 @@ class Clip extends Model
 
     protected $fillable = [
         // Core Twitch Data
+        'uuid',
         'twitch_clip_id',
         'title',
         'description',
@@ -65,6 +66,14 @@ class Clip extends Model
         'downvotes'  => 0,
         'view_count' => 0,
     ];
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     // Relationships
     public function submitter(): BelongsTo

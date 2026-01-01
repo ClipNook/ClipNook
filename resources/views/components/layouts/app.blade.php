@@ -55,9 +55,11 @@
                         @auth
                             <div class="relative hidden md:block">
                                 <button @click="userMenuOpen = !userMenuOpen" class="flex items-center gap-2 text-gray-400 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-700" aria-expanded="false" aria-haspopup="true">
-                                    <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-gray-300 font-medium text-sm">
-                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                                    </div>
+                                    <img 
+                                        src="{{ auth()->user()->avatar_url }}" 
+                                        alt="{{ auth()->user()->twitch_display_name }}" 
+                                        class="w-8 h-8 rounded-full object-cover border border-gray-600"
+                                    >
                                     <span class="hidden sm:block">{{ auth()->user()->name }}</span>
                                     <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': userMenuOpen }" aria-hidden="true"></i>
                                 </button>

@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\ClipController;
+use App\Http\Controllers\GameController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TwitchOAuthController;
 use Illuminate\Support\Facades\Route;
 
 // Home
-Route::get('/', fn () => view('home'))->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Twitch OAuth
 Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () {
@@ -29,6 +31,6 @@ Route::group(['prefix' => 'clips', 'as' => 'clips.'], function () {
 
 // Games
 Route::group(['prefix' => 'games', 'as' => 'games.'], function () {
-    Route::get('/', [App\Http\Controllers\GameController::class, 'index'])->name('list');
-    Route::get('/{game}', [App\Http\Controllers\GameController::class, 'show'])->name('view');
+    Route::get('/', [GameController::class, 'index'])->name('list');
+    Route::get('/{game}', [GameController::class, 'show'])->name('view');
 });
