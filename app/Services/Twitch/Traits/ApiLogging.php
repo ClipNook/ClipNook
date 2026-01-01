@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Twitch\Traits;
 
 use App\Services\Twitch\DTOs\ApiLogEntryDTO;
