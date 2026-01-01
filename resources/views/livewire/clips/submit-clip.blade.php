@@ -1,9 +1,9 @@
 <div class="max-w-3xl mx-auto space-y-6">
     <!-- Step 1: Clip URL/ID eingeben -->
     @if(!$clipInfo)
-        <div class="bg-gray-900 rounded-md border border-gray-800 p-6">
-            <h2 class="text-lg font-semibold text-white mb-4">{{ __('clips.clip_id_label') }}</h2>
-            
+        <div class="bg-neutral-900 rounded-md border border-neutral-800 p-6">
+            <h2 class="text-lg font-semibold text-neutral-100 mb-4">{{ __('clips.clip_id_label') }}</h2>
+
             <form wire:submit.prevent="checkClip" class="space-y-4">
                 <div>
                     <input
@@ -11,15 +11,15 @@
                         id="twitchClipId"
                         wire:model="twitchClipId"
                         placeholder="{{ __('clips.clip_id_placeholder') }}"
-                        class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none transition-colors"
+                        class="w-full px-4 py-2.5 bg-neutral-800 border border-neutral-700 rounded-md text-white placeholder-neutral-500 focus:border-purple-500 focus:outline-none transition-colors"
                         autocomplete="off"
                     >
-                    
+
                     @error('twitchClipId')
                         <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
                     @enderror
-                    
-                    <p class="mt-2 text-sm text-gray-500">
+
+                    <p class="mt-2 text-sm text-neutral-500">
                         {{ __('clips.clip_id_help', ['example' => 'PluckyInventiveCarrotPastaThat']) }}
                     </p>
                 </div>
@@ -36,9 +36,9 @@
         </div>
 
         <!-- Hilfe-Info -->
-        <div class="bg-gray-900 rounded-md border border-gray-800 p-6">
-            <h3 class="text-base font-medium text-white mb-3">{{ __('clips.help_title') }}</h3>
-            <div class="space-y-2 text-sm text-gray-400">
+        <div class="bg-neutral-900 rounded-md border border-neutral-800 p-6">
+            <h3 class="text-base font-medium text-neutral-100 mb-3">{{ __('clips.help_title') }}</h3>
+            <div class="space-y-2 text-sm text-neutral-400">
                 <p>{{ __('clips.help_step_1', ['example_url' => 'https://clips.twitch.tv/PluckyInventiveCarrotPastaThat']) }}</p>
                 <p>{{ __('clips.help_step_2', ['example_id' => 'PluckyInventiveCarrotPastaThat']) }}</p>
             </div>
@@ -48,33 +48,33 @@
     <!-- Step 2: Clip-Info & Preview -->
     @if($clipInfo)
         <!-- Clip-Informationen -->
-        <div class="bg-gray-900 rounded-md border border-gray-800 p-6">
-            <h2 class="text-lg font-semibold text-white mb-4">{{ __('clips.clip_info_title') }}</h2>
-            
+        <div class="bg-neutral-900 rounded-md border border-neutral-800 p-6">
+            <h2 class="text-lg font-semibold text-neutral-100 mb-4">{{ __('clips.clip_info_title') }}</h2>
+
             <div class="space-y-3">
                 <div>
-                    <div class="text-xs text-gray-500 uppercase mb-1">{{ __('clips.title_label') }}</div>
+                    <div class="text-xs text-neutral-500 uppercase mb-1">{{ __('clips.title_label') }}</div>
                     <div class="text-white">{{ e($clipInfo['title']) }}</div>
                 </div>
-                
+
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
-                        <div class="text-xs text-gray-500 uppercase mb-1">{{ __('clips.broadcaster_label') }}</div>
+                        <div class="text-xs text-neutral-500 uppercase mb-1">{{ __('clips.broadcaster_label') }}</div>
                         <div class="text-white">{{ e($clipInfo['broadcasterName']) }}</div>
                     </div>
-                    
+
                     <div>
-                        <div class="text-xs text-gray-500 uppercase mb-1">{{ __('clips.view_count_label') }}</div>
+                        <div class="text-xs text-neutral-500 uppercase mb-1">{{ __('clips.view_count_label') }}</div>
                         <div class="text-white">{{ number_format($clipInfo['viewCount']) }}</div>
                     </div>
-                    
+
                     <div>
-                        <div class="text-xs text-gray-500 uppercase mb-1">{{ __('clips.duration_label') }}</div>
+                        <div class="text-xs text-neutral-500 uppercase mb-1">{{ __('clips.duration_label') }}</div>
                         <div class="text-white">{{ round($clipInfo['duration'], 1) }}s</div>
                     </div>
-                    
+
                     <div>
-                        <div class="text-xs text-gray-500 uppercase mb-1">{{ __('clips.created_at_label') }}</div>
+                        <div class="text-xs text-neutral-500 uppercase mb-1">{{ __('clips.created_at_label') }}</div>
                         <div class="text-white">{{ \Carbon\Carbon::parse($clipInfo['createdAt'])->format('M j, Y') }}</div>
                     </div>
                 </div>
@@ -82,7 +82,7 @@
         </div>
 
         <!-- Clip-Vorschau -->
-        <div class="bg-gray-900 rounded-md border border-gray-800 p-6">
+        <div class="bg-neutral-900 rounded-md border border-neutral-800 p-6">
             <livewire:twitch-player-consent :clip-info="$clipInfo" />
         </div>
 
@@ -96,10 +96,10 @@
                 <span wire:loading.remove>{{ __('clips.submit_clip_button') }}</span>
                 <span wire:loading>{{ __('clips.submitting_button') }}</span>
             </button>
-            
+
             <button
                 wire:click="$set('clipInfo', null)"
-                class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-md transition-colors"
+                class="px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-medium rounded-md transition-colors"
             >
                 {{ __('clips.cancel_button') }}
             </button>

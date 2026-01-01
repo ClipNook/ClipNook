@@ -9,19 +9,19 @@
                         type="text"
                         wire:model.live.debounce.300ms="search"
                         placeholder="{{ __('games.search_placeholder') }}"
-                        class="w-full px-4 py-2.5 pl-10 border border-gray-700 rounded-lg bg-gray-800 text-white placeholder-gray-500 focus:border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-700 transition-colors"
+                        class="w-full px-4 py-2.5 pl-10 border border-neutral-700 rounded-md bg-neutral-800 text-white placeholder-neutral-500 focus:border-purple-500 focus:outline-none transition-colors"
                         aria-label="{{ __('games.search_placeholder') }}"
                     >
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3">
-                        <i class="fas fa-search text-gray-500 text-sm" aria-hidden="true"></i>
+                        <i class="fa-solid fa-magnifying-glass text-neutral-500 text-sm" aria-hidden="true"></i>
                     </div>
                     @if($search)
                         <button
                             wire:click="$set('search', '')"
-                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-white transition-colors"
+                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-400 hover:text-white transition-colors"
                             aria-label="{{ __('games.clear_search') }}"
                         >
-                            <i class="fas fa-times text-sm" aria-hidden="true"></i>
+                            <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
                         </button>
                     @endif
                 </div>
@@ -31,7 +31,7 @@
             <div>
                 <select
                     wire:model.live="sortBy"
-                    class="px-4 py-2.5 border border-gray-700 rounded-lg bg-gray-800 text-white focus:border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-700 transition-colors"
+                    class="px-4 py-2.5 border border-neutral-700 rounded-md bg-neutral-800 text-white focus:border-purple-500 focus:outline-none transition-colors"
                     aria-label="{{ __('games.sort_by') }}"
                 >
                     <option value="clips">{{ __('games.sort_most_clips') }}</option>
@@ -44,12 +44,12 @@
         <!-- Active Filters -->
         @if($search)
             <div class="mt-3 flex items-center gap-2">
-                <span class="text-sm text-gray-400">{{ __('games.active_filters') }}:</span>
-                <span class="inline-flex items-center gap-2 px-3 py-1 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-300">
-                    <i class="fas fa-search text-xs text-gray-500" aria-hidden="true"></i>
+                <span class="text-sm text-neutral-400">{{ __('games.active_filters') }}:</span>
+                <span class="inline-flex items-center gap-2 px-3 py-1 bg-neutral-800 border border-neutral-700 rounded-md text-sm text-neutral-300">
+                    <i class="fa-solid fa-magnifying-glass text-xs text-neutral-500" aria-hidden="true"></i>
                     {{ e($search) }}
-                    <button wire:click="$set('search', '')" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="fas fa-times text-xs" aria-hidden="true"></i>
+                    <button wire:click="$set('search', '')" class="text-neutral-400 hover:text-white transition-colors">
+                        <i class="fa-solid fa-xmark text-xs" aria-hidden="true"></i>
                     </button>
                 </span>
             </div>
@@ -60,8 +60,8 @@
     @if($games->count() > 0)
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             @foreach($games as $game)
-                <a href="{{ route('games.view', $game) }}" class="group block bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors overflow-hidden">
-                    <div class="aspect-[3/4] bg-gray-700 relative">
+                <a href="{{ route('games.view', $game) }}" class="group block bg-neutral-800 rounded-md border border-neutral-700 hover:border-neutral-600 transition-colors overflow-hidden">
+                    <div class="aspect-[3/4] bg-neutral-700 relative">
                         @if($game->local_box_art_path)
                             <img
                                 src="{{ Storage::url($game->local_box_art_path) }}"
@@ -70,8 +70,8 @@
                                 loading="lazy"
                             >
                         @else
-                            <div class="w-full h-full flex items-center justify-center text-gray-600">
-                                <i class="fas fa-gamepad text-3xl" aria-hidden="true"></i>
+                            <div class="w-full h-full flex items-center justify-center text-neutral-600">
+                                <i class="fa-solid fa-gamepad text-3xl" aria-hidden="true"></i>
                             </div>
                         @endif
                     </div>
@@ -79,7 +79,7 @@
                         <h3 class="font-medium text-white text-sm mb-1 line-clamp-2" title="{{ e($game->name) }}">
                             {{ e($game->name) }}
                         </h3>
-                        <p class="text-xs text-gray-500">
+                        <p class="text-xs text-neutral-500">
                             {{ number_format($game->clips_count) }} {{ trans_choice('games.clips_count', $game->clips_count) }}
                         </p>
                     </div>
@@ -94,11 +94,11 @@
     @else
         <!-- Empty State -->
         <div class="text-center py-16">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-gray-800 border border-gray-700 mb-4">
-                <i class="fas fa-gamepad text-gray-500 text-2xl" aria-hidden="true"></i>
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-md bg-neutral-800 border border-neutral-700 mb-4">
+                <i class="fa-solid fa-gamepad text-neutral-500 text-2xl" aria-hidden="true"></i>
             </div>
-            <h3 class="text-lg font-medium text-gray-300 mb-2">{{ __('games.no_games_found') }}</h3>
-            <p class="text-sm text-gray-500 mb-6">
+            <h3 class="text-lg font-medium text-neutral-300 mb-2">{{ __('games.no_games_found') }}</h3>
+            <p class="text-sm text-neutral-500 mb-6">
                 @if($search)
                     {{ __('games.no_games_search', ['search' => e($search)]) }}
                 @else
@@ -108,10 +108,10 @@
             @if($search)
                 <button
                     wire:click="$set('search', '')"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-600"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium rounded-md transition-colors focus:outline-none"
                     aria-label="{{ __('games.clear_search') }}"
                 >
-                    <i class="fas fa-times" aria-hidden="true"></i>
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     {{ __('games.clear_search') }}
                 </button>
             @endif
