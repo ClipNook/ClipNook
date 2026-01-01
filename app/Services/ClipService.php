@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Actions\Clip\SubmitClipAction;
@@ -12,15 +14,6 @@ use Illuminate\Support\Facades\Cache;
 class ClipService
 {
     public function __construct(private SubmitClipAction $submitClipAction) {}
-
-    /**
-     * Escape special characters in search terms for LIKE queries
-     */
-    protected function escapeSearchTerm(string $term): string
-    {
-        // Escape % and _ characters that have special meaning in LIKE
-        return str_replace(['%', '_'], ['\%', '\_'], $term);
-    }
 
     /**
      * Submit a clip for a user
@@ -91,9 +84,7 @@ class ClipService
         }
 
         return Clip::where(function ($q) use ($searchTerm) {
-            // Escape special characters to prevent LIKE injection
-            $escapedTerm = $this->escapeSearchTerm($searchTerm);
-            $q->where('title', 'LIKE', '%'.$escapedTerm.'%')
+            $q->where('title', 'LIKE', '%'.$searchTerm.'%')
                 ->orWhereJsonContains('tags', $searchTerm);
         })
             ->withRelations() // Use the optimized scope

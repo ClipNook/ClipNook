@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Clips;
 
 use App\Models\Clip;
@@ -18,15 +20,6 @@ class ClipList extends Component
         'search' => ['except' => ''],
     ];
 
-    /**
-     * Escape special characters in search terms for LIKE queries
-     */
-    protected function escapeSearchTerm(string $term): string
-    {
-        // Escape % and _ characters that have special meaning in LIKE
-        return str_replace(['%', '_'], ['\%', '\_'], $term);
-    }
-
     public function updatingSearch()
     {
         $this->resetPage();
@@ -37,9 +30,8 @@ class ClipList extends Component
         $clips = Clip::with(['submitter', 'broadcaster'])
             ->approved()
             ->when($this->search, function ($query) {
-                $escapedSearch = $this->escapeSearchTerm($this->search);
-                $query->where('title', 'like', '%'.$escapedSearch.'%')
-                    ->orWhere('twitch_clip_id', 'like', '%'.$escapedSearch.'%');
+                $query->where('title', 'like', '%'.$this->search.'%')
+                    ->orWhere('twitch_clip_id', 'like', '%'.$this->search.'%');
             })
             ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);

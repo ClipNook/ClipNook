@@ -48,6 +48,11 @@ class AppServiceProvider extends ServiceProvider
 
         $this->configureLocale();
         $this->configureSecureUrls();
+
+        // Prevent lazy loading in local environment to catch N+1 problems
+        if ($this->app->environment('local')) {
+            \Illuminate\Database\Eloquent\Model::preventLazyLoading();
+        }
     }
 
     protected function configureLocale(): void

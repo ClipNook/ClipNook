@@ -21,15 +21,6 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * Escape special characters in search terms for LIKE queries
-     */
-    protected function escapeSearchTerm(string $term): string
-    {
-        // Escape % and _ characters that have special meaning in LIKE
-        return str_replace(['%', '_'], ['\%', '\_'], $term);
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function findByTwitchId(string $twitchClipId): ?Clip
@@ -168,12 +159,10 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
      */
     public function search(string $query): Collection
     {
-        $escapedQuery = $this->escapeSearchTerm($query);
-
         return $this->model->approved()
-            ->where(function ($q) use ($escapedQuery) {
-                $q->where('title', 'like', "%{$escapedQuery}%")
-                    ->orWhere('description', 'like', "%{$escapedQuery}%");
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'like', "%{$query}%")
+                    ->orWhere('description', 'like', "%{$query}%");
             })
             ->get();
     }
