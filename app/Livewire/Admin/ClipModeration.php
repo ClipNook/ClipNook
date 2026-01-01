@@ -51,25 +51,33 @@ class ClipModeration extends Component
             })
             ->when($this->searchQuery, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('title', 'like', '%'.$this->searchQuery.'%')
-                        ->orWhere('twitch_clip_id', 'like', '%'.$this->searchQuery.'%')
+                    $q->where('title', 'like', '%' . $this->searchQuery . '%')
+                        ->orWhere('twitch_clip_id', 'like', '%' . $this->searchQuery . '%')
                         ->orWhereHas('broadcaster', function ($q) {
-                            $q->where('twitch_display_name', 'like', '%'.$this->searchQuery.'%');
+                            $q->where('twitch_display_name', 'like', '%' . $this->searchQuery . '%');
                         })
                         ->orWhereHas('submitter', function ($q) {
-                            $q->where('twitch_display_name', 'like', '%'.$this->searchQuery.'%');
+                            $q->where('twitch_display_name', 'like', '%' . $this->searchQuery . '%');
                         });
                 });
             })
             ->orderBy('submitted_at', 'desc')
             ->paginate(config('constants.pagination.moderation_per_page'));
 
-        $stats = [
-            'pending'  => Clip::where('status', ClipStatus::PENDING)->count(),
-            'approved' => Clip::where('status', ClipStatus::APPROVED)->count(),
-            'rejected' => Clip::where('status', ClipStatus::REJECTED)->count(),
-            'flagged'  => Clip::where('status', ClipStatus::FLAGGED)->count(),
-        ];
+        // Single query stats using aggregation
+        $stats = Clip::selectRaw('
+            COUNT(CASE WHEN status = ? THEN 1 END) as pending,
+            COUNT(CASE WHEN status = ? THEN 1 END) as approved,
+            COUNT(CASE WHEN status = ? THEN 1 END) as rejected,
+            COUNT(CASE WHEN status = ? THEN 1 END) as flagged
+            ', [
+            ClipStatus::PENDING->value,
+            ClipStatus::APPROVED->value,
+            ClipStatus::REJECTED->value,
+            ClipStatus::FLAGGED->value,
+        ])
+            ->first()
+            ->toArray();
 
         return view('livewire.admin.clip-moderation', [
             'clips' => $clips,
@@ -105,7 +113,7 @@ class ClipModeration extends Component
     public function rejectClip(): void
     {
         $this->validate([
-            'rejectReason' => 'required|string|min:'.config('constants.limits.reject_reason_min_length').'|max:'.config('constants.limits.reject_reason_max_length'),
+            'rejectReason' => 'required|string|min:' . config('constants.limits.reject_reason_min_length') . '|max:' . config('constants.limits.reject_reason_max_length'),
         ]);
 
         $clip = Clip::findOrFail($this->selectedClipId);

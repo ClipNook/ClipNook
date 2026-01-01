@@ -44,13 +44,13 @@ class ClipRating extends Component
 
         // Rate limiting: 10 votes per minute
         $key = 'vote:'.auth()->id();
-        if (RateLimiter::tooManyAttempts($key, config('constants.limits.vote_rate_limit'))) {
+        if (RateLimiter::tooManyAttempts($key, config('constants.rate_limiting.vote_max_attempts'))) {
             session()->flash('error', __('clips.too_many_votes'));
 
             return;
         }
 
-        RateLimiter::hit($key, 60);
+        RateLimiter::hit($key, config('constants.rate_limiting.vote_decay_minutes') * 60);
 
         DB::transaction(function () use ($voteType) {
             $existingVote = ClipVote::query()

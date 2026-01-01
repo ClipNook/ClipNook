@@ -57,7 +57,7 @@ return [
         'clip_id_max_length'       => 100,
         'reject_reason_min_length' => 10,
         'reject_reason_max_length' => 500,
-        'vote_rate_limit'          => 10,
+        'daily_clip_submissions'   => 10,
     ],
 
     /*
@@ -94,10 +94,13 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | String Patterns and Formats
+    | Rate Limiting
     |--------------------------------------------------------------------------
     */
-    'patterns' => [
-        'twitch_clip_url_regex' => '/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]{1,100})$/',
+    'rate_limiting' => [
+        'submit_clip_max_attempts'  => 5,
+        'submit_clip_decay_minutes' => 60,
+        'vote_max_attempts'         => 10,
+        'vote_decay_minutes'        => 1,
     ],
 ];

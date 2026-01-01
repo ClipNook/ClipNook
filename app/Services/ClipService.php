@@ -108,13 +108,20 @@ class ClipService
     public function getUserStats(User $user): array
     {
         return Cache::remember("user_clip_stats_{$user->id}", now()->addHours(config('constants.cache.user_stats_hours')), function () use ($user) {
-            $clips = Clip::where('user_id', $user->id);
+            $stats = Clip::where('user_id', $user->id)
+                ->selectRaw('
+                    COUNT(*) as total_clips,
+                    COALESCE(SUM(view_count), 0) as total_views,
+                    COUNT(CASE WHEN is_featured = 1 THEN 1 END) as featured_clips,
+                    COUNT(CASE WHEN created_at >= ? THEN 1 END) as recent_submissions
+                ', [now()->subDays(7)])
+                ->first();
 
             return [
-                'total_clips'        => $clips->count(),
-                'total_views'        => (int) $clips->sum('view_count'),
-                'featured_clips'     => $clips->where('is_featured', true)->count(),
-                'recent_submissions' => $clips->where('created_at', '>=', now()->subDays(7))->count(),
+                'total_clips'        => (int) $stats->total_clips,
+                'total_views'        => (int) $stats->total_views,
+                'featured_clips'     => (int) $stats->featured_clips,
+                'recent_submissions' => (int) $stats->recent_submissions,
             ];
         });
     }
@@ -128,7 +135,7 @@ class ClipService
             ->whereDate('created_at', today())
             ->count();
 
-        return $submittedToday < config('clip.daily_limit', 10);
+        return $submittedToday < config('constants.limits.daily_clip_submissions');
     }
 
     /**

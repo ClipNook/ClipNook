@@ -108,9 +108,8 @@ class SubmitClip extends Component
         }
 
         // Rate limiting
-        $rateLimit = config('clip.rate_limiting.submit_clip');
-        $key       = 'submit-clip:'.auth()->id();
-        if (RateLimiter::tooManyAttempts($key, $rateLimit['max_attempts'])) {
+        $key = 'submit-clip:'.auth()->id();
+        if (RateLimiter::tooManyAttempts($key, config('constants.rate_limiting.submit_clip_max_attempts'))) {
             $seconds            = RateLimiter::availableIn($key);
             $this->errorMessage = __('clips.rate_limit_exceeded', ['seconds' => $seconds]);
 
@@ -128,7 +127,7 @@ class SubmitClip extends Component
 
             app(SubmitClipAction::class)->executeSync(auth()->user(), $clipId);
 
-            RateLimiter::hit($key);
+            RateLimiter::hit($key, config('constants.rate_limiting.submit_clip_decay_minutes') * 60);
 
             $this->resetClip();
             $this->resetMessages();

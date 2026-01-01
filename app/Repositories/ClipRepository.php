@@ -173,12 +173,25 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
      */
     public function getStats(): array
     {
+        $stats = $this->model->selectRaw('
+                COUNT(*) as total,
+                COUNT(CASE WHEN status = ? THEN 1 END) as pending,
+                COUNT(CASE WHEN status = ? THEN 1 END) as approved,
+                COUNT(CASE WHEN status = ? THEN 1 END) as rejected,
+                COUNT(CASE WHEN featured = 1 THEN 1 END) as featured
+            ', [
+            ClipStatus::PENDING->value,
+            ClipStatus::APPROVED->value,
+            ClipStatus::REJECTED->value,
+        ])
+            ->first();
+
         return [
-            'total'    => $this->model->count(),
-            'pending'  => $this->model->pending()->count(),
-            'approved' => $this->model->approved()->count(),
-            'rejected' => $this->model->rejected()->count(),
-            'featured' => $this->model->featured()->count(),
+            'total'    => (int) $stats->total,
+            'pending'  => (int) $stats->pending,
+            'approved' => (int) $stats->approved,
+            'rejected' => (int) $stats->rejected,
+            'featured' => (int) $stats->featured,
         ];
     }
 }
