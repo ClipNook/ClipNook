@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full {{ 'theme-' . (isset($_COOKIE['clipnook-theme']) && in_array($_COOKIE['clipnook-theme'], ['violet', 'blue', 'green', 'red', 'orange', 'pink', 'cyan', 'amber']) ? $_COOKIE['clipnook-theme'] : 'violet') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +10,25 @@
     <meta name="description" content="{{ __('app.description') }}">
 
     <title>{{ isset($title) ? $title . ' · ' . config('app.name') : config('app.name') }}</title>
+
+    <script>
+        // Load theme immediately to prevent FOUC
+        (function() {
+            const availableThemes = ['violet', 'blue', 'green', 'red', 'orange', 'pink', 'cyan', 'amber'];
+            const savedTheme = localStorage.getItem('clipnook-theme');
+            const defaultTheme = 'violet';
+
+            const themeToUse = (savedTheme && availableThemes.includes(savedTheme)) ? savedTheme : defaultTheme;
+
+            // Apply theme class immediately (remove existing theme classes first)
+            document.documentElement.classList.forEach(className => {
+                if (className.startsWith('theme-')) {
+                    document.documentElement.classList.remove(className);
+                }
+            });
+            document.documentElement.classList.add(`theme-${themeToUse}`);
+        })();
+    </script>
 
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -282,20 +301,15 @@
 
         function loadTheme() {
             const availableThemes = ['violet', 'blue', 'green', 'red', 'orange', 'pink', 'cyan', 'amber'];
-            const savedTheme = localStorage.getItem('theme');
+            const savedTheme = localStorage.getItem('clipnook-theme');
             const sessionTheme = '{{ session("theme", "violet") }}';
-            
+
             // Priority: localStorage > session > default
-            const themeToUse = (savedTheme && availableThemes.includes(savedTheme)) ? savedTheme : 
+            const themeToUse = (savedTheme && availableThemes.includes(savedTheme)) ? savedTheme :
                              (sessionTheme && availableThemes.includes(sessionTheme)) ? sessionTheme : 'violet';
-            
-            // Apply theme
+
+            // Apply theme (should already be applied from head script, but ensure it's correct)
             updateTheme(themeToUse);
-            
-            // Update Alpine data
-            if (window.Alpine) {
-                Alpine.store('theme', themeToUse);
-            }
         }
     </script>
 
