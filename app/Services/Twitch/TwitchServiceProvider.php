@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Twitch;
 
 use App\Actions\Twitch\ExchangeCodeForTokenAction;
+use App\Contracts\ImageValidatorInterface;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\ServiceProvider;
 
@@ -38,6 +39,7 @@ class TwitchServiceProvider extends ServiceProvider
                 apiClient: $app->make(TwitchApiClient::class),
                 tokenManager: $app->make(TwitchTokenManager::class),
                 sanitizer: $app->make(TwitchDataSanitizer::class),
+                imageValidator: $app->make(ImageValidatorInterface::class),
             );
         });
 

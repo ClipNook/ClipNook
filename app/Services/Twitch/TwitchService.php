@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Twitch;
 
-use App\Enums\ImageMimeType;
+use App\Contracts\ImageValidatorInterface;
 use App\Events\TwitchTokenRefreshed;
 use App\Models\User;
 use App\Services\Twitch\Contracts\DownloadInterface;
@@ -16,7 +16,6 @@ use App\Services\Twitch\DTOs\StreamerDTO;
 use App\Services\Twitch\DTOs\TokenDTO;
 use App\Services\Twitch\DTOs\VideoDTO;
 use App\Services\Twitch\Enums\RequestType;
-use App\Services\Twitch\Exceptions\InvalidImageException;
 use App\Services\Twitch\Exceptions\TwitchApiException;
 use App\Services\Twitch\Traits\ApiCaching;
 use App\Services\Twitch\Traits\ApiLogging;
@@ -28,11 +27,6 @@ use Illuminate\Support\Facades\Storage;
 class TwitchService implements DownloadInterface, TwitchApiInterface
 {
     use ApiCaching, ApiLogging, ApiRateLimiting;
-
-    /**
-     * Maximum allowed image file size in bytes (5MB)
-     */
-    protected const int MAX_IMAGE_SIZE_BYTES = 5_242_880;
 
     protected readonly string $clientId;
 
@@ -52,6 +46,7 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
         protected readonly TwitchApiClient $apiClient,
         protected readonly TwitchTokenManager $tokenManager,
         protected readonly TwitchDataSanitizer $sanitizer,
+        protected readonly ImageValidatorInterface $imageValidator,
     ) {
         $this->clientId     = config('twitch.client_id');
         $this->clientSecret = config('twitch.client_secret');
@@ -470,38 +465,37 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
     }
 
     /**
-     * Download and validate an image from a URL
+     * Download and validate an image from a URL.
+     *
+     * Uses the ImageValidator service for security-focused validation
+     * of MIME type, URL, and file size.
+     *
+     * @param  string  $url  URL to download from
+     * @param  string  $savePath  Path to save the image
+     * @return bool True if successful
+     *
+     * @throws \App\Services\Twitch\Exceptions\InvalidImageException If validation fails
      */
     protected function downloadImage(string $url, string $savePath): bool
     {
-        // Validate URL is HTTPS and from trusted domain
-        if (! $this->isValidImageUrl($url)) {
-            throw InvalidImageException::invalidUrl($url);
-        }
+        // Validate URL security
+        $this->imageValidator->validateUrl($url);
 
         $response = Http::timeout(config('constants.http.timeout_seconds'))
             ->retry(config('constants.http.retry_count'), config('constants.http.retry_delay_ms'))
             ->get($url);
 
         if (! $response->successful()) {
-            throw InvalidImageException::downloadFailed($response->status());
+            throw new \Exception('Failed to download image: HTTP '.$response->status());
         }
 
         $image = $response->body();
 
-        // Validate image MIME type using enum
-        $finfo    = new \finfo(FILEINFO_MIME_TYPE);
-        $mimeType = $finfo->buffer($image);
+        // Validate image MIME type
+        $this->imageValidator->validateMimeType($image);
 
-        if (! ImageMimeType::isAllowed($mimeType)) {
-            throw InvalidImageException::invalidMimeType($mimeType);
-        }
-
-        // Check file size
-        $imageSize = strlen($image);
-        if ($imageSize > self::MAX_IMAGE_SIZE_BYTES) {
-            throw InvalidImageException::tooLarge($imageSize, self::MAX_IMAGE_SIZE_BYTES);
-        }
+        // Validate file size
+        $this->imageValidator->validateSize($image);
 
         Storage::disk('public')->put($savePath, $image);
 

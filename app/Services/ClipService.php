@@ -56,11 +56,14 @@ class ClipService
     {
         $limit ??= config('constants.limits.featured_clips');
 
-        return Cache::remember('featured_clips', now()->addMinutes(config('constants.cache.featured_clips_minutes')), fn () => Clip::with(['user', 'broadcaster', 'game'])
-            ->where('is_featured', true)
-            ->orderBy('view_count', 'desc')
-            ->limit($limit)
-            ->get()
+        return Cache::remember(
+            'featured_clips',
+            now()->addMinutes(config('constants.cache.featured_clips_minutes')),
+            fn() => Clip::with(['user', 'broadcaster', 'game'])
+                ->where('is_featured', true)
+                ->orderBy('view_count', 'desc')
+                ->limit($limit)
+                ->get()
         );
     }
 
@@ -71,10 +74,13 @@ class ClipService
     {
         $limit ??= config('constants.limits.recent_clips');
 
-        return Cache::remember('recent_clips', now()->addMinutes(config('constants.cache.recent_clips_minutes')), fn () => Clip::with(['user', 'broadcaster', 'game'])
-            ->orderBy('created_at', 'desc')
-            ->limit($limit)
-            ->get()
+        return Cache::remember(
+            'recent_clips',
+            now()->addMinutes(config('constants.cache.recent_clips_minutes')),
+            fn() => Clip::with(['user', 'broadcaster', 'game'])
+                ->orderBy('created_at', 'desc')
+                ->limit($limit)
+                ->get()
         );
     }
 
