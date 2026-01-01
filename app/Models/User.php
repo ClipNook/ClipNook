@@ -439,6 +439,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's clip votes.
+     */
+    public function clipVotes(): HasMany
+    {
+        return $this->hasMany(ClipVote::class);
+    }
+
+    /**
+     * Get the user's clip comments.
+     */
+    public function clipComments(): HasMany
+    {
+        return $this->hasMany(ClipComment::class);
+    }
+
+    /**
+     * Get the user's clip reports.
+     */
+    public function clipReports(): HasMany
+    {
+        return $this->hasMany(ClipReport::class);
+    }
+
+    /**
      * Get the user's approved clips.
      */
     public function approvedClips(): HasMany

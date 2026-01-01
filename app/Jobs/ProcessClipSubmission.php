@@ -87,6 +87,15 @@ class ProcessClipSubmission implements ShouldQueue
                 return;
             }
 
+            // Get creator name from DTO (Twitch API provides it)
+            $creatorName = $clipData->creatorName;
+            
+            Log::debug('Creator name from Twitch API', [
+                'creator_id' => $clipData->creatorId,
+                'creator_name' => $creatorName,
+                'creator_name_from_dto' => $clipData->creatorName,
+            ]);
+
             DB::beginTransaction();
 
             try {
@@ -95,6 +104,11 @@ class ProcessClipSubmission implements ShouldQueue
                 if ($clipData->gameId) {
                     $game = $gameService->getOrCreateGame($clipData->gameId);
                 }
+
+                Log::info('About to create clip with creator name', [
+                    'creator_name' => $creatorName,
+                    'creator_id' => $clipData->creatorId,
+                ]);
 
                 // Create the clip
                 $clip = Clip::create([
@@ -109,6 +123,7 @@ class ProcessClipSubmission implements ShouldQueue
                     'duration'             => $clipData->duration,
                     'view_count'           => $clipData->viewCount,
                     'created_at_twitch'    => $clipData->createdAt,
+                    'clip_creator_name'    => $creatorName,
                     'broadcaster_id'       => $broadcaster->id,
                     'game_id'              => $game?->id,
                     'tags'                 => $this->extractTags($clipData),

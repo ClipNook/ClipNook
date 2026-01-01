@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('duration'); // Duration in seconds
             $table->integer('view_count')->default(0);
             $table->timestamp('created_at_twitch'); // When created on Twitch
+            $table->string('clip_creator_name')->nullable();
             $table->foreignId('game_id')->nullable()->constrained()->onDelete('set null');
             $table->enum('status', ['pending', 'approved', 'rejected', 'flagged'])->default('pending');
             $table->foreignId('submitter_id')->nullable()->constrained('users')->onDelete('set null');

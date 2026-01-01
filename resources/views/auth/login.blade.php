@@ -12,8 +12,8 @@
             </div>
 
             <!-- Login Card -->
-            <div class="bg-gray-900 rounded-lg border border-gray-800 shadow-sm overflow-hidden">
-                <div class="p-8">
+            <div class="bg-gray-900 rounded-md border border-gray-800">
+                <div class="p-6 sm:p-8">
                     <form method="POST" action="{{ route('auth.twitch.login') }}" class="space-y-6">
                         @csrf
 
@@ -47,7 +47,7 @@
                         <!-- Submit Button -->
                         <div>
                             <button type="submit"
-                                    class="w-full inline-flex justify-center items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                                    class="w-full inline-flex justify-center items-center px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors focus:outline-none"
                                     aria-label="{{ __('auth.login_button') }}">
                                 <i class="fas fa-sign-in-alt mr-2" aria-hidden="true"></i>
                                 <span>{{ __('auth.login_button') }}</span>
@@ -57,7 +57,7 @@
                         <!-- Privacy Notice -->
                         <div class="text-center">
                             <p class="text-xs text-gray-500 leading-relaxed">
-                                {{ __('auth.privacy_notice', ['terms' => '<a href="#" class="text-purple-400 hover:text-purple-300 underline focus:outline-none focus:ring-2 focus:ring-purple-500">Terms of Service</a>', 'privacy' => '<a href="#" class="text-purple-400 hover:text-purple-300 underline focus:outline-none focus:ring-2 focus:ring-purple-500">Privacy Policy</a>']) }}
+                                {{ __('auth.privacy_notice', ['terms' => '<a href="#" class="text-purple-400 hover:text-purple-300 underline">Terms of Service</a>', 'privacy' => '<a href="#" class="text-purple-400 hover:text-purple-300 underline">Privacy Policy</a>']) }}
                             </p>
                         </div>
                     </form>

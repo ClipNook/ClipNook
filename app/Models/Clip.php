@@ -8,6 +8,7 @@ use App\Events\ClipModerated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 class Clip extends Model
@@ -25,18 +26,19 @@ class Clip extends Model
         'duration',
         'view_count',
         'created_at_twitch',
+        'clip_creator_name',
 
-        // User Relationships
-        'submitter_id',
-        'broadcaster_id',
+        // Relationships - must match migration order!
         'game_id',
+        'status',
+        'submitter_id',
+        'submitted_at',
+        'broadcaster_id',
 
         // Moderation
-        'status',
         'moderation_reason',
         'moderated_by',
         'moderated_at',
-        'submitted_at',
 
         // Social Features
         'tags',
@@ -83,6 +85,21 @@ class Clip extends Model
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class);
+    }
+
+    public function votes(): HasMany
+    {
+        return $this->hasMany(ClipVote::class);
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(ClipComment::class);
+    }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(ClipReport::class);
     }
 
     // Scopes

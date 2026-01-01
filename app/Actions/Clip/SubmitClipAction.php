@@ -77,6 +77,12 @@ class SubmitClipAction
                 ? $this->twitchGameService->getOrCreateGame($clipData->gameId)
                 : null;
 
+            Log::debug('SubmitClipAction - Creating clip', [
+                'creator_id' => $clipData->creatorId,
+                'creator_name' => $clipData->creatorName,
+                'creator_name_type' => gettype($clipData->creatorName),
+            ]);
+
             $clip = Clip::create([
                 'submitter_id'      => $user->id,
                 'submitted_at'      => now(),
@@ -88,6 +94,7 @@ class SubmitClipAction
                 'duration'          => $clipData->duration,
                 'view_count'        => $clipData->viewCount,
                 'created_at_twitch' => $clipData->createdAt,
+                'clip_creator_name' => $clipData->creatorName,
                 'broadcaster_id'    => $broadcaster->id,
                 'game_id'           => $game?->id,
                 'tags'              => $this->extractTags($clipData),

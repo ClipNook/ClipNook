@@ -12,6 +12,7 @@ use App\Models\Clip;
 use App\Models\User;
 use App\Services\Cache\QueryCacheService;
 use App\Services\ClipService;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -165,6 +166,24 @@ class ClipController extends Controller
                 'moderator:id,twitch_display_name',
             ])
         );
+    }
+
+    /**
+     * Display the clip view page.
+     */
+    public function view(Clip $clip): View
+    {
+        $clip->load(['broadcaster', 'submitter', 'game']);
+
+        $relatedClips = Clip::query()
+            ->where('id', '!=', $clip->id)
+            ->where(fn ($q) => $q->where('game_id', $clip->game_id)->orWhere('broadcaster_id', $clip->broadcaster_id))
+            ->approved()
+            ->with(['broadcaster', 'game'])
+            ->limit(6)
+            ->get();
+
+        return view('clips.view', compact('clip', 'relatedClips'));
     }
 
     /**

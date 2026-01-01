@@ -12,8 +12,8 @@
             </div>
 
             <!-- Main Card -->
-            <div class="bg-gray-900 rounded-md border border-gray-800 overflow-hidden">
-                <div class="p-8">
+            <div class="bg-gray-900 rounded-md border border-gray-800">
+                <div class="p-6 sm:p-8">
                     @auth
                         <!-- Logged in user -->
                         <div class="text-center">
@@ -31,16 +31,16 @@
                                 </p>
                             </div>
 
-                            <div class="space-y-4">
+                            <div class="space-y-3">
                                 <a href="{{ route('clips.submit') }}"
-                                   class="w-full inline-flex justify-center items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-gray-900"
+                                   class="w-full inline-flex justify-center items-center px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors focus:outline-none"
                                    aria-label="{{ __('home.submit_clip') }}">
                                     <i class="fas fa-plus mr-2" aria-hidden="true"></i>
                                     <span>{{ __('home.submit_clip') }}</span>
                                 </a>
 
                                 <a href="{{ route('clips.list') }}"
-                                   class="w-full inline-flex justify-center items-center px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                                   class="w-full inline-flex justify-center items-center px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-md transition-colors focus:outline-none"
                                    aria-label="{{ __('home.browse_clips') }}">
                                     <i class="fas fa-list mr-2" aria-hidden="true"></i>
                                     <span>{{ __('home.browse_clips') }}</span>
@@ -49,7 +49,7 @@
                                 <form method="POST" action="{{ route('auth.twitch.logout') }}" class="w-full">
                                     @csrf
                                     <button type="submit"
-                                            class="w-full inline-flex justify-center items-center px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                                            class="w-full inline-flex justify-center items-center px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-md transition-colors focus:outline-none"
                                             aria-label="{{ __('nav.logout') }}">
                                         <i class="fas fa-sign-out-alt mr-2" aria-hidden="true"></i>
                                         <span>{{ __('nav.logout') }}</span>
@@ -72,7 +72,7 @@
                             </div>
 
                             <a href="{{ route('auth.login') }}"
-                               class="w-full inline-flex justify-center items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-gray-900"
+                               class="w-full inline-flex justify-center items-center px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors focus:outline-none"
                                aria-label="{{ __('nav.login') }}">
                                 <i class="fas fa-sign-in-alt mr-2" aria-hidden="true"></i>
                                 <span>{{ __('nav.login') }}</span>

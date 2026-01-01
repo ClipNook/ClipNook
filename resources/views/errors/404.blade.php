@@ -17,16 +17,16 @@
             </p>
 
             <!-- Actions -->
-            <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
                 <a href="{{ route('home') }}"
-                   class="inline-flex justify-center items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-950 mr-4"
+                   class="inline-flex justify-center items-center px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors focus:outline-none"
                    aria-label="{{ __('error.go_home') }}">
                     <i class="fas fa-home mr-2" aria-hidden="true"></i>
                     <span>{{ __('error.go_home') }}</span>
                 </a>
 
                 <button onclick="history.back()"
-                        class="inline-flex justify-center items-center px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-950"
+                        class="inline-flex justify-center items-center px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-md transition-colors focus:outline-none"
                         aria-label="{{ __('error.go_back') }}">
                     <i class="fas fa-arrow-left mr-2" aria-hidden="true"></i>
                     <span>{{ __('error.go_back') }}</span>

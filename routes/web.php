@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClipController;
 use App\Http\Controllers\TwitchOAuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,4 +24,11 @@ Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () {
 Route::group(['prefix' => 'clips', 'as' => 'clips.'], function () {
     Route::get('/', fn () => view('clips.list'))->name('list');
     Route::get('/submit', fn () => view('clips.submit'))->middleware('auth')->name('submit');
+    Route::get('/view/{clip}', [ClipController::class, 'view'])->name('view');
+});
+
+// Games
+Route::group(['prefix' => 'games', 'as' => 'games.'], function () {
+    Route::get('/', fn () => view('games.list'))->name('list');
+    Route::get('/{game}', fn () => view('games.view'))->name('view');
 });

@@ -92,4 +92,60 @@ return [
     'twitch_consent_privacy_notice'    => 'This content is provided by Twitch and may use cookies or tracking technologies. By loading, you agree to Twitch\'s privacy policy.',
     'twitch_consent_load_button'       => 'Load Clip',
     'twitch_consent_cancel_button'     => 'Cancel',
+
+    // Clip View Page
+    'view_page_title'    => 'View Clip',
+    'views_count'        => ':count views',
+    'share'              => 'Share',
+    'submitted_by_label' => 'Submitted by',
+    'created_by_label'   => 'Created by',
+
+    // Voting
+    'upvote'       => 'Upvote',
+    'downvote'     => 'Downvote',
+    'votes'        => ':count votes',
+    'vote_success' => 'Vote recorded',
+    'vote_removed' => 'Vote removed',
+
+    // Comments
+    'comments'                => 'Comments',
+    'comments_count'          => 'Comments (:count)',
+    'add_comment'             => 'Add a comment...',
+    'post_comment'            => 'Post Comment',
+    'login_to_comment'        => 'to comment',
+    'no_comments'             => 'No comments yet',
+    'reply'                   => 'Reply',
+    'delete_comment'          => 'Delete',
+    'comment_deleted'         => '[Comment deleted]',
+    'comment_posted'          => 'Comment posted successfully',
+    'comment_required'        => 'Comment cannot be empty',
+    'comment_deleted_success' => 'Comment deleted',
+
+    // Reporting
+    'report_clip'              => 'Report',
+    'report_title'             => 'Report Clip',
+    'report_reason'            => 'Reason',
+    'report_description'       => 'Description (optional)',
+    'submit_report'            => 'Submit Report',
+    'cancel'                   => 'Cancel',
+    'report_success'           => 'Report submitted successfully',
+    'report_already_submitted' => 'You have already reported this clip',
+
+    'report_reasons' => [
+        'inappropriate' => 'Inappropriate Content',
+        'spam'          => 'Spam',
+        'copyright'     => 'Copyright Violation',
+        'misleading'    => 'Misleading Information',
+        'other'         => 'Other',
+    ],
+
+    // Related
+    'related_clips'    => 'Related Clips',
+    'no_related_clips' => 'No related clips',
+
+    // Status
+    'status_pending'  => 'Pending',
+    'status_approved' => 'Approved',
+    'status_rejected' => 'Rejected',
+    'status_flagged'  => 'Flagged',
 ];
