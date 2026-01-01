@@ -27,8 +27,8 @@ class ProcessClipSubmission implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
-        public User $user,
-        public string $twitchClipId
+        public readonly User $user,
+        public readonly string $twitchClipId
     ) {}
 
     /**
@@ -36,8 +36,8 @@ class ProcessClipSubmission implements ShouldQueue
      */
     public function handle(TwitchService $twitchService, TwitchGameService $gameService): void
     {
-        // Set the authenticated user for token access
-        auth()->login($this->user);
+        // Set the user for token access in this job context
+        $twitchService->setUser($this->user);
 
         try {
             // Validate the clip exists and get its data from Twitch
@@ -109,6 +109,7 @@ class ProcessClipSubmission implements ShouldQueue
                     'duration'             => $clipData->duration,
                     'view_count'           => $clipData->viewCount,
                     'created_at_twitch'    => $clipData->createdAt,
+                    'clip_creator_name'    => $clipData->creatorName,
                     'broadcaster_id'       => $broadcaster->id,
                     'game_id'              => $game?->id,
                     'tags'                 => $this->extractTags($clipData),

@@ -64,6 +64,10 @@ return new class extends Migration
             $table->index('twitch_id', 'idx_users_twitch_id');
             $table->index('created_at', 'idx_users_created_at');
             $table->index('updated_at', 'idx_users_updated_at');
+
+            // Additional performance indexes
+            $table->index('twitch_email', 'idx_users_email');
+            $table->index('last_activity_at', 'idx_users_last_activity');
         });
 
         Schema::create('sessions', function (Blueprint $table) {

@@ -8,6 +8,7 @@ use App\Events\ClipModerated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 class Clip extends Model
@@ -16,6 +17,7 @@ class Clip extends Model
 
     protected $fillable = [
         // Core Twitch Data
+        'uuid',
         'twitch_clip_id',
         'title',
         'description',
@@ -25,18 +27,19 @@ class Clip extends Model
         'duration',
         'view_count',
         'created_at_twitch',
+        'clip_creator_name',
 
-        // User Relationships
-        'submitter_id',
-        'broadcaster_id',
+        // Relationships - must match migration order!
         'game_id',
+        'status',
+        'submitter_id',
+        'submitted_at',
+        'broadcaster_id',
 
         // Moderation
-        'status',
         'moderation_reason',
         'moderated_by',
         'moderated_at',
-        'submitted_at',
 
         // Social Features
         'tags',
@@ -64,6 +67,14 @@ class Clip extends Model
         'view_count' => 0,
     ];
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
     // Relationships
     public function submitter(): BelongsTo
     {
@@ -85,7 +96,32 @@ class Clip extends Model
         return $this->belongsTo(Game::class);
     }
 
+    public function votes(): HasMany
+    {
+        return $this->hasMany(ClipVote::class);
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(ClipComment::class);
+    }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(ClipReport::class);
+    }
+
     // Scopes
+    public function scopeWithRelations($query)
+    {
+        return $query->with([
+            'submitter:id,twitch_display_name,twitch_login,twitch_avatar',
+            'broadcaster:id,twitch_display_name,twitch_login,twitch_avatar',
+            'moderator:id,twitch_display_name,twitch_login',
+            'game:id,name,box_art_url',
+        ]);
+    }
+
     public function scopePending($query)
     {
         return $query->where('status', \App\Enums\ClipStatus::PENDING);

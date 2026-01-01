@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Log;
 
 class TwitchGameService
 {
+    public function __construct(
+        private TwitchService $twitchService
+    ) {}
+
     /**
      * Get or create a game from Twitch game ID
      */
@@ -25,7 +29,7 @@ class TwitchGameService
 
         // Game not found, fetch from Twitch API
         try {
-            $gameData = app(TwitchService::class)->getGame($twitchGameId);
+            $gameData = $this->twitchService->getGame($twitchGameId);
 
             if (! $gameData) {
                 Log::warning('Game not found on Twitch', ['twitch_game_id' => $twitchGameId]);

@@ -14,6 +14,8 @@ use Livewire\Component;
 
 class SubmitClip extends Component
 {
+    public TwitchService $twitchService;
+
     #[Validate('required|string|regex:/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]{1,100})$/')]
     public string $twitchClipId = '';
 
@@ -29,11 +31,15 @@ class SubmitClip extends Component
 
     public bool $showPlayer = false;
 
-    public bool $confirmedGdpr = false;
-
     protected $listeners = [
-        'clip-submitted' => 'handleClipSubmitted',
+        'clip-submitted'       => 'handleClipSubmitted',
+        'twitch-player-loaded' => 'handlePlayerLoaded',
     ];
+
+    public function mount(TwitchService $twitchService)
+    {
+        $this->twitchService = $twitchService;
+    }
 
     public function checkClip()
     {
@@ -44,7 +50,7 @@ class SubmitClip extends Component
             $this->validate();
 
             $clipId   = $this->extractClipId($this->twitchClipId);
-            $clipData = app(TwitchService::class)->getClip($clipId);
+            $clipData = $this->twitchService->getClip($clipId);
 
             if (! $clipData) {
                 $this->errorMessage = __('clips.clip_not_found');
@@ -54,6 +60,7 @@ class SubmitClip extends Component
 
             $this->clipInfo = [
                 'id'              => $clipData->id,
+                'twitchClipId'    => $clipId, // Original Twitch Clip ID
                 'title'           => $clipData->title,
                 'broadcasterName' => $clipData->broadcasterName,
                 'creatorName'     => $clipData->creatorName,
@@ -77,16 +84,14 @@ class SubmitClip extends Component
 
     public function loadPlayer()
     {
-        $this->confirmedGdpr = true;
-        $this->showPlayer    = true;
+        $this->showPlayer = true;
     }
 
     public function resetClip()
     {
-        $this->clipInfo      = null;
-        $this->showPlayer    = false;
-        $this->confirmedGdpr = false;
-        $this->twitchClipId  = '';
+        $this->clipInfo     = null;
+        $this->showPlayer   = false;
+        $this->twitchClipId = '';
         $this->resetMessages();
     }
 
@@ -112,10 +117,7 @@ class SubmitClip extends Component
         $this->isSubmitting = true;
 
         try {
-            // Extract clip ID from URL if needed
             $clipId = $this->clipInfo['id'];
-
-            // Execute the submission
             app(SubmitClipAction::class)->execute(auth()->user(), $clipId);
 
             RateLimiter::hit($key);
@@ -141,9 +143,13 @@ class SubmitClip extends Component
         }
     }
 
+    public function handlePlayerLoaded()
+    {
+        $this->showPlayer = true;
+    }
+
     public function handleClipSubmitted()
     {
-        // Could trigger UI updates, refresh lists, etc.
         $this->dispatch('refresh-clip-list');
     }
 
@@ -155,12 +161,10 @@ class SubmitClip extends Component
 
     private function extractClipId(string $input): string
     {
-        // If it's a full URL, extract the clip ID
         if (preg_match('/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]+)$/', $input, $matches)) {
             return $matches[1];
         }
 
-        // Fallback: return as-is (shouldn't happen due to validation)
         return $input;
     }
 

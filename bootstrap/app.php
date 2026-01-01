@@ -22,11 +22,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // This is configured during bootstrap so middleware is available early in the app lifecycle
         // and works consistently across HTTP and console contexts.
         $middleware->alias([
-            'setlocale'      => \App\Http\Middleware\SetLocale::class,
-            'trackactivity'  => \App\Http\Middleware\TrackLastActivity::class,
-            'security'       => \App\Http\Middleware\SecurityHeaders::class,
-            'performance'    => \App\Http\Middleware\PerformanceMonitoring::class,
-            'cache.response' => \App\Http\Middleware\CacheResponse::class,
+            'setlocale'             => \App\Http\Middleware\SetLocale::class,
+            'trackactivity'         => \App\Http\Middleware\TrackLastActivity::class,
+            'security'              => \App\Http\Middleware\SecurityHeaders::class,
+            'performance'           => \App\Http\Middleware\PerformanceMonitoring::class,
+            'cache.response'        => \App\Http\Middleware\CacheResponse::class,
+            'throttle.clips'        => \App\Http\Middleware\ThrottleClipSubmissions::class,
         ]);
 
         // Append to the 'web' group so the locale is applied to all regular HTTP routes

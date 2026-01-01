@@ -11,6 +11,8 @@ use App\Http\Requests\Clip\UpdateClipRequest;
 use App\Models\Clip;
 use App\Models\User;
 use App\Services\Cache\QueryCacheService;
+use App\Services\ClipService;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,32 +33,30 @@ class ClipController extends Controller
 {
     public function __construct(
         private SubmitClipAction $submitClipAction,
-        private QueryCacheService $queryCache
+        private QueryCacheService $queryCache,
+        private ClipService $clipService
     ) {}
 
     /**
      * Get a paginated list of approved clips.
      *
      * Supports filtering by featured status, user, and search terms.
-     *
-     * @param  Request  $request  The HTTP request
-     * @return JsonResponse Paginated clips data
      */
     public function index(Request $request): JsonResponse
     {
         try {
-            $query = Clip::with(['submitter:id,twitch_display_name,twitch_login'])
+            $query = Clip::withRelations()
                 ->approved()
                 ->orderBy('created_at', 'desc');
 
             // Filter by featured status
             if ($request->boolean('featured')) {
-                $query->featured();
+                $query->where('is_featured', true);
             }
 
             // Filter by specific user
             if ($request->has('user_id')) {
-                $query->where('submitter_id', $request->integer('user_id'));
+                $query->where('user_id', $request->integer('user_id'));
             }
 
             // Search by title or description
@@ -88,28 +88,29 @@ class ClipController extends Controller
 
     /**
      * Submit a new clip from Twitch.
-     *
-     * @param  SubmitClipRequest  $request  The validated request containing twitch_clip_id
-     * @return JsonResponse Success response with job dispatch confirmation
      */
     public function store(SubmitClipRequest $request): JsonResponse
     {
         try {
             // Use synchronous execution in testing environment for immediate feedback
             if (config('app.use_sync_clip_submission', false)) {
-                $clip = $this->submitClipAction->executeSync(
+                $clip = $this->clipService->submitClip(
                     Auth::user(),
                     $request->string('twitch_clip_id')
                 );
 
                 return response()->json([
                     'message' => 'Clip submitted successfully and is pending moderation.',
-                    'clip'    => $clip->load('submitter:id,twitch_display_name,twitch_login'),
+                    'clip'    => $clip->load([
+                        'submitter:id,twitch_display_name,twitch_login',
+                        'broadcaster:id,twitch_display_name,twitch_login',
+                        'game:id,name',
+                    ]),
                 ], 201);
             }
 
             // Use asynchronous job dispatching in production
-            $this->submitClipAction->execute(
+            $this->clipService->submitClip(
                 Auth::user(),
                 $request->string('twitch_clip_id')
             );
@@ -149,12 +150,6 @@ class ClipController extends Controller
 
     /**
      * Get a specific clip by ID.
-     *
-     * Regular users can only see approved clips or their own submissions.
-     * Moderators can see all clips.
-     *
-     * @param  Clip  $clip  The clip to display
-     * @return JsonResponse The clip data
      */
     public function show(Clip $clip): JsonResponse
     {
@@ -166,17 +161,33 @@ class ClipController extends Controller
         return response()->json(
             $clip->load([
                 'submitter:id,twitch_display_name,twitch_login',
+                'broadcaster:id,twitch_display_name,twitch_login',
+                'game:id,name',
                 'moderator:id,twitch_display_name',
             ])
         );
     }
 
     /**
+     * Display the clip view page.
+     */
+    public function view(Clip $clip): View
+    {
+        $clip->load(['broadcaster', 'submitter', 'game']);
+
+        $relatedClips = Clip::query()
+            ->where('id', '!=', $clip->id)
+            ->where(fn ($q) => $q->where('game_id', $clip->game_id)->orWhere('broadcaster_id', $clip->broadcaster_id))
+            ->approved()
+            ->with(['broadcaster', 'game'])
+            ->limit(6)
+            ->get();
+
+        return view('clips.view', compact('clip', 'relatedClips'));
+    }
+
+    /**
      * Moderate a clip (approve, reject, flag, or toggle featured status).
-     *
-     * @param  UpdateClipRequest  $request  The validated request
-     * @param  Clip  $clip  The clip to moderate
-     * @return JsonResponse Updated clip data
      */
     public function update(UpdateClipRequest $request, Clip $clip): JsonResponse
     {
@@ -201,7 +212,7 @@ class ClipController extends Controller
                     break;
 
                 case 'toggle_featured':
-                    $clip->toggleFeatured();
+                    $this->clipService->toggleFeatured($clip);
                     $message = $clip->is_featured ? 'Clip marked as featured.' : 'Clip removed from featured.';
                     break;
             }
@@ -210,6 +221,8 @@ class ClipController extends Controller
                 'message' => $message,
                 'clip'    => $clip->load([
                     'submitter:id,twitch_display_name,twitch_login',
+                    'broadcaster:id,twitch_display_name,twitch_login',
+                    'game:id,name',
                     'moderator:id,twitch_display_name',
                 ]),
             ]);
@@ -223,16 +236,13 @@ class ClipController extends Controller
 
     /**
      * Delete a clip.
-     *
-     * @param  Clip  $clip  The clip to delete
-     * @return JsonResponse Success message
      */
     public function destroy(Clip $clip): JsonResponse
     {
         Gate::authorize('delete', $clip);
 
         try {
-            $clip->delete();
+            $this->clipService->deleteClip($clip);
 
             return response()->json([
                 'message' => 'Clip deleted successfully.',
@@ -247,16 +257,10 @@ class ClipController extends Controller
 
     /**
      * Get pending clips for moderation.
-     *
-     * Only accessible to users with moderation permissions.
-     *
-     * @param  Request  $request  The HTTP request
-     * @return JsonResponse Paginated pending clips
      */
     public function pending(Request $request): JsonResponse
     {
         // Check if user has any moderation permissions
-        // In a more complex system, you might filter clips by broadcasters they can moderate
         $hasModerationPermission = Auth::user()->broadcasterSettings ||
             Auth::user()->clipPermissionsReceived()->where('can_moderate_clips', true)->exists();
 
@@ -265,7 +269,11 @@ class ClipController extends Controller
         }
 
         try {
-            $clips = Clip::with(['submitter:id,twitch_display_name,twitch_login'])
+            $clips = Clip::with([
+                'submitter:id,twitch_display_name,twitch_login',
+                'broadcaster:id,twitch_display_name,twitch_login',
+                'game:id,name',
+            ])
                 ->pending()
                 ->orderBy('created_at', 'desc')
                 ->paginate(20);
@@ -281,25 +289,22 @@ class ClipController extends Controller
 
     /**
      * Get clips submitted by a specific user.
-     *
-     * Users can see their own clips, moderators can see all clips.
-     *
-     * @param  Request  $request  The HTTP request
-     * @param  User  $user  The user whose clips to retrieve
-     * @return JsonResponse Paginated user clips
      */
     public function userClips(Request $request, User $user): JsonResponse
     {
         try {
             // Users can only see their own clips, or approved clips of others
             if (Auth::id() !== $user->id) {
-                // Check if current user can view this user's clips
                 $query = $user->clips()->approved();
             } else {
                 $query = $user->clips();
             }
 
-            $clips = $query->with('submitter:id,twitch_display_name,twitch_login')
+            $clips = $query->with([
+                'submitter:id,twitch_display_name,twitch_login',
+                'broadcaster:id,twitch_display_name,twitch_login',
+                'game:id,name',
+            ])
                 ->orderBy('created_at', 'desc')
                 ->paginate(20);
 
@@ -307,6 +312,110 @@ class ClipController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve user clips.',
+                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Get featured clips
+     */
+    public function featured(Request $request): JsonResponse
+    {
+        try {
+            $clips = $this->clipService->getFeaturedClips(
+                $request->integer('limit', 10)
+            );
+
+            return response()->json([
+                'data' => $clips->load([
+                    'submitter:id,twitch_display_name,twitch_login',
+                    'broadcaster:id,twitch_display_name,twitch_login',
+                    'game:id,name',
+                ]),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error'   => 'Failed to retrieve featured clips.',
+                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Get recent clips
+     */
+    public function recent(Request $request): JsonResponse
+    {
+        try {
+            $clips = $this->clipService->getRecentClips(
+                $request->integer('limit', 20)
+            );
+
+            return response()->json([
+                'data' => $clips->load([
+                    'submitter:id,twitch_display_name,twitch_login',
+                    'broadcaster:id,twitch_display_name,twitch_login',
+                    'game:id,name',
+                ]),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error'   => 'Failed to retrieve recent clips.',
+                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Search clips
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $request->validate([
+            'q' => 'required|string|min:2|max:100',
+        ]);
+
+        try {
+            $clips = $this->clipService->searchClips(
+                $request->string('q'),
+                $request->integer('per_page', 15)
+            );
+
+            return response()->json([
+                'data' => $clips->load([
+                    'submitter:id,twitch_display_name,twitch_login',
+                    'broadcaster:id,twitch_display_name,twitch_login',
+                    'game:id,name',
+                ]),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error'   => 'Failed to search clips.',
+                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Get user clip statistics
+     */
+    public function stats(Request $request, User $user): JsonResponse
+    {
+        // Users can only see their own stats
+        if (Auth::id() !== $user->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        try {
+            $stats = $this->clipService->getUserStats($user);
+
+            return response()->json([
+                'data' => $stats,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error'   => 'Failed to retrieve user statistics.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
             ], 500);
         }

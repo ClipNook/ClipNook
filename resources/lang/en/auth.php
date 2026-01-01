@@ -25,5 +25,10 @@ return [
     'required_permission_description' => ':app_name requires access to your email address for account verification, password resets, and important notifications.',
     'login_button'                    => 'Login with Twitch',
     'privacy_notice'                  => 'By logging in, you agree to our :terms and :privacy.',
+    'error_occurred'                  => 'An error occurred',
+    'feature_secure'                  => 'Secure OAuth authentication',
+    'feature_authentication'          => 'Seamless Twitch integration',
+    'feature_privacy'                 => 'Your privacy is protected',
+    'no_account_needed'               => 'No separate account needed - just use your Twitch login!',
 
 ];

@@ -33,6 +33,9 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['broadcaster_id', 'user_id']);
+
+            // Critical performance index for permission checks
+            $table->index(['broadcaster_id', 'user_id', 'can_moderate_clips'], 'idx_permissions_moderate_check');
         });
     }
 

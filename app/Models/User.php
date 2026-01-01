@@ -173,7 +173,12 @@ class User extends Authenticatable
             return Storage::url($this->custom_avatar_path);
         }
 
-        return $this->twitch_avatar;
+        if ($this->twitch_avatar) {
+            return $this->twitch_avatar;
+        }
+
+        // Return default avatar if no other avatar is available
+        return asset('images/avatar-default.svg');
     }
 
     /**
@@ -436,6 +441,30 @@ class User extends Authenticatable
     public function moderatedClips(): HasMany
     {
         return $this->hasMany(Clip::class, 'moderated_by');
+    }
+
+    /**
+     * Get the user's clip votes.
+     */
+    public function clipVotes(): HasMany
+    {
+        return $this->hasMany(ClipVote::class);
+    }
+
+    /**
+     * Get the user's clip comments.
+     */
+    public function clipComments(): HasMany
+    {
+        return $this->hasMany(ClipComment::class);
+    }
+
+    /**
+     * Get the user's clip reports.
+     */
+    public function clipReports(): HasMany
+    {
+        return $this->hasMany(ClipReport::class);
     }
 
     /**
@@ -718,5 +747,37 @@ class User extends Authenticatable
         $this->clipPermissionsGiven()
             ->where('user_id', $user->id)
             ->update(['can_moderate_clips' => false]);
+    }
+
+    /**
+     * Rotate API tokens for enhanced security.
+     * Revokes old tokens and creates a new one with the same abilities.
+     */
+    public function rotateApiTokens(): string
+    {
+        // Revoke all existing tokens
+        $this->tokens()->delete();
+
+        // Create a new token with a secure name
+        $tokenName = 'api-token-'.now()->format('Y-m-d-H-i-s').'-'.substr(md5(uniqid()), 0, 8);
+
+        return $this->createToken($tokenName)->plainTextToken;
+    }
+
+    /**
+     * Clean up expired tokens periodically.
+     */
+    public static function cleanupExpiredTokens(): int
+    {
+        return static::query()
+            ->whereHas('tokens', function ($query) {
+                $query->where('expires_at', '<', now());
+            })
+            ->with('tokens')
+            ->get()
+            ->each(function ($user) {
+                $user->tokens()->where('expires_at', '<', now())->delete();
+            })
+            ->count();
     }
 }

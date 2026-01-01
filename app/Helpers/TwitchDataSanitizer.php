@@ -16,8 +16,8 @@ class TwitchDataSanitizer
         // Remove HTML tags
         $text = strip_tags($text);
 
-        // Escape special characters
-        $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+        // Decode HTML entities to prevent double encoding
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
 
         // Limit length to prevent abuse
         return \Illuminate\Support\Str::limit($text, config('twitch.security.max_text_length', 1000));
@@ -28,6 +28,11 @@ class TwitchDataSanitizer
      */
     public static function sanitizeUrl(string $url): string
     {
+        // Allow empty URLs (e.g., when user has no profile image)
+        if (empty($url)) {
+            return '';
+        }
+
         // Validate URL format
         if (! filter_var($url, FILTER_VALIDATE_URL)) {
             throw DataSanitizationException::invalidUrl($url);
