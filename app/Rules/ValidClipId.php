@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Rules;
 
 use Closure;
@@ -38,7 +40,7 @@ class ValidClipId implements ValidationRule
             return;
         }
 
-        if (strlen($clipId) < 5 || strlen($clipId) > 100) {
+        if (strlen($clipId) < config('constants.limits.clip_id_min_length') || strlen($clipId) > config('constants.limits.clip_id_max_length')) {
             $fail(__('clips.validation_clip_id_min'));
 
             return;
@@ -53,7 +55,7 @@ class ValidClipId implements ValidationRule
         // If it's a URL, extract the clip ID
         if (str_contains($value, 'twitch.tv') || str_contains($value, 'clips.twitch.tv')) {
             // Pattern: https://clips.twitch.tv/ClipID or https://twitch.tv/.../clip/ClipID
-            if (preg_match('/clips\.twitch\.tv\/([a-zA-Z0-9_-]+)/', $value, $matches)) {
+            if (preg_match(config('constants.patterns.twitch_clips_url_regex'), $value, $matches)) {
                 return $matches[1];
             }
 
@@ -73,6 +75,6 @@ class ValidClipId implements ValidationRule
      */
     protected function isValidClipIdFormat(string $clipId): bool
     {
-        return (bool) preg_match('/^[a-zA-Z0-9_-]+$/', $clipId);
+        return (bool) preg_match(config('constants.patterns.twitch_clip_id_format'), $clipId);
     }
 }

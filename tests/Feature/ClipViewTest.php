@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Clip;
 use App\Models\User;
 
 test('clip view route uses uuid for model binding', function () {
-    $user = User::factory()->create();
+    $user        = User::factory()->create();
     $broadcaster = User::factory()->create();
 
     $clip = Clip::factory()->create([
-        'submitter_id' => $user->id,
+        'submitter_id'   => $user->id,
         'broadcaster_id' => $broadcaster->id,
-        'status' => 'approved',
+        'status'         => 'approved',
     ]);
 
     // Test that the route generates with UUID
@@ -22,8 +24,7 @@ test('clip view route uses uuid for model binding', function () {
 });
 
 test('clip model has uuid route key', function () {
-    $clip = new Clip();
+    $clip = new Clip;
 
     expect($clip->getRouteKeyName())->toBe('uuid');
 });
-

@@ -67,6 +67,7 @@ return [
     'broadcaster_not_registered' => 'The broadcaster of this clip is not registered with our service.',
     'permission_denied'          => 'You do not have permission to submit clips for this broadcaster.',
     'unauthorized'               => 'You must be logged in to submit clips.',
+    'please_check_clip_first'    => 'Please check the clip first before submitting.',
     'unexpected_error'           => 'An unexpected error occurred. Please try again later.',
 
     // Step Labels

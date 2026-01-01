@@ -127,10 +127,10 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
         // Use cache lock to prevent race conditions during token refresh
         $userId  = $this->userId ?? auth()->id();
         $lockKey = "twitch_token_refresh_{$userId}";
-        $lock    = Cache::lock($lockKey, 30); // 30 second lock
+        $lock    = Cache::lock($lockKey, config('constants.lock.twitch_api_timeout_seconds')); // 30 second lock
 
         try {
-            $lock->block(10); // Wait up to 10 seconds to acquire lock
+            $lock->block(config('constants.lock.twitch_api_block_seconds')); // Wait up to 10 seconds to acquire lock
 
             // Double-check token expiry after acquiring lock
             if ($this->tokenExpiresAt && time() < $this->tokenExpiresAt) {
@@ -452,7 +452,7 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
                 throw new \InvalidArgumentException('Invalid or untrusted image URL');
             }
 
-            $image = Http::timeout(10)->retry(3, 100)->get($url)->body();
+            $image = Http::timeout(config('constants.http.timeout_seconds'))->retry(config('constants.http.retry_count'), config('constants.http.retry_delay_ms'))->get($url)->body();
 
             // Check file size (max 5MB)
             if (strlen($image) > 5242880) {
@@ -475,7 +475,7 @@ class TwitchService implements DownloadInterface, TwitchApiInterface
                 throw new \InvalidArgumentException('Invalid or untrusted image URL');
             }
 
-            $image = Http::timeout(10)->retry(3, 100)->get($url)->body();
+            $image = Http::timeout(config('constants.http.timeout_seconds'))->retry(config('constants.http.retry_count'), config('constants.http.retry_delay_ms'))->get($url)->body();
 
             // Check file size (max 5MB)
             if (strlen($image) > 5242880) {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Actions\Clip\SubmitClipAction;
@@ -14,15 +16,6 @@ class ClipService
     public function __construct(private SubmitClipAction $submitClipAction) {}
 
     /**
-     * Escape special characters in search terms for LIKE queries
-     */
-    protected function escapeSearchTerm(string $term): string
-    {
-        // Escape % and _ characters that have special meaning in LIKE
-        return str_replace(['%', '_'], ['\%', '\_'], $term);
-    }
-
-    /**
      * Submit a clip for a user
      */
     public function submitClip(User $user, string $clipId): Clip
@@ -33,8 +26,10 @@ class ClipService
     /**
      * Get clips for a user with pagination
      */
-    public function getUserClips(User $user, int $perPage = 15): LengthAwarePaginator
+    public function getUserClips(User $user, ?int $perPage = null): LengthAwarePaginator
     {
+        $perPage ??= config('constants.pagination.default_per_page');
+
         return Clip::where('user_id', $user->id)
             ->with(['broadcaster', 'game'])
             ->orderBy('created_at', 'desc')
@@ -44,8 +39,10 @@ class ClipService
     /**
      * Get clips for a specific broadcaster
      */
-    public function getBroadcasterClips(int $broadcasterId, int $perPage = 15): LengthAwarePaginator
+    public function getBroadcasterClips(int $broadcasterId, ?int $perPage = null): LengthAwarePaginator
     {
+        $perPage ??= config('constants.pagination.default_per_page');
+
         return Clip::where('broadcaster_id', $broadcasterId)
             ->with(['user', 'game'])
             ->orderBy('created_at', 'desc')
@@ -55,9 +52,11 @@ class ClipService
     /**
      * Get featured/popular clips
      */
-    public function getFeaturedClips(int $limit = 10): Collection
+    public function getFeaturedClips(?int $limit = null): Collection
     {
-        return Cache::remember('featured_clips', now()->addMinutes(30), fn () => Clip::with(['user', 'broadcaster', 'game'])
+        $limit ??= config('constants.limits.featured_clips');
+
+        return Cache::remember('featured_clips', now()->addMinutes(config('constants.cache.featured_clips_minutes')), fn () => Clip::with(['user', 'broadcaster', 'game'])
             ->where('is_featured', true)
             ->orderBy('view_count', 'desc')
             ->limit($limit)
@@ -68,9 +67,11 @@ class ClipService
     /**
      * Get recent clips
      */
-    public function getRecentClips(int $limit = 20): Collection
+    public function getRecentClips(?int $limit = null): Collection
     {
-        return Cache::remember('recent_clips', now()->addMinutes(15), fn () => Clip::with(['user', 'broadcaster', 'game'])
+        $limit ??= config('constants.limits.recent_clips');
+
+        return Cache::remember('recent_clips', now()->addMinutes(config('constants.cache.recent_clips_minutes')), fn () => Clip::with(['user', 'broadcaster', 'game'])
             ->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get()
@@ -80,8 +81,9 @@ class ClipService
     /**
      * Search clips by title or tags with improved security
      */
-    public function searchClips(string $query, int $perPage = 15): LengthAwarePaginator
+    public function searchClips(string $query, ?int $perPage = null): LengthAwarePaginator
     {
+        $perPage ??= config('constants.pagination.default_per_page');
         // Sanitize and prepare search query
         $searchTerm = trim($query);
         $searchTerm = preg_replace('/[^\w\s\-]/', '', $searchTerm); // Remove special characters
@@ -90,12 +92,10 @@ class ClipService
             return Clip::whereRaw('1 = 0')->paginate($perPage); // Return empty result
         }
 
-        return Clip::where(function ($q) use ($searchTerm) {
-            // Escape special characters to prevent LIKE injection
-            $escapedTerm = $this->escapeSearchTerm($searchTerm);
-            $q->where('title', 'LIKE', '%'.$escapedTerm.'%')
-                ->orWhereJsonContains('tags', $searchTerm);
-        })
+        return Clip::search($searchTerm)
+            ->orWhere(function ($q) use ($searchTerm) {
+                $q->whereJsonContains('tags', $searchTerm);
+            })
             ->withRelations() // Use the optimized scope
             ->approved()
             ->orderBy('created_at', 'desc')
@@ -107,14 +107,21 @@ class ClipService
      */
     public function getUserStats(User $user): array
     {
-        return Cache::remember("user_clip_stats_{$user->id}", now()->addHours(1), function () use ($user) {
-            $clips = Clip::where('user_id', $user->id);
+        return Cache::remember("user_clip_stats_{$user->id}", now()->addHours(config('constants.cache.user_stats_hours')), function () use ($user) {
+            $stats = Clip::where('user_id', $user->id)
+                ->selectRaw('
+                    COUNT(*) as total_clips,
+                    COALESCE(SUM(view_count), 0) as total_views,
+                    COUNT(CASE WHEN is_featured = 1 THEN 1 END) as featured_clips,
+                    COUNT(CASE WHEN created_at >= ? THEN 1 END) as recent_submissions
+                ', [now()->subDays(7)])
+                ->first();
 
             return [
-                'total_clips'        => $clips->count(),
-                'total_views'        => (int) $clips->sum('view_count'),
-                'featured_clips'     => $clips->where('is_featured', true)->count(),
-                'recent_submissions' => $clips->where('created_at', '>=', now()->subDays(7))->count(),
+                'total_clips'        => (int) $stats->total_clips,
+                'total_views'        => (int) $stats->total_views,
+                'featured_clips'     => (int) $stats->featured_clips,
+                'recent_submissions' => (int) $stats->recent_submissions,
             ];
         });
     }
@@ -128,14 +135,16 @@ class ClipService
             ->whereDate('created_at', today())
             ->count();
 
-        return $submittedToday < config('clip.daily_limit', 10);
+        return $submittedToday < config('constants.limits.daily_clip_submissions');
     }
 
     /**
      * Get clips by game/category
      */
-    public function getClipsByGame(int $gameId, int $perPage = 15): LengthAwarePaginator
+    public function getClipsByGame(int $gameId, ?int $perPage = null): LengthAwarePaginator
     {
+        $perPage ??= config('constants.pagination.default_per_page');
+
         return Clip::where('game_id', $gameId)
             ->with(['user', 'broadcaster'])
             ->orderBy('created_at', 'desc')

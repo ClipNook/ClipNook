@@ -14,9 +14,11 @@ use Livewire\Component;
 
 class SubmitClip extends Component
 {
+    private const TWITCH_CLIP_URL_REGEX = '/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]{1,100})$/';
+
     protected ?TwitchService $twitchService = null;
 
-    #[Validate('required|string|regex:/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]{1,100})$/')]
+    #[Validate('required|string|regex:'.self::TWITCH_CLIP_URL_REGEX)]
     public string $twitchClipId = '';
 
     public bool $isSubmitting = false;
@@ -53,9 +55,9 @@ class SubmitClip extends Component
             $service  = $this->twitchService ??= app(TwitchService::class);
             $clipData = $service->getClip($clipId);
 
-            if (! $clipData) {
+            if (! $clipData || ! $clipData->id) {
                 $this->errorMessage = __('clips.clip_not_found');
-                $this->clipInfo = null;
+                $this->clipInfo     = null;
 
                 return;
             }
@@ -91,7 +93,7 @@ class SubmitClip extends Component
 
     public function resetClip()
     {
-        $this->clipInfo     = [];
+        $this->clipInfo     = null;
         $this->showPlayer   = false;
         $this->twitchClipId = '';
         $this->resetMessages();
@@ -99,32 +101,36 @@ class SubmitClip extends Component
 
     public function submit()
     {
-        if (! $this->clipInfo) {
-            $this->errorMessage = __('clips.unexpected_error');
+        if (empty($this->clipInfo) || ! isset($this->clipInfo['id'])) {
+            $this->errorMessage = __('clips.please_check_clip_first');
 
             return;
         }
 
         // Rate limiting
-        $rateLimit = config('clip.rate_limiting.submit_clip');
-        $key       = 'submit-clip:'.auth()->id();
-        if (RateLimiter::tooManyAttempts($key, $rateLimit['max_attempts'])) {
+        $key = 'submit-clip:'.auth()->id();
+        if (RateLimiter::tooManyAttempts($key, config('constants.rate_limiting.submit_clip_max_attempts'))) {
             $seconds            = RateLimiter::availableIn($key);
             $this->errorMessage = __('clips.rate_limit_exceeded', ['seconds' => $seconds]);
 
             return;
         }
 
-        $this->resetMessages();
         $this->isSubmitting = true;
 
         try {
-            $clipId = $this->clipInfo['id'];
+            $clipId = data_get($this->clipInfo, 'id');
+
+            if (! $clipId) {
+                throw ValidationException::withMessages(['twitch_clip_id' => [__('clips.please_check_clip_first')]]);
+            }
+
             app(SubmitClipAction::class)->executeSync(auth()->user(), $clipId);
 
-            RateLimiter::hit($key);
+            RateLimiter::hit($key, config('constants.rate_limiting.submit_clip_decay_minutes') * 60);
 
             $this->resetClip();
+            $this->resetMessages();
             $this->successMessage = __('clips.submission_success');
             $this->dispatch('clip-submitted');
 
@@ -164,7 +170,7 @@ class SubmitClip extends Component
 
     private function extractClipId(string $input): string
     {
-        if (preg_match('/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]+)$/', $input, $matches)) {
+        if (preg_match(self::TWITCH_CLIP_URL_REGEX, $input, $matches)) {
             return $matches[1];
         }
 

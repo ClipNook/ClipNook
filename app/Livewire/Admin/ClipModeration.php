@@ -28,15 +28,6 @@ class ClipModeration extends Component
 
     public bool $showRejectModal = false;
 
-    /**
-     * Escape special characters in search terms for LIKE queries
-     */
-    protected function escapeSearchTerm(string $term): string
-    {
-        // Escape % and _ characters that have special meaning in LIKE
-        return str_replace(['%', '_'], ['\%', '\_'], $term);
-    }
-
     protected $queryString = [
         'statusFilter' => ['except' => 'pending'],
         'searchQuery'  => ['except' => ''],
@@ -51,7 +42,7 @@ class ClipModeration extends Component
         }
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $clips = Clip::query()
             ->with(['submitter', 'broadcaster', 'game', 'moderator'])
@@ -59,27 +50,34 @@ class ClipModeration extends Component
                 $query->where('status', $this->statusFilter);
             })
             ->when($this->searchQuery, function ($query) {
-                $escapedQuery = $this->escapeSearchTerm($this->searchQuery);
-                $query->where(function ($q) use ($escapedQuery) {
-                    $q->where('title', 'like', '%'.$escapedQuery.'%')
-                        ->orWhere('twitch_clip_id', 'like', '%'.$escapedQuery.'%')
-                        ->orWhereHas('broadcaster', function ($q) use ($escapedQuery) {
-                            $q->where('twitch_display_name', 'like', '%'.$escapedQuery.'%');
+                $query->where(function ($q) {
+                    $q->where('title', 'like', '%' . $this->searchQuery . '%')
+                        ->orWhere('twitch_clip_id', 'like', '%' . $this->searchQuery . '%')
+                        ->orWhereHas('broadcaster', function ($q) {
+                            $q->where('twitch_display_name', 'like', '%' . $this->searchQuery . '%');
                         })
-                        ->orWhereHas('submitter', function ($q) use ($escapedQuery) {
-                            $q->where('twitch_display_name', 'like', '%'.$escapedQuery.'%');
+                        ->orWhereHas('submitter', function ($q) {
+                            $q->where('twitch_display_name', 'like', '%' . $this->searchQuery . '%');
                         });
                 });
             })
             ->orderBy('submitted_at', 'desc')
-            ->paginate(20);
+            ->paginate(config('constants.pagination.moderation_per_page'));
 
-        $stats = [
-            'pending'  => Clip::where('status', ClipStatus::PENDING)->count(),
-            'approved' => Clip::where('status', ClipStatus::APPROVED)->count(),
-            'rejected' => Clip::where('status', ClipStatus::REJECTED)->count(),
-            'flagged'  => Clip::where('status', ClipStatus::FLAGGED)->count(),
-        ];
+        // Single query stats using aggregation
+        $stats = Clip::selectRaw('
+            COUNT(CASE WHEN status = ? THEN 1 END) as pending,
+            COUNT(CASE WHEN status = ? THEN 1 END) as approved,
+            COUNT(CASE WHEN status = ? THEN 1 END) as rejected,
+            COUNT(CASE WHEN status = ? THEN 1 END) as flagged
+            ', [
+            ClipStatus::PENDING->value,
+            ClipStatus::APPROVED->value,
+            ClipStatus::REJECTED->value,
+            ClipStatus::FLAGGED->value,
+        ])
+            ->first()
+            ->toArray();
 
         return view('livewire.admin.clip-moderation', [
             'clips' => $clips,
@@ -115,7 +113,7 @@ class ClipModeration extends Component
     public function rejectClip(): void
     {
         $this->validate([
-            'rejectReason' => 'required|string|min:10|max:500',
+            'rejectReason' => 'required|string|min:' . config('constants.limits.reject_reason_min_length') . '|max:' . config('constants.limits.reject_reason_max_length'),
         ]);
 
         $clip = Clip::findOrFail($this->selectedClipId);

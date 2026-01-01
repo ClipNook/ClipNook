@@ -148,6 +148,15 @@ class Clip extends Model
         return $query->where('is_featured', true);
     }
 
+    public function scopeSearch($query, string $searchTerm)
+    {
+        return $query->where(function ($q) use ($searchTerm) {
+            $q->where('title', 'like', "%{$searchTerm}%")
+                ->orWhere('description', 'like', "%{$searchTerm}%")
+                ->orWhere('twitch_clip_id', 'like', "%{$searchTerm}%");
+        });
+    }
+
     // Helper methods
     public function isPending(): bool
     {
@@ -347,7 +356,7 @@ class Clip extends Model
 
     public function isPopular(): bool
     {
-        return $this->score > 10 && $this->view_count > 100;
+        return $this->score > config('constants.limits.clip_score_threshold') && $this->view_count > config('constants.limits.clip_view_threshold');
     }
 
     public function isTrending(): bool

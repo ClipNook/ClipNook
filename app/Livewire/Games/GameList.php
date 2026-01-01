@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Games;
 
 use App\Models\Game;
@@ -19,26 +21,16 @@ class GameList extends Component
         'sortBy' => ['except' => 'clips'],
     ];
 
-    /**
-     * Escape special characters in search terms for LIKE queries
-     */
-    protected function escapeSearchTerm(string $term): string
-    {
-        // Escape % and _ characters that have special meaning in LIKE
-        return str_replace(['%', '_'], ['\%', '\_'], $term);
-    }
-
     public function updatingSearch(): void
     {
         $this->resetPage();
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $games = Game::query()
             ->when($this->search, function ($query) {
-                $escapedSearch = $this->escapeSearchTerm($this->search);
-                $query->where('name', 'like', '%'.$escapedSearch.'%');
+                $query->where('name', 'like', '%'.$this->search.'%');
             })
             ->withCount(['clips' => function ($query) {
                 $query->where('status', 'approved');

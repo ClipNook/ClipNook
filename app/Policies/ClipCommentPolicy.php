@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\ClipComment;
@@ -52,7 +54,7 @@ class ClipCommentPolicy
         }
 
         // Allow editing within 15 minutes of posting
-        return $clipComment->created_at->diffInMinutes(now()) <= 15;
+        return $clipComment->created_at->diffInMinutes(now()) <= config('constants.time.comment_edit_minutes');
     }
 
     /**

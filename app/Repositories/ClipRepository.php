@@ -21,15 +21,6 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * Escape special characters in search terms for LIKE queries
-     */
-    protected function escapeSearchTerm(string $term): string
-    {
-        // Escape % and _ characters that have special meaning in LIKE
-        return str_replace(['%', '_'], ['\%', '\_'], $term);
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function findByTwitchId(string $twitchClipId): ?Clip
@@ -144,8 +135,10 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getPopular(int $limit = 10): Collection
+    public function getPopular(?int $limit = null): Collection
     {
+        $limit ??= config('constants.limits.popular_clips');
+
         return $this->model->approved()
             ->orderBy('view_count', 'desc')
             ->limit($limit)
@@ -155,8 +148,10 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getRecent(int $limit = 10): Collection
+    public function getRecent(?int $limit = null): Collection
     {
+        $limit ??= config('constants.limits.recent_clips');
+
         return $this->model->approved()
             ->orderBy('created_at', 'desc')
             ->limit($limit)
@@ -168,13 +163,8 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
      */
     public function search(string $query): Collection
     {
-        $escapedQuery = $this->escapeSearchTerm($query);
-
         return $this->model->approved()
-            ->where(function ($q) use ($escapedQuery) {
-                $q->where('title', 'like', "%{$escapedQuery}%")
-                    ->orWhere('description', 'like', "%{$escapedQuery}%");
-            })
+            ->search($query)
             ->get();
     }
 
@@ -183,12 +173,25 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
      */
     public function getStats(): array
     {
+        $stats = $this->model->selectRaw('
+                COUNT(*) as total,
+                COUNT(CASE WHEN status = ? THEN 1 END) as pending,
+                COUNT(CASE WHEN status = ? THEN 1 END) as approved,
+                COUNT(CASE WHEN status = ? THEN 1 END) as rejected,
+                COUNT(CASE WHEN featured = 1 THEN 1 END) as featured
+            ', [
+            ClipStatus::PENDING->value,
+            ClipStatus::APPROVED->value,
+            ClipStatus::REJECTED->value,
+        ])
+            ->first();
+
         return [
-            'total'    => $this->model->count(),
-            'pending'  => $this->model->pending()->count(),
-            'approved' => $this->model->approved()->count(),
-            'rejected' => $this->model->rejected()->count(),
-            'featured' => $this->model->featured()->count(),
+            'total'    => (int) $stats->total,
+            'pending'  => (int) $stats->pending,
+            'approved' => (int) $stats->approved,
+            'rejected' => (int) $stats->rejected,
+            'featured' => (int) $stats->featured,
         ];
     }
 }
