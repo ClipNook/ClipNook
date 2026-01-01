@@ -8,7 +8,6 @@ use App\Actions\Twitch\AuthenticateTwitchUserAction;
 use App\Actions\Twitch\ExchangeCodeForTokenAction;
 use App\Actions\Twitch\RedirectToTwitchAction;
 use App\Http\Requests\TwitchLoginRequest;
-use App\Services\Twitch\TwitchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,7 +27,7 @@ class TwitchOAuthController extends Controller
         return $action->execute($validated['scopes']);
     }
 
-    public function handleCallback(Request $request, TwitchService $twitchService, ExchangeCodeForTokenAction $action, AuthenticateTwitchUserAction $authAction)
+    public function handleCallback(Request $request, ExchangeCodeForTokenAction $action, AuthenticateTwitchUserAction $authAction)
     {
         $validated = $request->validate([
             'code'  => 'required|string',
@@ -43,9 +42,7 @@ class TwitchOAuthController extends Controller
             return redirect('/')->with('error', __('twitch.oauth_failed_exchange_token'));
         }
 
-        $twitchService->setTokens($token);
-
-        $user = $authAction->execute($token, $twitchService);
+        $user = $authAction->execute($token);
 
         if (! $user) {
             return redirect('/')->with('error', __('twitch.oauth_failed_get_user'));

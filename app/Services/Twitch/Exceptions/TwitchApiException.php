@@ -114,15 +114,10 @@ class TwitchApiException extends TwitchException
     }
 
     /**
-     * Create exception for authorization code exchange failure.
+     * Create exception for general API errors.
      */
-    public static function codeExchangeFailed(string $reason = ''): self
+    public static function apiError(string $message, int $statusCode = 0): self
     {
-        $message = 'Failed to exchange authorization code for token';
-        if ($reason) {
-            $message .= ": {$reason}";
-        }
-
-        return new self($message);
+        return new self($message, $statusCode);
     }
 }

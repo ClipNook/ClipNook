@@ -4,25 +4,22 @@ declare(strict_types=1);
 
 namespace App\Livewire\Clips;
 
+use App\Livewire\Concerns\WithPagination;
+use App\Livewire\Concerns\WithSearch;
+use App\Livewire\Concerns\WithSorting;
 use App\Models\Clip;
 use Livewire\Component;
-use Livewire\WithPagination;
+use Livewire\WithPagination as LivewirePagination;
 
 class ClipList extends Component
 {
-    use WithPagination;
+    use LivewirePagination, WithPagination, WithSearch, WithSorting;
 
-    public $perPage = 12;
+    protected array $sortableColumns = ['created_at', 'upvotes', 'view_count', 'duration'];
 
-    public $search = '';
-
-    protected $queryString = [
-        'search' => ['except' => ''],
-    ];
-
-    public function updatingSearch()
+    public function mount(): void
     {
-        $this->resetPage();
+        $this->perPage = auth()->user()?->appearance_settings['clips_per_page'] ?? 12;
     }
 
     public function render(): \Illuminate\View\View
@@ -30,7 +27,7 @@ class ClipList extends Component
         $clips = Clip::with(['submitter', 'broadcaster', 'game'])
             ->approved()
             ->when($this->search, fn ($query) => $query->search($this->search))
-            ->orderBy('created_at', 'desc')
+            ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate($this->perPage);
 
         return view('livewire.clips.clip-list', [

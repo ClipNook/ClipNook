@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Models\Clip;
-use App\Services\Twitch\TwitchService;
+use App\Services\Twitch\Api\ClipApiService;
+use App\Services\Twitch\Auth\TwitchTokenManager;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -22,11 +23,11 @@ class UpdateClipMetadata implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(TwitchService $twitchService): void
+    public function handle(ClipApiService $clipApiService, TwitchTokenManager $tokenManager): void
     {
         try {
             // Get updated clip data from Twitch
-            $clipData = $twitchService->getClip($this->clip->twitch_clip_id);
+            $clipData = $clipApiService->getClip($this->clip->twitch_clip_id);
 
             if (! $clipData) {
                 Log::warning('Clip not found on Twitch during metadata update', [
@@ -39,11 +40,11 @@ class UpdateClipMetadata implements ShouldQueue
 
             // Update clip metadata
             $this->clip->update([
-                'title'         => $clipData['title'],
-                'description'   => $clipData['description'] ?? $this->clip->description,
-                'thumbnail_url' => $clipData['thumbnail_url'],
-                'view_count'    => $clipData['view_count'],
-                'tags'          => $this->mergeTags($this->clip->tags, $this->extractTags($clipData)),
+                'title'         => $clipData->title,
+                'description'   => $clipData->description ?? $this->clip->description,
+                'thumbnail_url' => $clipData->thumbnailUrl,
+                'view_count'    => $clipData->viewCount,
+                'tags'          => $this->mergeTags($this->clip->tags, $clipData->tags),
             ]);
 
             Log::info('Clip metadata updated', [
@@ -64,18 +65,18 @@ class UpdateClipMetadata implements ShouldQueue
     /**
      * Extract tags from clip data.
      */
-    private function extractTags(array $clipData): array
+    private function extractTags(\App\Services\Twitch\DTOs\ClipDTO $clipData): array
     {
         $tags = [];
 
         // Extract game name if available
-        if (isset($clipData['game_name'])) {
-            $tags[] = $clipData['game_name'];
+        if ($clipData->gameName) {
+            $tags[] = $clipData->gameName;
         }
 
         // Extract broadcaster name
-        if (isset($clipData['broadcaster_name'])) {
-            $tags[] = $clipData['broadcaster_name'];
+        if ($clipData->broadcasterName) {
+            $tags[] = $clipData->broadcasterName;
         }
 
         // Extract language if available

@@ -29,21 +29,19 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Bind service contracts to their implementations.
-     *
-     * @return void
      */
     protected function bindServiceInterfaces(): void
     {
         // Twitch contracts
         $this->app->bind(
             \App\Services\Twitch\Contracts\DownloadInterface::class,
-            \App\Services\Twitch\TwitchService::class
+            \App\Services\Twitch\Media\TwitchMediaService::class
         );
 
         // Application contracts
         $this->app->bind(
-            \App\Contracts\ClipServiceInterface::class,
-            \App\Services\ClipService::class
+            \App\Contracts\Clip\ClipServiceInterface::class,
+            \App\Services\Clip\ClipService::class
         );
 
         $this->app->bind(

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Clip;
 use App\Models\User;
-use App\Services\ClipService;
+use App\Services\Clip\ClipService;
 
 beforeEach(function () {
     // Set required Twitch config for tests

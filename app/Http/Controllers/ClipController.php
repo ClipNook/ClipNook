@@ -13,7 +13,7 @@ use App\Http\Requests\Clip\UpdateClipRequest;
 use App\Models\Clip;
 use App\Models\User;
 use App\Services\Cache\QueryCacheService;
-use App\Services\ClipService;
+use App\Services\Clip\ClipService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

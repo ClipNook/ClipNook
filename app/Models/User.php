@@ -6,9 +6,6 @@ namespace App\Models;
 
 use App\Models\Concerns\HasClipPermissions;
 use App\Models\Concerns\HasTwitchIntegration;
-use App\Models\Concerns\HasUserAvatar;
-use App\Models\Concerns\HasUserRoles;
-use App\Models\Concerns\HasUserStats;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -35,7 +32,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-    use HasClipPermissions, HasTwitchIntegration, HasUserAvatar, HasUserRoles, HasUserStats;
+    use HasClipPermissions, HasTwitchIntegration;
 
     /**
      * The attributes that are mass assignable.

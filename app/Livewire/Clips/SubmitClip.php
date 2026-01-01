@@ -6,7 +6,8 @@ use App\Actions\Clip\SubmitClipAction;
 use App\Exceptions\BroadcasterNotRegisteredException;
 use App\Exceptions\ClipNotFoundException;
 use App\Exceptions\ClipPermissionException;
-use App\Services\Twitch\TwitchService;
+use App\Services\Twitch\Api\ClipApiService;
+use App\Services\Twitch\Auth\TwitchTokenManager;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Validate;
@@ -16,7 +17,9 @@ class SubmitClip extends Component
 {
     private const TWITCH_CLIP_URL_REGEX = '/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]{1,100})$/';
 
-    protected ?TwitchService $twitchService = null;
+    protected ?ClipApiService $clipApiService = null;
+
+    protected ?TwitchTokenManager $tokenManager = null;
 
     #[Validate('required|string|regex:'.self::TWITCH_CLIP_URL_REGEX)]
     public string $twitchClipId = '';
@@ -38,9 +41,10 @@ class SubmitClip extends Component
         'twitch-player-loaded' => 'handlePlayerLoaded',
     ];
 
-    public function mount(TwitchService $twitchService)
+    public function mount(ClipApiService $clipApiService, TwitchTokenManager $tokenManager)
     {
-        $this->twitchService = $twitchService;
+        $this->clipApiService = $clipApiService;
+        $this->tokenManager   = $tokenManager;
     }
 
     public function checkClip()
@@ -51,9 +55,10 @@ class SubmitClip extends Component
         try {
             $this->validate();
 
-            $clipId   = $this->extractClipId($this->twitchClipId);
-            $service  = $this->twitchService ??= app(TwitchService::class);
-            $clipData = $service->getClip($clipId);
+            $clipId      = $this->extractClipId($this->twitchClipId);
+            $service     = $this->clipApiService ??= app(ClipApiService::class);
+            $accessToken = $this->tokenManager ? $this->tokenManager->getValidAccessToken(auth()->user()) : null;
+            $clipData    = $service->getClip($clipId, $accessToken);
 
             if (! $clipData || ! $clipData->id) {
                 $this->errorMessage = __('clips.clip_not_found');

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Actions\Twitch;
 
+use App\Services\Twitch\Contracts\TwitchApiClientInterface;
 use App\Services\Twitch\DTOs\TokenDTO;
-use App\Services\Twitch\TwitchApiClient;
 
 class ExchangeCodeForTokenAction
 {
     public function __construct(
-        protected readonly TwitchApiClient $apiClient,
+        protected readonly TwitchApiClientInterface $apiClient,
     ) {}
 
     public function execute(string $code): ?TokenDTO
