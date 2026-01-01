@@ -84,6 +84,22 @@ return [
     'submit_page_subtitle'  => 'Share your favorite Twitch clips with the community',
     'library_page_title'    => 'Clip Library',
     'library_page_subtitle' => 'Discover and explore submitted clips',
+    'library_title'         => 'Clip Library',
+    'library_subtitle'      => 'Browse all submitted clips',
+
+    // Search & Filters
+    'search_placeholder' => 'Search clips...',
+    'clear_search'       => 'Clear search',
+    'sort_by'            => 'Sort by',
+    'sort_recent'        => 'Most Recent',
+    'sort_popular'       => 'Most Popular',
+    'sort_views'         => 'Most Viewed',
+    'active_filters'     => 'Active filters',
+
+    // Empty States
+    'no_clips_found'  => 'No clips found',
+    'no_clips_yet'    => 'No clips have been submitted yet',
+    'no_clips_search' => 'No clips match your search for ":search"',
 
     // Feature Cards
     'feature_secure_title'          => 'Secure',

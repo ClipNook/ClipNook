@@ -4,7 +4,7 @@
             <!-- Clip Player -->
             <div class="bg-gray-900 rounded-md border border-gray-800 overflow-hidden">
                 <div class="aspect-video bg-gray-800">
-                    <livewire:twitch-player-consent :clip-info="['url' => $clip->url]" />
+                    <livewire:twitch-player-consent :clip-info="['twitchClipId' => $clip->twitch_clip_id]" />
                 </div>
             </div>
 

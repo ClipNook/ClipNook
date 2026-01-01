@@ -29,6 +29,6 @@ Route::group(['prefix' => 'clips', 'as' => 'clips.'], function () {
 
 // Games
 Route::group(['prefix' => 'games', 'as' => 'games.'], function () {
-    Route::get('/', fn () => view('games.list'))->name('list');
-    Route::get('/{game}', fn () => view('games.view'))->name('view');
+    Route::get('/', [App\Http\Controllers\GameController::class, 'index'])->name('list');
+    Route::get('/{game}', [App\Http\Controllers\GameController::class, 'show'])->name('view');
 });
