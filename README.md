@@ -9,7 +9,7 @@
 
 A privacy-first, self-hosted platform for gamers, streamers, and editors to submit, manage, and discover gaming clips—putting content control back in creators' hands.
 
-> **Project Status:** Hobby project in early development. Backend API and core functionality complete. Frontend implementation in progress. Not intended for production use—best suited for testing, development, and contributions.
+> **Project Status:** Hobby project in early development. Not intended for production use—best suited for testing, development, and contributions.
 
 ## 🚀 Quick Start
 
