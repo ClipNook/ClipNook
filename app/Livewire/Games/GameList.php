@@ -9,11 +9,14 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 use function __;
+use function auth;
 use function view;
 
 final class GameList extends Component
 {
     use WithPagination;
+
+    public $componentName = 'games';
 
     public string $search = '';
 
@@ -23,6 +26,12 @@ final class GameList extends Component
         'search' => ['except' => ''],
         'sortBy' => ['except' => 'clips'],
     ];
+
+    public function mount(): void
+    {
+        $this->perPage       = auth()->user()?->appearance_settings['games_per_page'] ?? 24;
+        $this->componentName = 'games';
+    }
 
     public function updatingSearch(): void
     {
@@ -43,7 +52,7 @@ final class GameList extends Component
             ->when($this->sortBy === 'recent', static fn ($q) => $q->latest())
             ->paginate(24);
 
-        return view('livewire.games.game-list', [
+        return view('livewire.list.view', [
             'games' => $games,
         ])->title(__('games.games_page_title'));
     }
