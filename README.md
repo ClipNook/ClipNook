@@ -1,7 +1,7 @@
 # ClipNook
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PHP Version](https://img.shields.io/badge/PHP-8.4+-777bb4.svg)](https://www.php.net/)
+[![PHP Version](https://img.shields.io/badge/PHP-8.5+-777bb4.svg)](https://www.php.net/)
 [![Laravel Version](https://img.shields.io/badge/Laravel-12.x-ff2d20.svg)](https://laravel.com)
 [![Livewire](https://img.shields.io/badge/Livewire-3.x-fb70a9.svg)](https://laravel-livewire.com)
 [![Pest](https://img.shields.io/badge/Pest-4.x-8A2BE2.svg)](https://pestphp.com)
@@ -87,11 +87,14 @@ app/
 ├── Services/         # External service integrations
 │   ├── Monitoring/   # Performance monitoring services
 │   └── Security/     # Security services (Rate limiting, Login monitoring)
-└── Helper/           # Utility classes
+└── Traits/           # Utility traits
 
 config/
 ├── app.php          # Application configuration
 ├── performance.php  # Performance and security settings
+├── clip.php         # Clip-specific configuration
+├── constants.php    # Application constants
+├── twitch.php       # Twitch API configuration
 └── ...             # Other Laravel configs
 
 database/
@@ -245,89 +248,6 @@ REDIS_DB=0
 2. Set redirect URI to: `http://your-domain/auth/twitch/callback`
 3. Copy Client ID and Client Secret to your `.env` file
 
-## 📚 Documentation
-
-- **[Configuration Guide](doc/configuration.md)** - Complete configuration reference
-- **[Security Features](doc/security.md)** - Security implementation details
-- **[Performance Guide](doc/performance.md)** - Performance monitoring and optimization
-- **[API Documentation](doc/api-usage.md)** - API endpoints and usage
-- **[Authentication](doc/authentication.md)** - OAuth and authentication setup
-- **[Deployment](doc/deployment.md)** - Production deployment guide
-- **[Testing](doc/testing.md)** - Testing strategies and examples
-- **[Troubleshooting](doc/troubleshooting.md)** - Common issues and solutions
-
-### Authentication
-
-All API endpoints require authentication via Laravel Sanctum personal access tokens.
-
-```bash
-# Create a token
-curl -X POST http://localhost/api/tokens \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"password"}'
-
-# Use token in requests
-curl -H "Authorization: Bearer your-token-here" \
-  http://localhost/api/clips
-```
-
-### Endpoints
-
-#### Clips
-
-```http
-GET    /api/clips              # List approved clips
-GET    /api/clips/{id}         # Get specific clip
-POST   /api/clips              # Submit new clip
-PUT    /api/clips/{id}         # Update clip (owner only)
-DELETE /api/clips/{id}         # Delete clip (owner/moderator)
-
-GET    /api/my-clips           # User's submitted clips
-GET    /api/clips/pending      # Pending clips (moderators)
-POST   /api/clips/{id}/approve # Approve clip (moderators)
-POST   /api/clips/{id}/reject  # Reject clip (moderators)
-```
-
-#### GDPR Compliance
-
-```http
-GET    /api/gdpr/data-export           # Export user data (GDPR Art. 20)
-POST   /api/gdpr/account/delete-request # Request account deletion
-DELETE /api/gdpr/account/confirm       # Confirm account deletion
-GET    /api/gdpr/consents              # Get user consents
-POST   /api/gdpr/consents              # Update user consents
-GET    /api/gdpr/retention-info        # Data retention information
-```
-
-### Request/Response Examples
-
-#### Submit Clip
-```bash
-curl -X POST http://localhost/api/clips \
-  -H "Authorization: Bearer {token}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "twitch_clip_url": "https://clips.twitch.tv/AmazingClip123",
-    "title": "Amazing gameplay moment",
-    "description": "Epic clutch play",
-    "tags": ["fps", "clutch", "headshot"]
-  }'
-```
-
-#### Response
-```json
-{
-  "id": 1,
-  "title": "Amazing gameplay moment",
-  "twitch_clip_url": "https://clips.twitch.tv/AmazingClip123",
-  "status": "pending",
-  "user_id": 1,
-  "created_at": "2024-01-01T12:00:00Z",
-  "updated_at": "2024-01-01T12:00:00Z"
-}
-```
-
 ## 🧪 Testing
 
 ```bash
@@ -348,7 +268,6 @@ php artisan test --filter="user can submit a clip"
 
 - **Unit Tests**: Test individual classes and methods
 - **Feature Tests**: Test complete user workflows
-- **API Tests**: Test HTTP endpoints and responses
 - **Queue Tests**: Test background job processing
 - **Browser Tests**: E2E testing with Pest browser testing
 
@@ -508,102 +427,6 @@ php artisan queue:flush
 php artisan horizon:status
 ```
 
-#### Queue Configuration Options
-
-```bash
-# Environment variables
-QUEUE_CONNECTION=database  # database, redis, sqs, etc.
-QUEUE_TIMEOUT=90          # Job timeout in seconds
-QUEUE_TRIES=3             # Max retry attempts
-QUEUE_MAX_JOBS=1000       # Max jobs per worker
-QUEUE_MEMORY=128          # Memory limit per worker
-QUEUE_SLEEP=3             # Sleep time between jobs
-
-# For Redis queues (recommended for production)
-REDIS_HOST=127.0.0.1
-REDIS_PASSWORD=null
-REDIS_PORT=6379
-REDIS_DB=0
-```
-
-### Web Server Configuration
-
-#### Nginx
-
-```nginx
-# /etc/nginx/sites-available/clipnook
-server {
-    listen 80;
-    server_name your-domain.com;
-    root /path/to/clipnook/public;
-
-    add_header X-Frame-Options "SAMEORIGIN";
-    add_header X-Content-Type-Options "nosniff";
-
-    index index.php;
-
-    charset utf-8;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt  { access_log off; log_not_found off; }
-
-    error_page 404 /index.php;
-
-    location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php8.5-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
-
-    location ~ /\.(?!well-known).* {
-        deny all;
-    }
-
-    # Cache static assets
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-}
-```
-
-#### Apache
-
-```apache
-# /etc/apache2/sites-available/clipnook.conf
-<VirtualHost *:80>
-    ServerName your-domain.com
-    DocumentRoot /path/to/clipnook/public
-
-    <Directory /path/to/clipnook/public>
-        AllowOverride All
-        Require all granted
-
-        php_value upload_max_filesize 100M
-        php_value post_max_size 100M
-        php_value memory_limit 256M
-        php_value max_execution_time 300
-    </Directory>
-
-    ErrorLog ${APACHE_LOG_DIR}/clipnook_error.log
-    CustomLog ${APACHE_LOG_DIR}/clipnook_access.log combined
-</VirtualHost>
-```
-
-### SSL Configuration
-
-```bash
-# Using Certbot (Let's Encrypt)
-sudo certbot --nginx -d your-domain.com
-
-# Manual certificate installation
-# Place certificates in /etc/ssl/certs/ and /etc/ssl/private/
-```
-
 ### Performance Optimization
 
 ```bash
@@ -623,110 +446,6 @@ composer install --optimize-autoloader --no-dev
 
 # Pre-compile assets
 npm run build
-```
-
-### Monitoring & Logging
-
-```bash
-# Laravel Telescope (optional debugging tool)
-php artisan telescope:install
-php artisan migrate
-
-# Log monitoring
-tail -f storage/logs/laravel.log
-
-# Performance monitoring
-php artisan performance:metrics
-```
-
-### Backup Strategy
-
-```bash
-# Database backup
-mysqldump -u username -p database_name > backup.sql
-
-# File backup
-tar -czf backup.tar.gz /path/to/clipnook/storage/app
-
-# Automated backups with cron
-# Add to crontab: 0 2 * * * /path/to/backup-script.sh
-```
-
-### Docker (Future)
-
-Docker support planned for future releases.
-
-## 🔧 Maintenance
-
-### Regular Tasks
-
-```bash
-# Clear expired cache entries
-php artisan cache:clear
-
-# Clean old log files
-php artisan log:clear
-
-# Clear old performance metrics
-php artisan performance:cleanup
-
-# Update dependencies
-composer update
-npm update
-
-# Run database maintenance
-php artisan migrate
-php artisan db:monitor
-```
-
-### Troubleshooting
-
-#### Common Issues
-
-**Queue workers not processing jobs:**
-```bash
-# Check supervisor status
-sudo supervisorctl status
-
-# Restart workers
-sudo supervisorctl restart clipnook-worker:*
-
-# Check queue status
-php artisan queue:status
-```
-
-**High memory usage:**
-```bash
-# Restart PHP-FPM
-sudo systemctl restart php8.5-fpm
-
-# Clear application cache
-php artisan cache:clear
-```
-
-**Slow performance:**
-```bash
-# Check slow queries
-php artisan performance:metrics
-
-# Optimize database
-php artisan db:monitor
-
-# Check queue backlog
-php artisan queue:status
-```
-
-### Health Checks
-
-```bash
-# Laravel health check
-curl https://your-domain.com/health
-
-# Queue health
-php artisan queue:status
-
-# Database connectivity
-php artisan db:monitor
 ```
 
 ## 🤝 Contributing
@@ -771,35 +490,6 @@ If you'd like to support our mission, please consider donating to charitable org
 - **Issues**: [GitHub Issues](https://github.com/ClipNook/ClipNook/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/ClipNook/ClipNook/discussions)
 - **Collaboration**: **Telegram:** [@Zurret](https://t.me/Zurret)
-
-## 📊 Project Status
-
-### ✅ Completed
-- Backend API with full CRUD operations
-- GDPR compliance (data export, deletion, consent management)
-- Twitch OAuth integration
-- Laravel Sanctum authentication
-- Advanced security features (rate limiting, login monitoring, security headers)
-- Performance monitoring and metrics
-- Configurable application settings
-- Comprehensive test suite
-- Database schema and migrations
-- Code formatting and quality tools
-
-### 🚧 In Progress
-- Frontend implementation (Livewire components)
-- Admin/moderation interface
-- Advanced search and filtering
-- Clip embedding and playback
-- User dashboard
-- API documentation improvements
-
-### 📋 Planned
-- Docker containerization
-- Advanced moderation tools
-- Social features (comments, likes)
-- Browser testing suite
-- Performance optimization tools
 
 ---
 
