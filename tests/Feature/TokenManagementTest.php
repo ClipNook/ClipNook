@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 use App\Models\User;
 
-test('tokens have proper expiration', static function (): void {
+test('tokens have proper expiration', function (): void {
     // Verify Sanctum configuration has expiration set
     $expiration = config('sanctum.expiration');
     expect($expiration)->toBe(525600); // 1 year in minutes
 });
 
-test('user can rotate api tokens', static function (): void {
+test('user can rotate api tokens', function (): void {
     $user = User::factory()->create();
 
     // Create initial token
@@ -32,7 +32,7 @@ test('user can rotate api tokens', static function (): void {
     expect($tokenRecord->name)->toContain(now()->format('Y-m-d'));
 });
 
-test('expired tokens are cleaned up', static function (): void {
+test('expired tokens are cleaned up', function (): void {
     $user = User::factory()->create();
 
     // Create a token and manually expire it
@@ -48,7 +48,7 @@ test('expired tokens are cleaned up', static function (): void {
     expect($user->tokens()->count())->toBe(0);
 });
 
-test('ip pseudonymization uses rotating salts', static function (): void {
+test('ip pseudonymization uses rotating salts', function (): void {
     // Test that pseudonymize_ip function works
     $ip             = '192.168.1.1';
     $pseudonymized1 = pseudonymize_ip($ip);

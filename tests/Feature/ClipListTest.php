@@ -6,7 +6,7 @@ use App\Models\Clip;
 use App\Models\User;
 use Livewire\Livewire;
 
-test('renders clip list component', static function (): void {
+test('renders clip list component', function (): void {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
@@ -16,7 +16,7 @@ test('renders clip list component', static function (): void {
         ->assertSet('search', '');
 });
 
-test('displays clips in list', static function (): void {
+test('displays clips in list', function (): void {
     $user        = User::factory()->create();
     $broadcaster = User::factory()->create();
 
@@ -34,7 +34,7 @@ test('displays clips in list', static function (): void {
         ->assertDontSee('Approved');
 });
 
-test('searches clips by title', static function (): void {
+test('searches clips by title', function (): void {
     $user        = User::factory()->create();
     $broadcaster = User::factory()->create();
 
@@ -59,7 +59,7 @@ test('searches clips by title', static function (): void {
         ->assertDontSee('Boring Clip');
 });
 
-test('paginates clips', static function (): void {
+test('paginates clips', function (): void {
     $user        = User::factory()->create();
     $broadcaster = User::factory()->create();
 

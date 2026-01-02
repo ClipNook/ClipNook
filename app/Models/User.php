@@ -72,11 +72,6 @@ final class User extends Authenticatable
         'preferences',
         'scopes',
 
-        // Avatar Management
-        'twitch_avatar',
-        'custom_avatar_path',
-        'avatar_source',
-
         // Role Flags
         'is_viewer',
         'is_cutter',
@@ -385,16 +380,6 @@ final class User extends Authenticatable
     public function isTwitchTokenExpired(): bool
     {
         return $this->twitch_token_expires_at && $this->twitch_token_expires_at->isPast();
-    }
-
-    /**
-     * Delete the user's custom avatar files.
-     */
-    public function deleteAvatar(): void
-    {
-        if ($this->custom_avatar_path) {
-            Storage::delete($this->custom_avatar_path);
-        }
     }
 
     /**

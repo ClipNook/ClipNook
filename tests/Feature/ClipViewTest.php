@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Models\Clip;
 use App\Models\User;
 
-test('clip view route uses uuid for model binding', static function (): void {
+test('clip view route uses uuid for model binding', function (): void {
     $user        = User::factory()->create();
     $broadcaster = User::factory()->create();
 
@@ -23,7 +23,7 @@ test('clip view route uses uuid for model binding', static function (): void {
     expect($clip->getRouteKeyName())->toBe('uuid');
 });
 
-test('clip model has uuid route key', static function (): void {
+test('clip model has uuid route key', function (): void {
     $clip = new Clip();
 
     expect($clip->getRouteKeyName())->toBe('uuid');

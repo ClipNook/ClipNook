@@ -125,8 +125,8 @@ final class Clip extends Model
     public function scopeWithRelations(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->with([
-            'submitter:id,twitch_display_name,twitch_login,twitch_avatar',
-            'broadcaster:id,twitch_display_name,twitch_login,twitch_avatar',
+            'submitter:id,twitch_display_name,twitch_login',
+            'broadcaster:id,twitch_display_name,twitch_login',
             'moderator:id,twitch_display_name,twitch_login',
             'game:id,name,box_art_url',
         ]);

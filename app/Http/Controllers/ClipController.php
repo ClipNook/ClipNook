@@ -184,7 +184,7 @@ final class ClipController extends Controller
             ->where('id', '!=', $clip->id)
             ->where(static fn ($q) => $q->where('game_id', $clip->game_id)->orWhere('broadcaster_id', $clip->broadcaster_id))
             ->approved()
-            ->with(['broadcaster:id,twitch_display_name,twitch_login,twitch_avatar', 'game:id,name,box_art_url,local_box_art_path', 'submitter:id,twitch_display_name,twitch_login'])
+            ->with(['broadcaster:id,twitch_display_name,twitch_login', 'game:id,name,box_art_url,local_box_art_path', 'submitter:id,twitch_display_name,twitch_login'])
             ->limit(6)
             ->get();
 

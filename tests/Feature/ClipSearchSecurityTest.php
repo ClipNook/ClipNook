@@ -6,13 +6,13 @@ use App\Models\Clip;
 use App\Models\User;
 use App\Services\Clip\ClipService;
 
-beforeEach(static function (): void {
+beforeEach(function (): void {
     // Set required Twitch config for tests
     config(['twitch.client_id' => 'test_client_id']);
     config(['twitch.client_secret' => 'test_client_secret']);
 });
 
-test('search sanitizes input and prevents sql injection', static function (): void {
+test('search sanitizes input and prevents sql injection', function (): void {
     // Create test data
     $user = User::factory()->create();
     Clip::factory()->create([
@@ -44,7 +44,7 @@ test('search sanitizes input and prevents sql injection', static function (): vo
     expect($results)->toHaveCount(0);
 });
 
-test('search uses optimized query with eager loading', static function (): void {
+test('search uses optimized query with eager loading', function (): void {
     $user = User::factory()->create();
     Clip::factory()->create([
         'title'        => 'Performance Test Clip',

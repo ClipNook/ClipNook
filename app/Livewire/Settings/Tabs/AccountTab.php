@@ -9,7 +9,6 @@ use App\Services\Twitch\Auth\TwitchTokenManager;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 use function __;
@@ -17,8 +16,6 @@ use function app;
 use function ceil;
 use function implode;
 use function now;
-use function str_starts_with;
-use function time;
 use function view;
 
 final class AccountTab extends Component
@@ -82,15 +79,12 @@ final class AccountTab extends Component
                 $avatarPath = $user->twitch_avatar;
                 if ($twitchUser->profileImageUrl !== $user->twitch_avatar) {
                     // Alten lokalen Twitch-Avatar löschen falls vorhanden
-                    if ($user->twitch_avatar && str_starts_with($user->twitch_avatar, 'avatars/twitch/')) {
-                        Storage::disk('public')->delete($user->twitch_avatar);
-                    }
+                    $user->deleteTwitchAvatar();
 
                     // Neuen Avatar herunterladen
                     $response = Http::get($twitchUser->profileImageUrl);
                     if ($response->successful()) {
-                        $filename   = 'twitch_'.$user->id.'_'.time().'.jpg';
-                        $avatarPath = 'avatars/twitch/'.$filename;
+                        $avatarPath = $user->getTwitchAvatarStoragePath();
                         Storage::disk('public')->put($avatarPath, $response->body());
                     }
                 }
@@ -99,7 +93,6 @@ final class AccountTab extends Component
                     'twitch_login'        => $twitchUser->login,
                     'twitch_display_name' => $twitchUser->displayName,
                     'twitch_email'        => $twitchUser->email,
-                    'twitch_avatar'       => $avatarPath,
                     'last_twitch_sync_at' => now(),
                 ]);
 

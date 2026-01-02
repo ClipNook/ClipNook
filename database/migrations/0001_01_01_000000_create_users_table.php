@@ -30,11 +30,6 @@ return new class() extends Migration {
             // Description
             $table->text('description')->nullable();
 
-            // Avatar Management
-            $table->string('twitch_avatar')->nullable();
-            $table->string('custom_avatar_path')->nullable();
-            $table->string('avatar_source')->nullable();
-
             // User Roles and Permissions
             $table->boolean('is_viewer')->default(true);
             $table->boolean('is_cutter')->default(false);

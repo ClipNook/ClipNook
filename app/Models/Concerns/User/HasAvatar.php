@@ -7,52 +7,36 @@ namespace App\Models\Concerns\User;
 use Illuminate\Support\Facades\Storage;
 
 use function asset;
+use function now;
 
 /**
  * Handles user avatar management.
  */
 trait HasAvatar
 {
-    /**
-     * Get the user's avatar URL.
-     */
     public function getAvatarUrlAttribute(): ?string
     {
-        if ($this->custom_avatar_path && Storage::exists($this->custom_avatar_path)) {
-            return Storage::url($this->custom_avatar_path);
+        if ($this->hasAvatar()) {
+            return Storage::url($this->getAvatarStoragePath());
         }
 
-        if ($this->hasCustomAvatar()) {
-            return $this->custom_avatar_path;
-        }
-
-        // Return default avatar if no other avatar is available
         return asset('images/avatar-default.svg');
     }
 
-    /**
-     * Check if user has a custom avatar.
-     */
-    public function hasCustomAvatar(): bool
+    public function hasAvatar(): bool
     {
-        return $this->custom_avatar_path && Storage::exists($this->custom_avatar_path);
+        return Storage::disk('public')->exists($this->getAvatarStoragePath());
     }
 
-    /**
-     * Delete custom avatar file.
-     */
-    public function deleteCustomAvatar(): bool
+    public function deleteAvatar(): bool
     {
-        if ($this->custom_avatar_path && Storage::exists($this->custom_avatar_path)) {
-            return Storage::delete($this->custom_avatar_path);
+        if (Storage::disk('public')->exists($this->getAvatarStoragePath())) {
+            return Storage::disk('public')->delete($this->getAvatarStoragePath());
         }
 
         return false;
     }
 
-    /**
-     * Get avatar storage path for new uploads.
-     */
     public function getAvatarStoragePath(): string
     {
         return "avatars/users/{$this->id}.jpg";

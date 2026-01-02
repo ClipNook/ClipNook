@@ -42,8 +42,6 @@ final class DeleteUserDataAction
                 'twitch_access_token'     => null,
                 'twitch_refresh_token'    => null,
                 'twitch_token_expires_at' => null,
-                'twitch_avatar'           => null,
-                'custom_avatar_path'      => null,
                 'description'             => null,
                 'preferences'             => [],
                 'scopes'                  => [],
@@ -52,8 +50,8 @@ final class DeleteUserDataAction
             $user->update($anonymizedData);
 
             // Delete avatar files
-            if ($user->custom_avatar_path) {
-                Storage::delete($user->custom_avatar_path);
+            if ($user->hasAvatar()) {
+                $user->deleteAvatar();
             }
 
             // Handle clips (anonymize, don't delete)
