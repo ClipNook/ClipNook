@@ -29,96 +29,141 @@
                         </a>
                     @endauth
                 </div>
-
                 <!-- Content -->
                 <div class="bg-zinc-900/40 backdrop-blur-sm border border-zinc-800/30 rounded-2xl p-6 lg:p-8">
+                    <x-ui.breadcrumb :items="[
+                        ['url' => route('home'), 'label' => __('common.home')],
+                        ['url' => route('clips.list'), 'label' => __('clips.browse')],
+                    ]" />
+                    <!-- Filters & Search Card -->
+                    <div class="bg-zinc-900/40 backdrop-blur-sm border border-zinc-800/30 rounded-2xl p-6 lg:p-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-10 h-10 bg-(--color-accent-500)/10 border border-(--color-accent-500)/20 rounded-lg flex items-center justify-center">
+                                <i class="fa-solid fa-sliders text-(--color-accent-400)"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-zinc-100">{{ __('clips.filter_search') }}</h2>
+                        </div>
 
-                    <!-- Filters & Search -->
-                    <div class="mb-6">
-                        <div class="flex flex-col lg:flex-row gap-4">
-                            <!-- Search -->
-                            <div class="flex-1">
-                                <div class="relative">
-                                    <input type="text" wire:model.live.debounce.300ms="search"
-                                        placeholder="{{ __('clips.search_placeholder') }}"
-                                        class="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:border-(--color-accent-500) focus:outline-none focus:ring-2 focus:ring-(--color-accent-500)/20 transition-all text-base"
-                                        aria-label="{{ __('clips.search_placeholder') }}">
-                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <i class="fa-solid fa-magnifying-glass text-zinc-500"></i>
+                        <div class="space-y-4">
+                            <div class="flex flex-col lg:flex-row gap-4">
+                                <!-- Search -->
+                                <div class="flex-1">
+                                    <label for="clip-search" class="block text-sm font-medium text-zinc-400 mb-2">
+                                        <i class="fa-solid fa-magnifying-glass text-(--color-accent-400) mr-2"></i>
+                                        {{ __('clips.search_clips') }}
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" id="clip-search" wire:model.live.debounce.300ms="search"
+                                            placeholder="{{ __('clips.search_placeholder') }}"
+                                            class="w-full pl-11 pr-11 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:border-(--color-accent-500) focus:outline-none focus:ring-2 focus:ring-(--color-accent-500)/20 transition-all"
+                                            aria-label="{{ __('clips.search_placeholder') }}">
+                                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                            <i class="fa-solid fa-magnifying-glass text-zinc-500"></i>
+                                        </div>
+                                        @if ($search)
+                                            <button wire:click="$set('search', '')" type="button"
+                                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 hover:text-white transition-colors"
+                                                aria-label="{{ __('clips.clear_search') }}">
+                                                <i class="fa-solid fa-xmark"></i>
+                                            </button>
+                                        @endif
                                     </div>
-                                    @if ($search)
-                                        <button wire:click="$set('search', '')"
-                                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 hover:text-white transition-colors"
-                                            aria-label="{{ __('clips.clear_search') }}">
-                                            <i class="fa-solid fa-xmark"></i>
-                                        </button>
-                                    @endif
+                                </div>
+
+                                <!-- Sort -->
+                                <div class="lg:w-64">
+                                    <label for="clip-sort" class="block text-sm font-medium text-zinc-400 mb-2">
+                                        <i class="fa-solid fa-arrow-down-wide-short text-(--color-accent-400) mr-2"></i>
+                                        {{ __('clips.sort_by') }}
+                                    </label>
+                                    <select id="clip-sort" wire:model.live="sortBy"
+                                        class="w-full px-4 py-3 border border-zinc-700 rounded-lg bg-zinc-800 text-white focus:border-(--color-accent-500) focus:outline-none focus:ring-2 focus:ring-(--color-accent-500)/20 transition-all"
+                                        aria-label="{{ __('clips.sort_by') }}">
+                                        <option value="recent">{{ __('clips.sort_recent') }}</option>
+                                        <option value="popular">{{ __('clips.sort_popular') }}</option>
+                                        <option value="views">{{ __('clips.sort_views') }}</option>
+                                    </select>
                                 </div>
                             </div>
 
-                            <!-- Sort & Filter -->
-                            <div class="flex gap-3">
-                                <select wire:model.live="sortBy"
-                                    class="px-4 py-3 border border-zinc-700 rounded-lg bg-zinc-800 text-white focus:border-(--color-accent-500) focus:outline-none focus:ring-2 focus:ring-(--color-accent-500)/20 transition-all text-base"
-                                    aria-label="{{ __('clips.sort_by') }}">
-                                    <option value="recent">{{ __('clips.sort_recent') }}</option>
-                                    <option value="popular">{{ __('clips.sort_popular') }}</option>
-                                    <option value="views">{{ __('clips.sort_views') }}</option>
-                                </select>
-                            </div>
+                            <!-- Active Filters -->
+                            @if ($search)
+                                <div class="flex items-center gap-3 p-4 bg-zinc-800/30 border border-zinc-700/50 rounded-lg">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 bg-(--color-accent-500)/10 rounded-lg flex items-center justify-center">
+                                            <i class="fa-solid fa-filter text-(--color-accent-400) text-sm"></i>
+                                        </div>
+                                        <span class="text-sm font-medium text-zinc-300">{{ __('clips.active_filters') }}:</span>
+                                    </div>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-800 border border-zinc-700 rounded-lg text-sm text-zinc-300 hover:border-(--color-accent-500)/30 transition-colors">
+                                            <i class="fa-solid fa-magnifying-glass text-(--color-accent-400) text-xs"></i>
+                                            <span class="font-medium">{{ $search }}</span>
+                                            <button wire:click="$set('search', '')" type="button" class="ml-1 text-zinc-400 hover:text-white transition-colors">
+                                                <i class="fa-solid fa-xmark text-xs"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
-
-                        <!-- Active Filters -->
-                        @if ($search)
-                            <div class="mt-4 flex items-center gap-2">
-                                <span class="text-sm text-zinc-400">{{ __('clips.active_filters') }}:</span>
-                                <span
-                                    class="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-800 border border-zinc-700 rounded-md text-sm text-zinc-300">
-                                    <i class="fa-solid fa-magnifying-glass text-xs text-zinc-500"></i>
-                                    {{ $search }}
-                                    <button wire:click="$set('search', '')"
-                                        class="text-zinc-400 hover:text-white transition-colors ml-1">
-                                        <i class="fa-solid fa-xmark text-xs"></i>
-                                    </button>
-                                </span>
-                            </div>
-                        @endif
                     </div>
 
                     <!-- Clip Grid -->
                     @if ($clips->count() > 0)
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            @foreach ($clips as $clip)
-                                <x-ui.clip-card :clip="$clip" />
-                            @endforeach
-                        </div>
+                        <div>
+                            <!-- Stats Header -->
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 bg-(--color-accent-500)/10 rounded-lg flex items-center justify-center">
+                                        <i class="fa-solid fa-video text-(--color-accent-400) text-sm"></i>
+                                    </div>
+                                    <p class="text-sm text-zinc-400">
+                                        {{ trans_choice('clips.showing_clips_count', $clips->total(), ['count' => number_format($clips->total())]) }}
+                                    </p>
+                                </div>
+                            </div>
 
-                        <!-- Pagination -->
-                        <div class="mt-8">
-                            {{ $clips->links() }}
+                            <!-- Clip Grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                @foreach ($clips as $clip)
+                                    <x-ui.clip-card :clip="$clip" />
+                                @endforeach
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="mt-8">
+                                {{ $clips->links() }}
+                            </div>
                         </div>
                     @else
                         <!-- Empty State -->
-                        <div class="text-center py-16">
-                            <div
-                                class="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-zinc-800 border border-zinc-700 mb-4">
-                                <i class="fa-solid fa-video text-zinc-500 text-2xl"></i>
-                            </div>
-                            <h3 class="text-lg font-medium text-zinc-300 mb-2">{{ __('clips.no_clips_found') }}</h3>
-                            <p class="text-sm text-zinc-500 mb-6">
+                        <div class="bg-zinc-900/40 backdrop-blur-sm border border-zinc-800/30 rounded-2xl p-8 lg:p-12">
+                            <div class="text-center max-w-md mx-auto">
+                                <div class="relative inline-flex mb-6">
+                                    <div class="absolute -inset-1 bg-gradient-to-r from-(--color-accent-500) to-(--color-accent-600) rounded-2xl blur-lg opacity-20"></div>
+                                    <div class="relative w-20 h-20 bg-zinc-800 border border-zinc-700 rounded-2xl flex items-center justify-center">
+                                        <i class="fa-solid fa-video text-zinc-500 text-3xl"></i>
+                                    </div>
+                                </div>
+
+                                <h3 class="text-xl font-bold text-zinc-100 mb-3">{{ __('clips.no_clips_found') }}</h3>
+
+                                <p class="text-zinc-400 leading-relaxed mb-6">
+                                    @if ($search)
+                                        {{ __('clips.no_clips_search', ['search' => $search]) }}
+                                    @else
+                                        {{ __('clips.no_clips_yet') }}
+                                    @endif
+                                </p>
+
                                 @if ($search)
-                                    {{ __('clips.no_clips_search', ['search' => $search]) }}
-                                @else
-                                    {{ __('clips.no_clips_yet') }}
+                                    <x-ui.button wire:click="$set('search', '')" variant="secondary" size="md" class="inline-flex items-center gap-2">
+                                        <i class="fa-solid fa-xmark"></i>
+                                        {{ __('clips.clear_search') }}
+                                    </x-ui.button>
                                 @endif
-                            </p>
-                            @if ($search)
-                                <x-ui.button wire:click="$set('search', '')" variant="secondary" size="sm"
-                                    class="inline-flex items-center gap-2" aria-label="{{ __('clips.clear_search') }}">
-                                    <i class="fa-solid fa-xmark"></i>
-                                    {{ __('clips.clear_search') }}
-                                </x-ui.button>
-                            @endif
+                            </div>
                         </div>
                     @endif
                 </div>

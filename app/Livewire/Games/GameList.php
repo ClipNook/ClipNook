@@ -8,7 +8,10 @@ use App\Models\Game;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class GameList extends Component
+use function __;
+use function view;
+
+final class GameList extends Component
 {
     use WithPagination;
 
@@ -29,19 +32,19 @@ class GameList extends Component
     public function render(): \Illuminate\View\View
     {
         $games = Game::query()
-            ->when($this->search, function ($query) {
+            ->when($this->search, function ($query): void {
                 $query->where('name', 'like', '%'.$this->search.'%');
             })
-            ->withCount(['clips' => function ($query) {
+            ->withCount(['clips' => static function ($query): void {
                 $query->where('status', 'approved');
             }])
-            ->when($this->sortBy === 'clips', fn ($q) => $q->orderBy('clips_count', 'desc'))
-            ->when($this->sortBy === 'alphabetical', fn ($q) => $q->orderBy('name'))
-            ->when($this->sortBy === 'recent', fn ($q) => $q->latest())
+            ->when($this->sortBy === 'clips', static fn ($q) => $q->orderBy('clips_count', 'desc'))
+            ->when($this->sortBy === 'alphabetical', static fn ($q) => $q->orderBy('name'))
+            ->when($this->sortBy === 'recent', static fn ($q) => $q->latest())
             ->paginate(24);
 
         return view('livewire.games.game-list', [
             'games' => $games,
-        ]);
+        ])->title(__('games.games_page_title'));
     }
 }
