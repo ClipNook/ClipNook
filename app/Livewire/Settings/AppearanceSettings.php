@@ -4,26 +4,15 @@ declare(strict_types=1);
 
 namespace App\Livewire\Settings;
 
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Livewire\Settings\Concerns\ManagesUserSettings;
 use Livewire\Component;
-
-use function __;
-use function app;
-use function array_filter;
-use function array_keys;
-use function array_merge;
-use function implode;
-use function is_array;
-use function is_scalar;
-use function view;
 
 /**
  * User appearance settings component.
  */
 final class AppearanceSettings extends Component
 {
-    public User $user;
+    use ManagesUserSettings;
 
     public string $theme = 'dark';
 
@@ -35,44 +24,67 @@ final class AppearanceSettings extends Component
 
     public int $clips_per_page = 12;
 
-    public array $availableThemes = [
-        'light' => 'Light',
-        'dark'  => 'Dark',
-        'auto'  => 'Auto (System)',
+    public array $availableThemes;
+
+    public array $availableLanguages;
+
+    protected $except = ['availableThemes', 'availableLanguages'];
+
+    protected string $settingsKey = 'appearance_settings';
+
+    protected array $defaultSettings = [
+        'theme'           => 'dark',
+        'language'        => 'en',
+        'compact_mode'    => false,
+        'show_thumbnails' => true,
+        'clips_per_page'  => 12,
     ];
 
-    public array $availableLanguages = [
-        'en' => 'English',
+    protected array $validationRules = [
+        'theme'          => 'required|in:light,dark,auto',
+        'language'       => 'required|in:en',
+        'clips_per_page' => 'required|integer|min:6|max:96',
     ];
 
     public function mount(): void
     {
-        $this->user = Auth::user();
-        $settings   = $this->user->appearance_settings ?? [];
+        $this->initializeUser();
 
-        // Ensure settings is an array
-        if (! is_array($settings)) {
-            $settings = [];
-        }
+        // Ensure UI arrays are properly initialized
+        $this->availableThemes = [
+            'light' => 'Light',
+            'dark'  => 'Dark',
+            'auto'  => 'Auto (System)',
+        ];
 
-        $settings = array_filter($settings, static fn ($value): bool => is_scalar($value));
+        $this->availableLanguages = [
+            'en' => 'English',
+        ];
 
-        $this->fill(array_merge([
-            'theme'           => 'dark',
-            'language'        => 'en',
-            'compact_mode'    => false,
-            'show_thumbnails' => true,
-            'clips_per_page'  => 12,
-        ], $settings));
+        $settings = $this->loadSettings($this->defaultSettings, $this->settingsKey, ['availableThemes', 'availableLanguages']);
+
+        // Only fill the settings properties, not the UI arrays
+        $this->theme = $settings['theme'] ?? $this->defaultSettings['theme'];
+        $this->language = $settings['language'] ?? $this->defaultSettings['language'];
+        $this->compact_mode = $settings['compact_mode'] ?? $this->defaultSettings['compact_mode'];
+        $this->show_thumbnails = $settings['show_thumbnails'] ?? $this->defaultSettings['show_thumbnails'];
+        $this->clips_per_page = $settings['clips_per_page'] ?? $this->defaultSettings['clips_per_page'];
+
+        // Ensure UI arrays are properly initialized after loading settings
+        $this->availableThemes = [
+            'light' => 'Light',
+            'dark'  => 'Dark',
+            'auto'  => 'Auto (System)',
+        ];
+
+        $this->availableLanguages = [
+            'en' => 'English',
+        ];
     }
 
     public function updateAppearance(): void
     {
-        $this->validate([
-            'theme'          => 'required|in:'.implode(',', array_keys($this->availableThemes)),
-            'language'       => 'required|in:'.implode(',', array_keys($this->availableLanguages)),
-            'clips_per_page' => 'required|integer|min:6|max:96',
-        ]);
+        $this->validate();
 
         $settings = [
             'theme'           => $this->theme,
@@ -82,14 +94,12 @@ final class AppearanceSettings extends Component
             'clips_per_page'  => $this->clips_per_page,
         ];
 
-        $this->user->update([
-            'appearance_settings' => $settings,
-        ]);
+        $this->saveSettings($settings, $this->settingsKey);
 
         // Update user's locale
         app()->setLocale($this->language);
 
-        $this->dispatch('notify', type: 'success', message: __('settings.appearance_settings_updated'));
+        $this->notifySuccess(__('settings.appearance_settings_updated'));
     }
 
     public function render(): \Illuminate\View\View

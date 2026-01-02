@@ -4,15 +4,10 @@ declare(strict_types=1);
 
 namespace App\Livewire\Settings;
 
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Livewire\Settings\Concerns\ManagesUserSettings;
 use Livewire\Component;
 
 use function __;
-use function array_filter;
-use function array_merge;
-use function is_array;
-use function is_scalar;
 use function view;
 
 /**
@@ -20,7 +15,7 @@ use function view;
  */
 final class NotificationSettings extends Component
 {
-    public User $user;
+    use ManagesUserSettings;
 
     public bool $email_on_clip_approved = true;
 
@@ -34,23 +29,19 @@ final class NotificationSettings extends Component
 
     public function mount(): void
     {
-        $this->user  = Auth::user();
-        $preferences = $this->user->notification_preferences ?? [];
+        $this->initializeUser();
 
-        // Ensure preferences is an array
-        if (! is_array($preferences)) {
-            $preferences = [];
-        }
-
-        $preferences = array_filter($preferences, static fn ($value): bool => is_scalar($value));
-
-        $this->fill(array_merge([
+        $defaults = [
             'email_on_clip_approved' => true,
             'email_on_clip_rejected' => true,
             'email_on_new_comments'  => false,
             'email_on_featured_clip' => true,
             'email_weekly_digest'    => true,
-        ], $preferences));
+        ];
+
+        $preferences = $this->loadSettings($defaults, 'notification_preferences');
+
+        $this->fill($preferences);
     }
 
     public function updateNotifications(): void
@@ -63,11 +54,9 @@ final class NotificationSettings extends Component
             'email_weekly_digest'    => $this->email_weekly_digest,
         ];
 
-        $this->user->update([
-            'notification_preferences' => $preferences,
-        ]);
+        $this->saveSettings($preferences, 'notification_preferences');
 
-        $this->dispatch('notify', type: 'success', message: __('settings.notification_settings_updated'));
+        $this->notifySuccess(__('settings.notification_settings_updated'));
     }
 
     public function render(): \Illuminate\View\View

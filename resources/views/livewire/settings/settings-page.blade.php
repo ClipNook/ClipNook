@@ -109,3 +109,14 @@
         </div>
     </div>
 </div>
+
+@script
+<script>
+    // Update URL query string when tab changes
+    Livewire.on('update-query-string', (data) => {
+        const url = new URL(window.location);
+        url.searchParams.set('tab', data.tab);
+        window.history.pushState({}, '', url);
+    });
+</script>
+@endscript

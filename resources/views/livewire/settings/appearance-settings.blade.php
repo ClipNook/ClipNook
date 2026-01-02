@@ -12,7 +12,7 @@
                 <i class="fa-solid fa-palette text-(--color-accent-400) text-2xl"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-lg font-semibold text-zinc-200 mb-2">{{ __('Theme') }}</h3>
+                <h3 class="text-lg font-semibold text-zinc-200 mb-2">{{ __('settings.theme') }}</h3>
                 <p class="text-sm text-zinc-400 mb-4">{{ __('Choose your preferred color scheme') }}</p>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -85,7 +85,7 @@
                 <i class="fa-solid fa-list text-(--color-accent-400) text-2xl"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-lg font-semibold text-zinc-200 mb-2">{{ __('Pagination') }}</h3>
+                <h3 class="text-lg font-semibold text-zinc-200 mb-2">{{ __('settings.pagination') }}</h3>
                 <p class="text-sm text-zinc-400 mb-4">{{ __('Number of clips to show per page') }}</p>
 
                 <div class="max-w-xs">

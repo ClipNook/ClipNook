@@ -9,10 +9,12 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
 use function __;
 use function collect;
+use function now;
 use function strlen;
 use function view;
 
@@ -54,9 +56,16 @@ final class StreamerSettings extends Component
 
     public function loadPermissions(): void
     {
-        $this->permissions = BroadcasterClipPermission::where('broadcaster_id', $this->user->id)
-            ->with('user')
-            ->get();
+        $cacheKey = "broadcaster_permissions_{$this->user->id}";
+
+        $this->permissions = Cache::remember(
+            $cacheKey,
+            now()->addMinutes(5),
+            fn () => BroadcasterClipPermission::where('broadcaster_id', $this->user->id)
+                ->with(['user:id,twitch_display_name,twitch_login,avatar_path'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+        );
     }
 
     public function getAllUsersSubmissionEnabled(): bool
@@ -155,6 +164,9 @@ final class StreamerSettings extends Component
             'can_moderate_clips'  => $this->selectedPermissions['can_moderate_clips'],
         ]);
 
+        // Invalidate cache
+        Cache::forget("broadcaster_permissions_{$this->user->id}");
+
         $this->newUserSearch       = '';
         $this->userSuggestions     = collect();
         $this->resetSelectedPermissions();
@@ -182,6 +194,10 @@ final class StreamerSettings extends Component
         $permission = BroadcasterClipPermission::find($this->editingPermissionId);
         if ($permission && $permission->broadcaster_id === $this->user->id) {
             $permission->update($this->editingPermissions);
+
+            // Invalidate cache
+            Cache::forget("broadcaster_permissions_{$this->user->id}");
+
             $this->loadPermissions();
             $this->cancelEditing();
             $this->dispatch('notify', type: 'success', message: __('settings.permission_updated_successfully'));
@@ -199,6 +215,10 @@ final class StreamerSettings extends Component
         $permission = BroadcasterClipPermission::find($permissionId);
         if ($permission && $permission->broadcaster_id === $this->user->id) {
             $permission->delete();
+
+            // Invalidate cache
+            Cache::forget("broadcaster_permissions_{$this->user->id}");
+
             $this->loadPermissions();
             $this->dispatch('notify', type: 'success', message: __('settings.permission_removed_successfully'));
         }
@@ -209,6 +229,10 @@ final class StreamerSettings extends Component
         $permission = BroadcasterClipPermission::find($permissionId);
         if ($permission && $permission->broadcaster_id === $this->user->id) {
             $permission->grantAllPermissions();
+
+            // Invalidate cache
+            Cache::forget("broadcaster_permissions_{$this->user->id}");
+
             $this->loadPermissions();
             $this->dispatch('notify', type: 'success', message: __('settings.all_permissions_granted'));
         }
@@ -219,6 +243,10 @@ final class StreamerSettings extends Component
         $permission = BroadcasterClipPermission::find($permissionId);
         if ($permission && $permission->broadcaster_id === $this->user->id) {
             $permission->revokeAllPermissions();
+
+            // Invalidate cache
+            Cache::forget("broadcaster_permissions_{$this->user->id}");
+
             $this->loadPermissions();
             $this->dispatch('notify', type: 'success', message: __('settings.all_permissions_revoked'));
         }

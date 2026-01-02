@@ -101,7 +101,7 @@
         "native_constant_invocation": true,
         "native_function_casing": true,
         "native_function_invocation": {
-            "exclude": ["json_encode", "json_decode"],
+            "exclude": ["json_encode", "json_decode", "array_any", "array_values", "array_keys", "array_map", "array_filter"],
             "include": ["@all"],
             "scope": "namespaced",
             "strict": false
@@ -348,7 +348,7 @@
         "type_declaration_spaces": true,
         "types_spaces": { "space": "none" },
         "unary_operator_spaces": true,
-        "use_arrow_functions": true,
+        "use_arrow_functions": false,
         "visibility_required": {
             "elements": ["const", "method", "property"]
         },
