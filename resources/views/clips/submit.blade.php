@@ -2,14 +2,19 @@
     <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-zinc-950">
         <div class="max-w-4xl mx-auto">
             <!-- Header -->
-            <div class="mb-12">
-                <div class="max-w-2xl mx-auto text-center mb-8">
-                    <h1 class="text-3xl font-bold text-zinc-100 mb-4">
-                        {{ __('clips.submit_page_title') }}
-                    </h1>
-                    <p class="text-lg text-zinc-400 mb-8">
-                        {{ __('clips.submit_page_subtitle') }}
-                    </p>
+            <div class="mb-16">
+                <div class="flex flex-col items-center gap-6 mb-12">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-zinc-900 border-2 border-violet-500 rounded-2xl">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-violet-400"></i>
+                    </div>
+                    <div class="text-center max-w-2xl">
+                        <h1 class="text-4xl md:text-5xl font-bold text-zinc-100 mb-4 tracking-tight">
+                            {{ __('clips.submit_page_title') }}
+                        </h1>
+                        <p class="text-xl text-zinc-400">
+                            {{ __('clips.submit_page_subtitle') }}
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Flash Messages -->
@@ -36,33 +41,6 @@
             <div class="bg-zinc-900 border border-zinc-800 rounded-lg mb-8">
                 <div class="p-6 sm:p-8">
                     <livewire:clips.submit-clip />
-                </div>
-            </div>
-
-            <!-- Feature Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-6 text-center hover:border-violet-600 transition-colors">
-                    <div class="flex justify-center mb-4">
-                        <i class="fa-solid fa-shield text-violet-400 text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-zinc-100 mb-2">{{ __('clips.feature_secure_title') }}</h3>
-                    <p class="text-sm text-zinc-400">{{ __('clips.feature_secure_description') }}</p>
-                </div>
-
-                <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-6 text-center hover:border-violet-600 transition-colors">
-                    <div class="flex justify-center mb-4">
-                        <i class="fa-solid fa-bolt text-violet-400 text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-zinc-100 mb-2">{{ __('clips.feature_fast_title') }}</h3>
-                    <p class="text-sm text-zinc-400">{{ __('clips.feature_fast_description') }}</p>
-                </div>
-
-                <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-6 text-center hover:border-violet-600 transition-colors">
-                    <div class="flex justify-center mb-4">
-                        <i class="fa-solid fa-users text-violet-400 text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-zinc-100 mb-2">{{ __('clips.feature_community_title') }}</h3>
-                    <p class="text-sm text-zinc-400">{{ __('clips.feature_community_description') }}</p>
                 </div>
             </div>
         </div>

@@ -1,10 +1,15 @@
 <x-layouts.app title="{{ __('ui.home') }}">
     <div class="min-h-screen bg-zinc-950">
         <!-- Hero Section -->
-        <section class="py-24 px-4 sm:px-6 lg:px-8">
-            <div class="max-w-7xl mx-auto">
-                <div class="text-center space-y-12">
-                    <div class="space-y-8">
+        <section class="py-32 px-4 sm:px-6 lg:px-8 relative">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center space-y-16">
+                    <!-- Hero Icon Badge -->
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-zinc-900 border-2 border-violet-500 rounded-2xl">
+                        <i class="fa-solid fa-video text-3xl text-violet-400"></i>
+                    </div>
+                    
+                    <div class="space-y-6">
                         <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold text-zinc-100 leading-tight">
                             {{ __('home.welcome_title', ['app_name' => config('app.name')]) }}
                         </h1>
@@ -78,12 +83,14 @@
         <!-- Top Games Section -->
         <section class="py-16 px-4 sm:px-6 lg:px-8 border-t border-zinc-800">
             <div class="max-w-7xl mx-auto">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-zinc-100 mb-4">
-                        <i class="fa-solid fa-gamepad mr-3 text-violet-400"></i>
-                        {{ __('games.top_games') }}
-                    </h2>
-                    <p class="text-zinc-400 max-w-2xl mx-auto">{{ __('games.discover_popular') }}</p>
+                <div class="flex flex-col items-center gap-6 mb-16">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-zinc-900 border-2 border-violet-500 rounded-xl">
+                        <i class="fa-solid fa-gamepad text-2xl text-violet-400"></i>
+                    </div>
+                    <div class="text-center">
+                        <h2 class="text-4xl font-bold text-zinc-100 mb-3">{{ __('games.top_games') }}</h2>
+                        <p class="text-lg text-zinc-400 max-w-2xl">{{ __('games.discover_popular') }}</p>
+                    </div>
                 </div>
 
                 @if($topGames->count() > 0)
@@ -118,12 +125,14 @@
         <!-- Latest Clips Section -->
         <section class="py-16 px-4 sm:px-6 lg:px-8 border-t border-zinc-800">
             <div class="max-w-7xl mx-auto">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-zinc-100 mb-4">
-                        <i class="fa-solid fa-clock mr-3 text-violet-400"></i>
-                        {{ __('clips.latest_clips') }}
-                    </h2>
-                    <p class="text-zinc-400 max-w-2xl mx-auto">{{ __('clips.fresh_content') }}</p>
+                <div class="flex flex-col items-center gap-6 mb-16">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-zinc-900 border-2 border-violet-500 rounded-xl">
+                        <i class="fa-solid fa-clock text-2xl text-violet-400"></i>
+                    </div>
+                    <div class="text-center">
+                        <h2 class="text-4xl font-bold text-zinc-100 mb-3">{{ __('clips.latest_clips') }}</h2>
+                        <p class="text-lg text-zinc-400 max-w-2xl">{{ __('clips.discover_latest') }}</p>
+                    </div>
                 </div>
 
                 @if($latestClips->count() > 0)
@@ -158,12 +167,14 @@
         <!-- Top Clips Section -->
         <section class="py-16 px-4 sm:px-6 lg:px-8 border-t border-zinc-800">
             <div class="max-w-7xl mx-auto">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-zinc-100 mb-4">
-                        <i class="fa-solid fa-fire mr-3 text-violet-400"></i>
-                        {{ __('clips.top_clips') }}
-                    </h2>
-                    <p class="text-zinc-400 max-w-2xl mx-auto">{{ __('clips.most_upvoted') }}</p>
+                <div class="flex flex-col items-center gap-6 mb-16">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-zinc-900 border-2 border-violet-500 rounded-xl">
+                        <i class="fa-solid fa-fire text-2xl text-violet-400"></i>
+                    </div>
+                    <div class="text-center">
+                        <h2 class="text-4xl font-bold text-zinc-100 mb-3">{{ __('clips.top_clips') }}</h2>
+                        <p class="text-lg text-zinc-400 max-w-2xl">{{ __('clips.discover_top') }}</p>
+                    </div>
                 </div>
 
                 @if($topClips->count() > 0)

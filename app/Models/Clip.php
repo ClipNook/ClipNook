@@ -368,14 +368,4 @@ final class Clip extends Model
     {
         return $this->submitted_at->diffForHumans();
     }
-
-    public function getThumbnailUrlAttribute(): string
-    {
-        // Use local thumbnail if available, otherwise fall back to Twitch URL
-        if ($this->local_thumbnail_path && Storage::disk('public')->exists($this->local_thumbnail_path)) {
-            return asset('storage/'.$this->local_thumbnail_path);
-        }
-
-        return $this->attributes['thumbnail_url'] ?? '';
-    }
 }

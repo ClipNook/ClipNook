@@ -1,12 +1,16 @@
 <div class="min-h-screen bg-zinc-900 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-zinc-100 mb-2">
-                <i class="fa-solid fa-shield-halved mr-3 text-violet-400"></i>
-                {{ __('admin.clip_moderation') }}
-            </h1>
-            <p class="text-zinc-400">{{ __('admin.clip_moderation_description') }}</p>
+        <div class="mb-12">
+            <div class="flex items-center gap-6 mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-zinc-800 border-2 border-violet-500 rounded-xl">
+                    <i class="fa-solid fa-shield-halved text-2xl text-violet-400"></i>
+                </div>
+                <div>
+                    <h1 class="text-4xl font-bold text-zinc-100 mb-2">{{ __('admin.clip_moderation') }}</h1>
+                    <p class="text-lg text-zinc-400">{{ __('admin.clip_moderation_description') }}</p>
+                </div>
+            </div>
         </div>
 
         <!-- Stats Cards -->

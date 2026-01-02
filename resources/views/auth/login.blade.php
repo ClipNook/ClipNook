@@ -1,9 +1,18 @@
 <x-layouts.app title="{{ __('auth.login_title') }}">
-    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-zinc-950">
-        <div class="max-w-md w-full space-y-8">
+    <div class="min-h-screen flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-zinc-950">
+        <div class="max-w-md w-full">
+            <!-- Icon Badge -->
+            <div class="flex justify-center mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-zinc-900 border-2 border-violet-500 rounded-2xl">
+                    <i class="fa-brands fa-twitch text-3xl text-violet-400"></i>
+                </div>
+            </div>
+            
             <!-- Login Card -->
-            <div class="bg-zinc-900 border border-zinc-800 rounded-lg">
-                <div class="p-8">
+            <div class="relative bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                <!-- Accent Border Top -->
+                <div class="absolute top-0 left-0 right-0 h-1 bg-violet-500"></div>
+                <div class="p-10">
                     <form method="POST" action="{{ route('auth.twitch.login') }}" class="space-y-6">
                         @csrf
 

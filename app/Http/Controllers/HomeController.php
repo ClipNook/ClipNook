@@ -15,7 +15,7 @@ class HomeController extends Controller
         $limit = config('app.home_items_limit', 6);
 
         $latestClips = Clip::where('status', 'approved')
-            ->select(['id', 'uuid', 'title', 'thumbnail_url', 'duration', 'views', 'upvotes', 'created_at', 'broadcaster_id', 'game_id'])
+            ->select(['id', 'uuid', 'title', 'local_thumbnail_path', 'duration', 'views', 'upvotes', 'created_at', 'broadcaster_id', 'game_id'])
             ->latest('created_at')
             ->limit($limit)
             ->with([
@@ -25,7 +25,7 @@ class HomeController extends Controller
             ->get();
 
         $topClips = Clip::where('status', 'approved')
-            ->select(['id', 'uuid', 'title', 'thumbnail_url', 'duration', 'views', 'upvotes', 'created_at', 'broadcaster_id', 'game_id'])
+            ->select(['id', 'uuid', 'title', 'local_thumbnail_path', 'duration', 'views', 'upvotes', 'created_at', 'broadcaster_id', 'game_id'])
             ->orderByDesc('upvotes')
             ->limit($limit)
             ->with([
@@ -34,7 +34,7 @@ class HomeController extends Controller
             ])
             ->get();
 
-        $topGames = Game::select(['id', 'name', 'box_art_url', 'slug'])
+        $topGames = Game::select(['id', 'name', 'local_box_art_path', 'slug'])
             ->withCount(['clips' => function ($query) {
                 $query->where('status', 'approved');
             }])
