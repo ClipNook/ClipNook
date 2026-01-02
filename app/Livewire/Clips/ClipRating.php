@@ -15,7 +15,6 @@ use Livewire\Component;
 use function __;
 use function config;
 use function route;
-use function session;
 use function view;
 
 final class ClipRating extends Component

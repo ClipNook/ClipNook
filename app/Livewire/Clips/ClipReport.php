@@ -17,7 +17,6 @@ use Livewire\Component;
 use function __;
 use function auth;
 use function route;
-use function session;
 
 final class ClipReport extends Component
 {

@@ -1,12 +1,4 @@
 <div>
-    @if (session()->has('message'))
-        <div class="bg-green-900/50 border border-green-800 rounded-lg p-4 mb-4 animate-fade-in">
-            <div class="flex items-start gap-3">
-                <i class="fa-solid fa-check-circle text-green-400 mt-0.5 flex-shrink-0"></i>
-                <span class="text-green-200 text-sm sm:text-base">{{ session('message') }}</span>
-            </div>
-        </div>
-    @endif
 
     @auth
         <div class="mb-6">
