@@ -1,7 +1,8 @@
 <?php
 
-return [
+declare(strict_types=1);
 
+return [
     /*
     |--------------------------------------------------------------------------
     | Home Page Language Lines
@@ -14,15 +15,14 @@ return [
     */
 
     // Page Content
-    'welcome_title'     => 'Welcome to :app_name',
-    'welcome_subtitle'  => 'Manage your Twitch clips with ease',
-    'welcome_back'      => 'Welcome back, :name!',
-    'ready_to_submit'   => 'Ready to share your clips?',
-    'guest_description' => 'Submit and discover amazing Twitch clips',
+    'welcome_title'                   => 'Welcome to :app_name',
+    'welcome_subtitle'                => 'Your open-source hub for Twitch clips: share, explore, and enjoy!',
+    'welcome_back'                    => 'Welcome back, :name!',
+    'ready_to_submit'                 => 'Ready to share your clips?',
+    'guest_description'               => 'Submit and discover amazing Twitch clips',
 
     // Actions
     'submit_clip'  => 'Submit Clip',
     'browse_clips' => 'Browse Clips',
     'view_all'     => 'View all',
-
 ];

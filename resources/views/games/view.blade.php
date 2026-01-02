@@ -1,12 +1,12 @@
 <x-layouts.app title="{{ $game->name }} - {{ __('games.view_page_title') }}">
-    <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-gray-950">
-        <div class="max-w-7xl mx-auto space-y-6">
+    <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-zinc-950">
+        <div class="max-w-7xl mx-auto space-y-8">
             <!-- Game Header -->
-            <div class="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
-                <div class="relative h-48 bg-gray-800">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
+                <div class="relative h-64 bg-zinc-800">
                     <div class="absolute inset-0 flex items-center justify-center">
                         @if($game->local_box_art_path)
-                            <div class="w-32 h-44 bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                            <div class="w-40 h-56 bg-zinc-800 border-2 border-zinc-700 rounded-lg overflow-hidden">
                                 <img
                                     src="{{ Storage::url($game->local_box_art_path) }}"
                                     alt="{{ $game->name }}"
@@ -14,116 +14,59 @@
                                 >
                             </div>
                         @else
-                            <div class="w-32 h-44 bg-gray-800 rounded-lg border border-gray-700 flex items-center justify-center">
-                                <i class="fas fa-gamepad text-gray-600 text-4xl" aria-hidden="true"></i>
+                            <div class="w-40 h-56 bg-zinc-800 rounded-lg border-2 border-zinc-700 flex items-center justify-center shadow-2xl">
+                                <i class="fa-solid fa-gamepad text-zinc-600 text-5xl"></i>
                             </div>
                         @endif
                     </div>
                 </div>
-                <div class="p-6 pt-20">
-                    <h1 class="text-2xl font-semibold text-white mb-4">{{ $game->name }}</h1>
-                    <div class="flex flex-wrap gap-3 text-sm">
-                        <span class="px-3 py-1.5 bg-gray-800 border border-gray-700 text-gray-300 rounded-lg">
-                            <i class="fas fa-video mr-1.5 text-gray-500" aria-hidden="true"></i>
-                            {{ number_format($clipsCount) }} {{ Str::plural('clip', $clipsCount) }}
-                        </span>
-                        <span class="px-3 py-1.5 bg-gray-800 border border-gray-700 text-gray-300 rounded-lg">
-                            <i class="fas fa-users mr-1.5 text-gray-500" aria-hidden="true"></i>
+                <div class="p-8 text-center">
+                    <h1 class="text-3xl font-bold text-zinc-100 mb-4">{{ $game->name }}</h1>
+                    <div class="flex flex-wrap justify-center gap-4 text-sm">
+                        <div class="px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-lg hover:border-violet-600 transition-colors">
+                            <i class="fa-solid fa-video mr-2 text-violet-400"></i>
+                            {{ number_format($clipsCount) }} {{ Str::plural(__('games.clip'), $clipsCount) }}
+                        </div>
+                        <div class="px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-lg hover:border-violet-600 transition-colors">
+                            <i class="fa-solid fa-users mr-2 text-violet-400"></i>
                             {{ number_format($streamersCount) }} {{ Str::plural('streamer', $streamersCount) }}
-                        </span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Clips Section -->
-            <div class="bg-gray-900 rounded-lg border border-gray-800 p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-lg font-semibold text-white">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-2xl font-bold text-zinc-100">
+                        <i class="fa-solid fa-video mr-2 text-violet-400"></i>
                         {{ __('games.clips_section') }}
                     </h2>
                 </div>
 
                 @if($game->clips->count() > 0)
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         @foreach($game->clips as $clip)
-                            <a href="{{ route('clips.view', $clip) }}" class="group block bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-gray-600 transition-colors">
-                                <!-- Thumbnail -->
-                                <div class="aspect-video bg-gray-700 relative overflow-hidden">
-                                    @if($clip->thumbnail_url)
-                                        <img
-                                            src="{{ $clip->thumbnail_url }}"
-                                            alt="{{ $clip->title }}"
-                                            class="w-full h-full object-cover"
-                                            loading="lazy"
-                                        >
-                                    @else
-                                        <div class="w-full h-full flex items-center justify-center text-gray-600">
-                                            <i class="fas fa-video text-3xl" aria-hidden="true"></i>
-                                        </div>
-                                    @endif
-
-                                    <!-- Duration Badge -->
-                                    <div class="absolute bottom-2 right-2 bg-black/80 text-white text-xs font-medium px-2 py-0.5 rounded">
-                                        {{ round($clip->duration, 1) }}s
-                                    </div>
-                                </div>
-
-                                <!-- Content -->
-                                <div class="p-4">
-                                    <h3 class="text-white font-medium text-sm mb-3 line-clamp-2 leading-snug" title="{{ $clip->title }}">
-                                        {{ $clip->title }}
-                                    </h3>
-
-                                    <div class="space-y-2">
-                                        <!-- Broadcaster -->
-                                        <div class="flex items-center gap-2 text-xs">
-                                            <i class="fas fa-user text-gray-500 w-3" aria-hidden="true"></i>
-                                            <span class="text-gray-400 truncate">{{ $clip->broadcaster?->twitch_display_name ?? 'Unknown' }}</span>
-                                        </div>
-
-                                        <!-- Stats Row -->
-                                        <div class="flex items-center justify-between pt-2 border-t border-gray-700">
-                                            <div class="flex items-center gap-3 text-xs text-gray-500">
-                                                <span class="flex items-center gap-1">
-                                                    <i class="fas fa-eye" aria-hidden="true"></i>
-                                                    {{ number_format($clip->view_count) }}
-                                                </span>
-                                                @if($clip->upvotes > 0)
-                                                    <span class="flex items-center gap-1 text-gray-400">
-                                                        <i class="fas fa-thumbs-up" aria-hidden="true"></i>
-                                                        {{ $clip->upvotes }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <span class="text-xs text-gray-500">
-                                                {{ $clip->created_at_twitch?->format('M j') ?? $clip->created_at->format('M j') }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
+                            <x-ui.clip-card :clip="$clip" />
                         @endforeach
                     </div>
 
                     @if($clipsCount > 12)
-                        <div class="mt-6 text-center">
-                            <a
-                                href="{{ route('clips.list', ['game' => $game->id]) }}"
-                                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors"
+                        <div class="mt-8 text-center">
+                            <x-ui.button
+                                :href="route('clips.list', ['game' => $game->id])"
+                                variant="secondary"
+                                icon="arrow-right"
+                                icon-position="right"
                             >
                                 {{ __('games.view_all_clips') }}
-                                <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                            </a>
+                            </x-ui.button>
                         </div>
                     @endif
                 @else
-                    <!-- Empty State -->
-                    <div class="text-center py-12">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-gray-800 border border-gray-700 mb-4">
-                            <i class="fas fa-video text-gray-500 text-2xl" aria-hidden="true"></i>
-                        </div>
-                        <h3 class="text-lg font-medium text-gray-300 mb-2">{{ __('games.no_clips_found') }}</h3>
-                        <p class="text-sm text-gray-500">{{ __('games.no_clips_for_game') }}</p>
+                    <div class="text-center py-16 bg-zinc-800 border border-zinc-700 rounded-lg">
+                        <i class="fa-solid fa-video text-zinc-600 text-3xl mb-3 block"></i>
+                        <p class="text-zinc-400">{{ __('games.no_clips_found') }}</p>
                     </div>
                 @endif
             </div>

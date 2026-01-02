@@ -14,12 +14,19 @@ use App\Models\Clip;
 use App\Models\User;
 use App\Services\Cache\QueryCacheService;
 use App\Services\Clip\ClipService;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+
+use function abort;
+use function compact;
+use function config;
+use function response;
+use function view;
 
 /**
  * Controller for managing clip operations.
@@ -31,12 +38,12 @@ use Illuminate\Support\Facades\Log;
  * - Managing featured clips
  * - User-specific clip listings
  */
-class ClipController extends Controller
+final class ClipController extends Controller
 {
     public function __construct(
         private SubmitClipAction $submitClipAction,
         private QueryCacheService $queryCache,
-        private ClipService $clipService
+        private ClipService $clipService,
     ) {}
 
     /**
@@ -76,7 +83,7 @@ class ClipController extends Controller
             return response()->json([
                 'data' => $clips,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve clips.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -132,7 +139,7 @@ class ClipController extends Controller
                 'message' => $e->getMessage(),
                 'error'   => 'permission_denied',
             ], 403);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Clip submission failed', [
                 'error'        => $e->getMessage(),
                 'user_id'      => Auth::id(),
@@ -175,9 +182,9 @@ class ClipController extends Controller
 
         $relatedClips = Clip::query()
             ->where('id', '!=', $clip->id)
-            ->where(fn ($q) => $q->where('game_id', $clip->game_id)->orWhere('broadcaster_id', $clip->broadcaster_id))
+            ->where(static fn ($q) => $q->where('game_id', $clip->game_id)->orWhere('broadcaster_id', $clip->broadcaster_id))
             ->approved()
-            ->with(['broadcaster', 'game'])
+            ->with(['broadcaster:id,twitch_display_name,twitch_login,twitch_avatar', 'game:id,name,box_art_url,local_box_art_path', 'submitter:id,twitch_display_name,twitch_login'])
             ->limit(6)
             ->get();
 
@@ -197,21 +204,22 @@ class ClipController extends Controller
                 case 'approve':
                     $clip->approve($moderator);
                     $message = 'Clip approved successfully.';
-                    break;
 
+                    break;
                 case 'reject':
-                    $clip->reject($request->string('reason'), $moderator);
+                    $clip->reject($moderator, $request->string('reason'));
                     $message = 'Clip rejected successfully.';
-                    break;
 
+                    break;
                 case 'flag':
-                    $clip->flag($request->string('reason'), $moderator);
+                    $clip->flag($moderator, $request->string('reason'));
                     $message = 'Clip flagged successfully.';
-                    break;
 
+                    break;
                 case 'toggle_featured':
                     $this->clipService->toggleFeatured($clip);
                     $message = $clip->is_featured ? 'Clip marked as featured.' : 'Clip removed from featured.';
+
                     break;
             }
 
@@ -224,7 +232,7 @@ class ClipController extends Controller
                     'moderator:id,twitch_display_name',
                 ]),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to update clip.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -245,7 +253,7 @@ class ClipController extends Controller
             return response()->json([
                 'message' => 'Clip deleted successfully.',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to delete clip.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -259,10 +267,7 @@ class ClipController extends Controller
     public function pending(Request $request): JsonResponse
     {
         // Check if user has any moderation permissions
-        $hasModerationPermission = Auth::user()->broadcasterSettings ||
-            Auth::user()->clipPermissionsReceived()->where('can_moderate_clips', true)->exists();
-
-        if (! $hasModerationPermission) {
+        if (! Auth::user()->canModerate()) {
             abort(403, 'Unauthorized');
         }
 
@@ -277,7 +282,7 @@ class ClipController extends Controller
                 ->paginate(20);
 
             return response()->json($clips);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve pending clips.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -307,7 +312,7 @@ class ClipController extends Controller
                 ->paginate(20);
 
             return response()->json($clips);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve user clips.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -316,7 +321,7 @@ class ClipController extends Controller
     }
 
     /**
-     * Get featured clips
+     * Get featured clips.
      */
     public function featured(Request $request): JsonResponse
     {
@@ -332,7 +337,7 @@ class ClipController extends Controller
                     'game:id,name',
                 ]),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve featured clips.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -341,7 +346,7 @@ class ClipController extends Controller
     }
 
     /**
-     * Get recent clips
+     * Get recent clips.
      */
     public function recent(Request $request): JsonResponse
     {
@@ -357,7 +362,7 @@ class ClipController extends Controller
                     'game:id,name',
                 ]),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve recent clips.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -366,7 +371,7 @@ class ClipController extends Controller
     }
 
     /**
-     * Search clips
+     * Search clips.
      */
     public function search(Request $request): JsonResponse
     {
@@ -387,7 +392,7 @@ class ClipController extends Controller
                     'game:id,name',
                 ]),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to search clips.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
@@ -396,7 +401,7 @@ class ClipController extends Controller
     }
 
     /**
-     * Get user clip statistics
+     * Get user clip statistics.
      */
     public function stats(Request $request, User $user): JsonResponse
     {
@@ -411,7 +416,7 @@ class ClipController extends Controller
             return response()->json([
                 'data' => $stats,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error'   => 'Failed to retrieve user statistics.',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',

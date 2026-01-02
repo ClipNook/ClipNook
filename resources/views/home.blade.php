@@ -1,201 +1,246 @@
 <x-layouts.app title="{{ __('ui.home') }}">
-    <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gray-950">
-        <div class="max-w-7xl mx-auto">
-            <!-- Hero Section -->
-            <div class="mb-16">
-                <div class="max-w-2xl mx-auto text-center mb-8">
-                    <h1 class="text-4xl sm:text-5xl font-bold text-white mb-4 leading-tight">
-                        {{ __('home.welcome_title', ['app_name' => config('app.name')]) }}
-                    </h1>
-                    <p class="text-lg text-gray-300 leading-relaxed mb-8">
-                        {{ __('home.welcome_subtitle') }}
-                    </p>
+    <div class="min-h-screen bg-zinc-950">
+        <!-- Hero Section -->
+        <section class="py-32 px-4 sm:px-6 lg:px-8 relative">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center space-y-16">
+                    <!-- Hero Icon Badge -->
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-zinc-900 border-2 border-violet-500 rounded-2xl">
+                        <i class="fa-solid fa-video text-3xl text-violet-400"></i>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold text-zinc-100 leading-tight">
+                            {{ __('home.welcome_title', ['app_name' => config('app.name')]) }}
+                        </h1>
 
-                    @auth
-                        <!-- Logged in CTAs -->
-                        <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                            <a href="{{ route('clips.submit') }}"
-                               class="inline-flex justify-center items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors">
-                                <i class="fas fa-plus mr-2" aria-hidden="true"></i>
-                                {{ __('home.submit_clip') }}
-                            </a>
-                            <a href="{{ route('clips.list') }}"
-                               class="inline-flex justify-center items-center px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors">
-                                <i class="fas fa-list mr-2" aria-hidden="true"></i>
-                                {{ __('home.browse_clips') }}
-                            </a>
+                        <p class="text-xl text-zinc-400 max-w-3xl mx-auto leading-relaxed">
+                            {{ __('home.welcome_subtitle') }}
+                        </p>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                        <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
+                            <div class="text-center space-y-2">
+                                <div class="text-3xl font-bold text-zinc-100">
+                                    {{ number_format($stats['clips_count'] ?? 0) }}
+                                </div>
+                                <div class="text-sm text-zinc-500 uppercase tracking-wider">{{ __('home.clips') }}</div>
+                            </div>
                         </div>
-                    @else
-                        <!-- Guest CTA -->
-                        <a href="{{ route('auth.login') }}"
-                           class="inline-flex justify-center items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors">
-                            <i class="fas fa-sign-in-alt mr-2" aria-hidden="true"></i>
-                            {{ __('nav.login') }}
-                        </a>
-                    @endauth
+
+                        <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
+                            <div class="text-center space-y-2">
+                                <div class="text-3xl font-bold text-zinc-100">
+                                    {{ number_format($stats['games_count'] ?? 0) }}
+                                </div>
+                                <div class="text-sm text-zinc-500 uppercase tracking-wider">{{ __('home.games') }}</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
+                            <div class="text-center space-y-2">
+                                <div class="text-3xl font-bold text-zinc-100">
+                                    {{ number_format($stats['users_count'] ?? 0) }}
+                                </div>
+                                <div class="text-sm text-zinc-500 uppercase tracking-wider">{{ __('home.users') }}</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
+                            <div class="text-center space-y-2">
+                                <div class="text-3xl font-bold text-zinc-100">
+                                    {{ number_format($stats['views_count'] ?? 0) }}
+                                </div>
+                                <div class="text-sm text-zinc-500 uppercase tracking-wider">{{ __('home.views') }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CTA Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center pt-8">
+                        @auth
+                            <a href="{{ route('clips.submit') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-(--color-accent-500) hover:bg-(--color-accent-600) text-zinc-100 rounded text-lg font-medium transition-colors">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>{{ __('home.submit_clip') }}</span>
+                            </a>
+                            <a href="{{ route('clips.list') }}" class="inline-flex items-center gap-2 px-6 py-3 border border-zinc-700 hover:border-(--color-accent-500)/50 text-zinc-400 hover:text-(--color-accent-400) rounded text-lg font-medium transition-colors">
+                                <i class="fa-solid fa-film"></i>
+                                <span>{{ __('home.browse_clips') }}</span>
+                            </a>
+                        @else
+                            <a href="{{ route('auth.login') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-(--color-accent-500) hover:bg-(--color-accent-600) text-zinc-100 rounded text-lg font-medium transition-colors">
+                                <i class="fa-brands fa-twitch"></i>
+                                <span>{{ __('nav.login') }}</span>
+                            </a>
+                        @endauth
+                    </div>
                 </div>
-
-                <!-- Flash Messages -->
-                @if(session('success'))
-                    <div class="max-w-2xl mx-auto mb-6 p-4 bg-green-900/50 border border-green-700 text-green-200 rounded-lg">
-                        <div class="flex items-start">
-                            <i class="fas fa-check-circle mr-3 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
-                            <p>{{ session('success') }}</p>
-                        </div>
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="max-w-2xl mx-auto p-4 bg-red-900/50 border border-red-700 text-red-200 rounded-lg">
-                        <div class="flex items-start">
-                            <i class="fas fa-exclamation-triangle mr-3 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
-                            <p>{{ session('error') }}</p>
-                        </div>
-                    </div>
-                @endif
             </div>
+        </section>
 
-            <!-- Top Games -->
-            <div class="mb-16">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-white">
-                        <i class="fas fa-gamepad mr-2 text-gray-500" aria-hidden="true"></i>
-                        Top Games
-                    </h2>
-                    <a href="{{ route('games.list') }}" class="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors">
-                        {{ __('home.view_all') }} →
-                    </a>
+        <!-- Top Games Section -->
+        <section class="py-16 px-4 sm:px-6 lg:px-8 border-t border-zinc-800">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col items-center gap-6 mb-16">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-zinc-900 border-2 border-violet-500 rounded-xl">
+                        <i class="fa-solid fa-gamepad text-2xl text-violet-400"></i>
+                    </div>
+                    <div class="text-center">
+                        <h2 class="text-4xl font-bold text-zinc-100 mb-3">{{ __('games.top_games') }}</h2>
+                        <p class="text-lg text-zinc-400 max-w-2xl">{{ __('games.discover_popular') }}</p>
+                    </div>
                 </div>
 
                 @if($topGames->count() > 0)
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                         @foreach($topGames as $game)
-                            <a href="{{ route('games.view', $game) }}" class="group block bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors overflow-hidden">
-                                <div class="aspect-[3/4] bg-gray-700 relative">
-                                    @if($game->local_box_art_path)
-                                        <img
-                                            src="{{ Storage::url($game->local_box_art_path) }}"
-                                            alt="{{ $game->name }}"
-                                            class="w-full h-full object-cover"
-                                            loading="lazy"
-                                        >
-                                    @else
-                                        <div class="w-full h-full flex items-center justify-center">
-                                            <i class="fas fa-gamepad text-gray-600 text-3xl" aria-hidden="true"></i>
-                                        </div>
-                                    @endif
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-                                        <span class="text-xs text-gray-300">{{ $game->clips_count }} {{ Str::plural('clip', $game->clips_count) }}</span>
-                                    </div>
-                                </div>
-                                <div class="p-3">
-                                    <p class="text-sm font-medium text-gray-300 truncate">{{ $game->name }}</p>
-                                </div>
-                            </a>
+                            <x-ui.game-card :game="$game" />
                         @endforeach
                     </div>
+
+                    <div class="text-center mt-8">
+                        <a href="{{ route('games.list') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-zinc-700 hover:border-(--color-accent-500)/50 text-zinc-400 hover:text-(--color-accent-400) rounded text-sm font-medium transition-colors">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            <span>{{ __('games.view_all') }}</span>
+                        </a>
+                    </div>
                 @else
-                    <div class="text-center py-8 bg-gray-800/50 rounded-lg border border-gray-700">
-                        <p class="text-gray-400">{{ __('games.no_games_yet') }}</p>
+                    <div class="text-center py-12">
+                        <div class="max-w-md mx-auto space-y-4">
+                            <div class="w-16 h-16 bg-zinc-800 rounded-lg flex items-center justify-center mx-auto">
+                                <i class="fa-solid fa-gamepad text-zinc-600 text-xl"></i>
+                            </div>
+                            <div class="space-y-2">
+                                <h3 class="text-lg font-medium text-zinc-300">{{ __('games.no_games_yet') }}</h3>
+                                <p class="text-zinc-500 text-sm">{{ __('games.be_first_to_add') }}</p>
+                            </div>
+                        </div>
                     </div>
                 @endif
             </div>
+        </section>
 
-            <!-- Latest Clips -->
-            <div class="mb-16">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-white">
-                        <i class="fas fa-clock mr-2 text-gray-500" aria-hidden="true"></i>
-                        Latest Clips
-                    </h2>
-                    <a href="{{ route('clips.list') }}" class="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors">
-                        {{ __('home.view_all') }} →
-                    </a>
+        <!-- Latest Clips Section -->
+        <section class="py-16 px-4 sm:px-6 lg:px-8 border-t border-zinc-800">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col items-center gap-6 mb-16">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-zinc-900 border-2 border-violet-500 rounded-xl">
+                        <i class="fa-solid fa-clock text-2xl text-violet-400"></i>
+                    </div>
+                    <div class="text-center">
+                        <h2 class="text-4xl font-bold text-zinc-100 mb-3">{{ __('clips.latest_clips') }}</h2>
+                        <p class="text-lg text-zinc-400 max-w-2xl">{{ __('clips.discover_latest') }}</p>
+                    </div>
                 </div>
 
                 @if($latestClips->count() > 0)
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach($latestClips as $clip)
-                            <a href="{{ route('clips.view', $clip) }}" class="group block bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-gray-600 transition-colors">
-                                <div class="aspect-video bg-gray-700 relative overflow-hidden">
-                                    <img
-                                        src="{{ $clip->thumbnail_url }}"
-                                        alt="{{ $clip->title }}"
-                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                                        loading="lazy"
-                                    >
-                                    <div class="absolute bottom-2 right-2 px-2 py-1 bg-black/70 rounded text-xs text-gray-300 font-medium">
-                                        {{ $clip->duration }}s
-                                    </div>
-                                </div>
-                                <div class="p-4">
-                                    <h3 class="font-medium text-white truncate mb-2">{{ $clip->title }}</h3>
-                                    <div class="flex items-center justify-between text-xs text-gray-400 mb-3">
-                                        <span>{{ $clip->broadcaster->name }}</span>
-                                        <span>{{ $clip->created_at->shortRelativeDiffForHumans() }}</span>
-                                    </div>
-                                    <div class="flex items-center justify-between text-xs text-gray-500">
-                                        <span><i class="fas fa-eye mr-1" aria-hidden="true"></i>{{ number_format($clip->views) }}</span>
-                                        <span><i class="fas fa-thumbs-up mr-1" aria-hidden="true"></i>{{ number_format($clip->upvotes) }}</span>
-                                    </div>
-                                </div>
-                            </a>
+                            <x-ui.clip-card :clip="$clip" />
                         @endforeach
                     </div>
+
+                    <div class="text-center mt-8">
+                        <a href="{{ route('clips.list') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-zinc-700 hover:border-(--color-accent-500)/50 text-zinc-400 hover:text-(--color-accent-400) rounded text-sm font-medium transition-colors">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            <span>{{ __('clips.view_all') }}</span>
+                        </a>
+                    </div>
                 @else
-                    <div class="text-center py-8 bg-gray-800/50 rounded-lg border border-gray-700">
-                        <p class="text-gray-400">{{ __('clips.no_clips_yet') }}</p>
+                    <div class="text-center py-12">
+                        <div class="max-w-md mx-auto space-y-4">
+                            <div class="w-16 h-16 bg-zinc-800 rounded-lg flex items-center justify-center mx-auto">
+                                <i class="fa-solid fa-film text-zinc-600 text-xl"></i>
+                            </div>
+                            <div class="space-y-2">
+                                <h3 class="text-lg font-medium text-zinc-300">{{ __('clips.no_clips_yet') }}</h3>
+                                <p class="text-zinc-500 text-sm">{{ __('clips.be_first_to_submit') }}</p>
+                            </div>
+                        </div>
                     </div>
                 @endif
             </div>
+        </section>
 
-            <!-- Top Clips -->
-            <div>
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-white">
-                        <i class="fas fa-fire mr-2 text-gray-500" aria-hidden="true"></i>
-                        Top Clips
-                    </h2>
-                    <a href="{{ route('clips.list') }}" class="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors">
-                        {{ __('home.view_all') }} →
-                    </a>
+        <!-- Top Clips Section -->
+        <section class="py-16 px-4 sm:px-6 lg:px-8 border-t border-zinc-800">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col items-center gap-6 mb-16">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-zinc-900 border-2 border-violet-500 rounded-xl">
+                        <i class="fa-solid fa-fire text-2xl text-violet-400"></i>
+                    </div>
+                    <div class="text-center">
+                        <h2 class="text-4xl font-bold text-zinc-100 mb-3">{{ __('clips.top_clips') }}</h2>
+                        <p class="text-lg text-zinc-400 max-w-2xl">{{ __('clips.discover_top') }}</p>
+                    </div>
                 </div>
 
                 @if($topClips->count() > 0)
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach($topClips as $clip)
-                            <a href="{{ route('clips.view', $clip) }}" class="group block bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-gray-600 transition-colors">
-                                <div class="aspect-video bg-gray-700 relative overflow-hidden">
-                                    <img
-                                        src="{{ $clip->thumbnail_url }}"
-                                        alt="{{ $clip->title }}"
-                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                                        loading="lazy"
-                                    >
-                                    <div class="absolute bottom-2 right-2 px-2 py-1 bg-black/70 rounded text-xs text-gray-300 font-medium">
-                                        {{ $clip->duration }}s
-                                    </div>
-                                </div>
-                                <div class="p-4">
-                                    <h3 class="font-medium text-white truncate mb-2">{{ $clip->title }}</h3>
-                                    <div class="flex items-center justify-between text-xs text-gray-400 mb-3">
-                                        <span>{{ $clip->broadcaster->name }}</span>
-                                        <span>{{ $clip->created_at->shortRelativeDiffForHumans() }}</span>
-                                    </div>
-                                    <div class="flex items-center justify-between text-xs text-gray-500">
-                                        <span><i class="fas fa-eye mr-1" aria-hidden="true"></i>{{ number_format($clip->views) }}</span>
-                                        <span><i class="fas fa-thumbs-up mr-1" aria-hidden="true"></i>{{ number_format($clip->upvotes) }}</span>
-                                    </div>
-                                </div>
-                            </a>
+                            <x-ui.clip-card :clip="$clip" />
                         @endforeach
                     </div>
+
+                    <div class="text-center mt-8">
+                        <a href="{{ route('clips.list', ['sort' => 'top']) }}" class="inline-flex items-center gap-2 px-4 py-2 border border-zinc-700 hover:border-(--color-accent-500)/50 text-zinc-400 hover:text-(--color-accent-400) rounded text-sm font-medium transition-colors">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            <span>{{ __('clips.view_top') }}</span>
+                        </a>
+                    </div>
                 @else
-                    <div class="text-center py-8 bg-gray-800/50 rounded-lg border border-gray-700">
-                        <p class="text-gray-400">{{ __('clips.no_clips_yet') }}</p>
+                    <div class="text-center py-12">
+                        <div class="max-w-md mx-auto space-y-4">
+                            <div class="w-16 h-16 bg-zinc-800 rounded-lg flex items-center justify-center mx-auto">
+                                <i class="fa-solid fa-trophy text-zinc-600 text-xl"></i>
+                            </div>
+                            <div class="space-y-2">
+                                <h3 class="text-lg font-medium text-zinc-300">{{ __('clips.no_clips_yet') }}</h3>
+                                <p class="text-zinc-500 text-sm">{{ __('clips.be_first_to_submit') }}</p>
+                            </div>
+                        </div>
                     </div>
                 @endif
             </div>
-        </div>
+        </section>
+
+        <!-- Call to Action Section -->
+        <section class="py-16 px-4 sm:px-6 lg:px-8 border-t border-zinc-800">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-8">
+                    <div class="space-y-6">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-400">
+                            <i class="fa-solid fa-rocket text-(--color-accent-400)"></i>
+                            {{ __('home.get_started') }}
+                        </div>
+
+                        <div class="space-y-4">
+                            <h2 class="text-4xl font-bold text-zinc-100">
+                                {{ __('home.cta_title') }}
+                            </h2>
+                            <p class="text-lg text-zinc-400 max-w-2xl mx-auto">
+                                {{ __('home.cta_subtitle') }}
+                            </p>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                            @auth
+                                <a href="{{ route('clips.submit') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-(--color-accent-500) hover:bg-(--color-accent-600) text-zinc-100 rounded text-lg font-medium transition-colors">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>{{ __('home.submit_clip') }}</span>
+                                </a>
+                            @else
+                                <a href="{{ route('clips.list') }}" class="inline-flex items-center gap-2 px-6 py-3 border border-zinc-700 hover:border-(--color-accent-500)/50 text-zinc-400 hover:text-(--color-accent-400) rounded text-lg font-medium transition-colors">
+                                    <i class="fa-solid fa-film"></i>
+                                    <span>{{ __('home.browse_clips') }}</span>
+                                </a>
+                            @endauth
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 </x-layouts.app>

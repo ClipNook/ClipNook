@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models\Concerns\Clip;
 
+use App\Models\User;
+
+use function config;
+use function now;
+
 /**
  * Handles clip voting functionality.
  */
@@ -38,8 +43,8 @@ trait HasVoting
      */
     public function isPopular(): bool
     {
-        return $this->score > config('constants.limits.clip_score_threshold', 10) &&
-               $this->view_count > config('constants.limits.clip_view_threshold', 100);
+        return $this->score > config('constants.limits.clip_score_threshold', 10)
+               && $this->view_count > config('constants.limits.clip_view_threshold', 100);
     }
 
     /**
@@ -53,7 +58,7 @@ trait HasVoting
     /**
      * Upvote the clip.
      */
-    public function upvote(\App\Models\User $user): bool
+    public function upvote(User $user): bool
     {
         $existingVote = $this->votes()->where('user_id', $user->id)->first();
 
@@ -64,14 +69,13 @@ trait HasVoting
                 $this->decrement('upvotes');
 
                 return false;
-            } else {
-                // Change from downvote to upvote
-                $existingVote->update(['vote_type' => 'upvote']);
-                $this->increment('upvotes');
-                $this->decrement('downvotes');
-
-                return true;
             }
+            // Change from downvote to upvote
+            $existingVote->update(['vote_type' => 'upvote']);
+            $this->increment('upvotes');
+            $this->decrement('downvotes');
+
+            return true;
         }
 
         // New upvote
@@ -87,7 +91,7 @@ trait HasVoting
     /**
      * Downvote the clip.
      */
-    public function downvote(\App\Models\User $user): bool
+    public function downvote(User $user): bool
     {
         $existingVote = $this->votes()->where('user_id', $user->id)->first();
 
@@ -98,14 +102,13 @@ trait HasVoting
                 $this->decrement('downvotes');
 
                 return false;
-            } else {
-                // Change from upvote to downvote
-                $existingVote->update(['vote_type' => 'downvote']);
-                $this->decrement('upvotes');
-                $this->increment('downvotes');
-
-                return true;
             }
+            // Change from upvote to downvote
+            $existingVote->update(['vote_type' => 'downvote']);
+            $this->decrement('upvotes');
+            $this->increment('downvotes');
+
+            return true;
         }
 
         // New downvote
@@ -121,7 +124,7 @@ trait HasVoting
     /**
      * Get vote type for a specific user.
      */
-    public function getVoteTypeForUser(\App\Models\User $user): ?string
+    public function getVoteTypeForUser(User $user): ?string
     {
         $vote = $this->votes()->where('user_id', $user->id)->first();
 
@@ -131,7 +134,7 @@ trait HasVoting
     /**
      * Remove vote from user.
      */
-    public function removeVote(\App\Models\User $user): void
+    public function removeVote(User $user): void
     {
         $this->votes()->where('user_id', $user->id)->delete();
     }
@@ -139,7 +142,7 @@ trait HasVoting
     /**
      * Toggle vote for user.
      */
-    public function toggleVote(\App\Models\User $user, string $type): void
+    public function toggleVote(User $user, string $type): void
     {
         if ($type === 'upvote') {
             $this->upvote($user);
