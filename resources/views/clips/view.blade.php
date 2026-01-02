@@ -50,7 +50,7 @@
                 <!-- Description -->
                 @if ($clip->description)
                     <!-- Subtle accent border at top -->
-                    <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent my-2">
+                    <div class="accent-border-divider">
                     </div>
 
                     <div class="border-t border-zinc-800 pt-6 mb-3">
@@ -61,7 +61,7 @@
                 @endif
 
                 <!-- Subtle accent border at top -->
-                <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent my-2"></div>
+                <div class="accent-border-divider"></div>
 
 
                 <!-- Tags/Meta -->
@@ -106,7 +106,7 @@
                     </div>
                     
                     <!-- Subtle accent border at top -->
-                    <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent my-2">
+                    <div class="accent-border-divider">
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

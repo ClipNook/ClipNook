@@ -142,6 +142,27 @@
     --color-info: var(--color-accent-blue-500);
 }
 
+/* Accent Border Utilities */
+.accent-border-header {
+    @apply h-px bg-linear-to-r from-(--color-accent-500)/30 to-transparent my-2;
+}
+
+.accent-border-divider {
+    @apply h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent my-2;
+}
+
+.accent-border-divider-no-margin {
+    @apply h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent;
+}
+
+.accent-border-divider-medium {
+    @apply h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent mb-6;
+}
+
+.accent-border-divider-large {
+    @apply h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent mb-8;
+}
+
 /* Theme Classes - Dark Mode Optimized */
 .theme-violet {
     --color-accent-50: var(--color-accent-violet-50);

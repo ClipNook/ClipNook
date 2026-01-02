@@ -42,7 +42,7 @@
             <div class="max-w-7xl mx-auto space-y-16">
                 <!-- Latest Clips -->
                 <div class="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-8">
-                    <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent mb-8"></div>
+                    <div class="accent-border-divider-large"></div>
 
                     <div class="flex items-center justify-between mb-8">
                         <div class="flex items-center gap-4">
@@ -76,7 +76,7 @@
 
                 <!-- Top Games -->
                 <div class="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-8">
-                    <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent mb-8"></div>
+                    <div class="accent-border-divider-large"></div>
 
                     <div class="flex items-center justify-between mb-8">
                         <div class="flex items-center gap-4">
@@ -110,7 +110,7 @@
 
                 <!-- Top Clips -->
                 <div class="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-8">
-                    <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent mb-8"></div>
+                    <div class="accent-border-divider-large"></div>
 
                     <div class="flex items-center justify-between mb-8">
                         <div class="flex items-center gap-4">

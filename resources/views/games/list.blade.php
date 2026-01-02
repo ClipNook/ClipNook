@@ -12,7 +12,7 @@
                         <div>
                             <h1 class="text-2xl font-semibold text-zinc-100">{{ __('games.list_page_title') }}</h1>
                             <!-- Subtle accent border at top -->
-                            <div class="h-px bg-linear-to-r from-(--color-accent-500)/30 to-transparent my-2"></div>
+                            <div class="accent-border-header"></div>
                             <p class="text-sm text-zinc-400">{{ __('games.list_page_subtitle') }}</p>
                         </div>
                     </div>

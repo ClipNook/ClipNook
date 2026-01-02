@@ -10,7 +10,7 @@
                     <div>
                         <h1 class="text-2xl font-semibold text-zinc-100">{{ $game->name }}</h1>
                         <!-- Subtle accent border at top -->
-                        <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent my-2"></div>
+                        <div class="accent-border-divider"></div>
                         <p class="text-sm text-zinc-400">{{ __('games.view_page_subtitle') }}</p>
                     </div>
                 </div>
@@ -19,7 +19,7 @@
             <!-- Game Info -->
             <div class="border border-zinc-800 rounded-lg p-6 bg-zinc-900/50">
                 <!-- Subtle accent border at top -->
-                <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent mb-6"></div>
+                <div class="accent-border-divider-medium"></div>
 
                 <div class="flex flex-col lg:flex-row items-center gap-6">
                     <!-- Game Cover -->
@@ -58,7 +58,7 @@
             <!-- Clips Section -->
             <div class="border border-zinc-800 rounded-lg p-6 bg-zinc-900/50">
                 <!-- Subtle accent border at top -->
-                <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent mb-6"></div>
+                <div class="accent-border-divider-medium"></div>
 
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-semibold text-zinc-100">{{ __('games.clips_section') }}</h2>
