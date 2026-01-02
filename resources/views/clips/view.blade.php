@@ -97,6 +97,8 @@
             <div class="absolute bottom-1/3 right-10 w-32 h-32 bg-(--color-accent-600)/5 rounded-full blur-2xl"></div>
         </div>
 
+        <div class="accent-border-divider-large"></div>
+
         <!-- Content Section -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
             <!-- Description Section -->
