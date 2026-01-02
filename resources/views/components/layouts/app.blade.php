@@ -333,19 +333,19 @@
                         {{ __('footer.legal') }}
                     </h4>
                     <div class="flex flex-col gap-3">
-                        <a href="#"
+                        <a href="{{ route('imprint') }}"
                             class="text-zinc-500 hover:text-(--color-accent-400) text-sm transition-colors flex items-center gap-2 group">
                             <i
                                 class="fa-solid fa-chevron-right text-xs text-transparent group-hover:text-(--color-accent-500) transition-colors"></i>
                             {{ __('footer.imprint') }}
                         </a>
-                        <a href="#"
+                        <a href="{{ route('privacy') }}"
                             class="text-zinc-500 hover:text-(--color-accent-400) text-sm transition-colors flex items-center gap-2 group">
                             <i
                                 class="fa-solid fa-chevron-right text-xs text-transparent group-hover:text-(--color-accent-500) transition-colors"></i>
                             {{ __('footer.privacy_policy') }}
                         </a>
-                        <a href="#"
+                        <a href="{{ route('terms') }}"
                             class="text-zinc-500 hover:text-(--color-accent-400) text-sm transition-colors flex items-center gap-2 group">
                             <i
                                 class="fa-solid fa-chevron-right text-xs text-transparent group-hover:text-(--color-accent-500) transition-colors"></i>

@@ -255,4 +255,11 @@ return [
 
     'clip_approved' => 'Clip has been approved successfully',
     'clip_rejected' => 'Clip has been rejected',
+
+    // =========================================================================
+    // LEGAL & PRIVACY
+    // =========================================================================
+
+    'submit_terms_notice' => 'By submitting this clip, you agree to our :terms.',
+    'learn_more_privacy' => 'Learn more',
 ];
