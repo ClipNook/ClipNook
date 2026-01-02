@@ -111,6 +111,9 @@
                                             <span class="hidden sm:inline">{{ __('clips.delete_comment') }}</span>
                                         </button>
                                     @endif
+                                    @if(Auth::check())
+                                        <livewire:clips.clip-report :comment="$comment" :key="'report-comment-' . $comment->id" />
+                                    @endif
                                 @endauth
                             </div>
                         @endif
@@ -144,6 +147,8 @@
                                                             <i class="fa-solid fa-trash"></i>
                                                             <span class="hidden sm:inline">{{ __('clips.delete_comment') }}</span>
                                                         </button>
+                                                    @else
+                                                        <livewire:clips.clip-report :comment="$reply" :key="'report-reply-' . $reply->id" />
                                                     @endif
                                                 @endauth
                                             @endif

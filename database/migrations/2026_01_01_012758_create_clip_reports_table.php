@@ -15,6 +15,7 @@ return new class() extends Migration {
         Schema::create('clip_reports', static function (Blueprint $table): void {
             $table->id();
             $table->foreignId('clip_id')->constrained()->onDelete('cascade');
+            $table->foreignId('comment_id')->nullable()->constrained('clip_comments')->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->enum('reason', ['inappropriate', 'spam', 'copyright', 'misleading', 'other']);
             $table->text('description')->nullable();
