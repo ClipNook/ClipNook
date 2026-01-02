@@ -7,16 +7,14 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use Illuminate\View\View;
 
-class GameController extends Controller
-{
-    public function index(): View
-    {
-        return view('games.list');
-    }
+use function compact;
+use function view;
 
-    public function show(Game $game): View
+final class GameController extends Controller
+{
+    public function view(Game $game): View
     {
-        $game->load(['clips' => function ($query) {
+        $game->load(['clips' => static function ($query): void {
             $query->where('status', 'approved')
                 ->latest('created_at')
                 ->with(['broadcaster', 'game'])

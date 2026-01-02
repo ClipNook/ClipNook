@@ -6,6 +6,8 @@ use App\Http\Controllers\ClipController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TwitchOAuthController;
+use App\Livewire\Clips\ClipList;
+use App\Livewire\Games\GameList;
 use Illuminate\Support\Facades\Route;
 
 // Home
@@ -28,15 +30,15 @@ Route::group(['prefix' => 'auth', 'as' => 'auth.'], static function (): void {
 
 // Clips
 Route::group(['prefix' => 'clips', 'as' => 'clips.'], static function (): void {
-    Route::get('/', static fn () => view('clips.list'))->name('list');
+    Route::get('/', ClipList::class)->name('list');
     Route::get('/submit', static fn () => view('clips.submit'))->middleware('auth')->name('submit');
     Route::get('/view/{clip}', [ClipController::class, 'view'])->name('view');
 });
 
 // Games
 Route::group(['prefix' => 'games', 'as' => 'games.'], static function (): void {
-    Route::get('/', [GameController::class, 'index'])->name('list');
-    Route::get('/{game}', [GameController::class, 'show'])->name('view');
+    Route::get('/', GameList::class)->name('list');
+    Route::get('/{game}', [GameController::class, 'view'])->name('view');
 });
 
 // Admin

@@ -50,7 +50,7 @@
                     <a href="{{ route('home') }}"
                         class="flex items-center gap-3 text-zinc-100 hover:text-(--color-accent-400) transition-colors group">
                         <i
-                            class="fa-solid fa-video text-lg text-zinc-400 group-hover:text-(--color-accent-400) transition-colors"></i>
+                            class="fa-solid fa-video text-lg text-(--color-accent-400) group-hover:text-(--color-accent-500) transition-colors"></i>
                         <span class="font-semibold text-xl">{{ config('app.name') }}</span>
                     </a>
                 </div>
@@ -94,48 +94,61 @@
                                 class="flex items-center gap-3 text-zinc-400 hover:text-(--color-accent-400) px-3 py-2 rounded text-sm transition-colors hover:bg-zinc-800/50">
                                 <img src="{{ auth()->user()->avatar_url }}"
                                     alt="{{ auth()->user()->twitch_display_name }}"
-                                    class="w-8 h-8 rounded object-cover border border-zinc-700 hover:border-(--color-accent-500)/50 transition-colors">
+                                    class="w-8 h-8 rounded-full object-cover border border-zinc-700 hover:border-(--color-accent-500)/50 transition-colors">
                                 <span class="hidden lg:block">{{ auth()->user()->twitch_display_name }}</span>
                                 <i class="fa-solid fa-chevron-down text-xs transition-transform"
                                     :class="{ 'rotate-180': userMenuOpen }"></i>
                             </button>
 
                             <div x-show="userMenuOpen" @click.away="userMenuOpen = false" x-transition
-                                class="absolute right-0 mt-2 w-64 bg-zinc-800 rounded shadow-lg border border-zinc-700 z-50"
+                                class="absolute right-0 mt-2 w-72 bg-zinc-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-zinc-700/50 z-50 ring-1 ring-zinc-600/20"
                                 x-cloak>
-                                <div class="px-4 py-3 border-b border-zinc-700">
-                                    <p class="text-xs text-zinc-500 uppercase tracking-wide">{{ __('nav.signed_in_as') }}
-                                    </p>
-                                    <p class="text-sm font-medium text-zinc-100 truncate">
-                                        {{ auth()->user()->twitch_display_name }}</p>
+                                <div class="px-5 py-4 border-b border-zinc-700/50 bg-gradient-to-r from-zinc-800/50 to-zinc-900/50 rounded-t-xl">
+                                    <div class="flex items-center gap-3">
+                                        <img src="{{ auth()->user()->avatar_url }}"
+                                            alt="{{ auth()->user()->twitch_display_name }}"
+                                            class="w-10 h-10 rounded-full object-cover border-2 border-(--color-accent-500)/30 shadow-sm">
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs text-zinc-500 uppercase tracking-wider font-medium">{{ __('nav.signed_in_as') }}</p>
+                                            <p class="text-sm font-semibold text-zinc-100 truncate">{{ auth()->user()->twitch_display_name }}</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="py-1">
-                                    <a href="#"
-                                        class="flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-(--color-accent-400) hover:bg-zinc-700 transition-colors">
-                                        <i class="fa-solid fa-user w-4 text-center"></i>
-                                        {{ __('nav.profile') }}
+                                <div class="py-2">
+                                    <a href="#" @click="userMenuOpen = false"
+                                        class="flex items-center gap-3 px-5 py-3 text-sm text-zinc-300 hover:text-(--color-accent-400) hover:bg-(--color-accent-500)/10 transition-all duration-200 group">
+                                        <div class="w-8 h-8 bg-zinc-800 group-hover:bg-(--color-accent-500)/20 rounded-lg flex items-center justify-center transition-colors">
+                                            <i class="fa-solid fa-user text-xs text-zinc-400 group-hover:text-(--color-accent-400) transition-colors"></i>
+                                        </div>
+                                        <span class="font-medium">{{ __('nav.profile') }}</span>
                                     </a>
-                                    <a href="#"
-                                        class="flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-(--color-accent-400) hover:bg-zinc-700 transition-colors">
-                                        <i class="fa-solid fa-gear w-4 text-center"></i>
-                                        {{ __('nav.settings') }}
+                                    <a href="#" @click="userMenuOpen = false"
+                                        class="flex items-center gap-3 px-5 py-3 text-sm text-zinc-300 hover:text-(--color-accent-400) hover:bg-(--color-accent-500)/10 transition-all duration-200 group">
+                                        <div class="w-8 h-8 bg-zinc-800 group-hover:bg-(--color-accent-500)/20 rounded-lg flex items-center justify-center transition-colors">
+                                            <i class="fa-solid fa-gear text-xs text-zinc-400 group-hover:text-(--color-accent-400) transition-colors"></i>
+                                        </div>
+                                        <span class="font-medium">{{ __('nav.settings') }}</span>
                                     </a>
                                     @if (auth()->user()->isStaff())
-                                        <div class="border-t border-zinc-700 my-1"></div>
-                                        <a href="{{ route('admin.clips') }}"
-                                            class="flex items-center gap-3 px-4 py-2 text-sm text-violet-400 hover:text-violet-300 hover:bg-zinc-700 transition-colors">
-                                            <i class="fa-solid fa-shield w-4 text-center"></i>
-                                            {{ __('nav.admin') }}
+                                        <div class="border-t border-zinc-700/50 my-2 mx-3"></div>
+                                        <a href="{{ route('admin.clips') }}" @click="userMenuOpen = false"
+                                            class="flex items-center gap-3 px-5 py-3 text-sm text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 transition-all duration-200 group">
+                                            <div class="w-8 h-8 bg-zinc-800 group-hover:bg-violet-500/20 rounded-lg flex items-center justify-center transition-colors">
+                                                <i class="fa-solid fa-shield text-xs text-zinc-400 group-hover:text-violet-400 transition-colors"></i>
+                                            </div>
+                                            <span class="font-medium">{{ __('nav.admin') }}</span>
                                         </a>
                                     @endif
                                 </div>
-                                <div class="border-t border-zinc-700 py-1">
+                                <div class="border-t border-zinc-700/50 py-2 rounded-b-xl">
                                     <form method="POST" action="{{ route('auth.twitch.logout') }}">
                                         @csrf
-                                        <button type="submit"
-                                            class="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-zinc-700 transition-colors">
-                                            <i class="fa-solid fa-right-from-bracket w-4 text-center"></i>
-                                            {{ __('nav.logout') }}
+                                        <button type="submit" @click="userMenuOpen = false"
+                                            class="flex items-center gap-3 w-full px-5 py-3 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200 group rounded-b-xl">
+                                            <div class="w-8 h-8 bg-zinc-800 group-hover:bg-red-500/20 rounded-lg flex items-center justify-center transition-colors">
+                                                <i class="fa-solid fa-right-from-bracket text-xs text-zinc-400 group-hover:text-red-400 transition-colors"></i>
+                                            </div>
+                                            <span class="font-medium">{{ __('nav.logout') }}</span>
                                         </button>
                                     </form>
                                 </div>

@@ -15,57 +15,81 @@
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-zinc-800 rounded-md p-6 border border-zinc-700">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-zinc-400 text-sm">{{ __('admin.pending_clips') }}</p>
-                        <p class="text-3xl font-bold text-yellow-400">{{ $stats['pending'] }}</p>
-                    </div>
-                    <div class="bg-yellow-500/10 rounded-full p-3">
-                        <i class="fa-solid fa-clock text-yellow-400 text-xl"></i>
+            <div class="relative bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200 group">
+                <!-- Subtle accent border -->
+                <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent"></div>
+
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-zinc-400 text-sm">{{ __('admin.pending_clips') }}</p>
+                            <p class="text-3xl font-bold text-yellow-400">{{ $stats['pending'] }}</p>
+                        </div>
+                        <div class="bg-yellow-500/10 rounded-full p-3">
+                            <i class="fa-solid fa-clock text-yellow-400 text-xl"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-zinc-800 rounded-md p-6 border border-zinc-700">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-zinc-400 text-sm">{{ __('admin.approved_clips') }}</p>
-                        <p class="text-3xl font-bold text-green-400">{{ $stats['approved'] }}</p>
-                    </div>
-                    <div class="bg-green-500/10 rounded-full p-3">
-                        <i class="fa-solid fa-check text-green-400 text-xl"></i>
+            <div class="relative bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200 group">
+                <!-- Subtle accent border -->
+                <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent"></div>
+
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-zinc-400 text-sm">{{ __('admin.approved_clips') }}</p>
+                            <p class="text-3xl font-bold text-green-400">{{ $stats['approved'] }}</p>
+                        </div>
+                        <div class="bg-green-500/10 rounded-full p-3">
+                            <i class="fa-solid fa-check text-green-400 text-xl"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-zinc-800 rounded-md p-6 border border-zinc-700">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-zinc-400 text-sm">{{ __('admin.rejected_clips') }}</p>
-                        <p class="text-3xl font-bold text-red-400">{{ $stats['rejected'] }}</p>
-                    </div>
-                    <div class="bg-red-500/10 rounded-full p-3">
-                        <i class="fa-solid fa-xmark text-red-400 text-xl"></i>
+            <div class="relative bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200 group">
+                <!-- Subtle accent border -->
+                <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent"></div>
+
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-zinc-400 text-sm">{{ __('admin.rejected_clips') }}</p>
+                            <p class="text-3xl font-bold text-red-400">{{ $stats['rejected'] }}</p>
+                        </div>
+                        <div class="bg-red-500/10 rounded-full p-3">
+                            <i class="fa-solid fa-xmark text-red-400 text-xl"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-zinc-800 rounded-md p-6 border border-zinc-700">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-zinc-400 text-sm">{{ __('admin.flagged_clips') }}</p>
-                        <p class="text-3xl font-bold text-orange-400">{{ $stats['flagged'] }}</p>
-                    </div>
-                    <div class="bg-orange-500/10 rounded-full p-3">
-                        <i class="fa-solid fa-flag text-orange-400 text-xl"></i>
+            <div class="relative bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200 group">
+                <!-- Subtle accent border -->
+                <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent"></div>
+
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-zinc-400 text-sm">{{ __('admin.flagged_clips') }}</p>
+                            <p class="text-3xl font-bold text-orange-400">{{ $stats['flagged'] }}</p>
+                        </div>
+                        <div class="bg-orange-500/10 rounded-full p-3">
+                            <i class="fa-solid fa-flag text-orange-400 text-xl"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Filters -->
-        <div class="bg-zinc-800 rounded-md p-6 border border-zinc-700 mb-6">
+        <div class="relative bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200 group mb-6">
+            <!-- Subtle accent border -->
+            <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent"></div>
+
+            <div class="p-6">
             <div class="flex flex-col md:flex-row gap-4">
                 <!-- Status Filter -->
                 <div class="flex-1">
@@ -95,7 +119,10 @@
         </div>
 
         <!-- Clips Table -->
-        <div class="bg-zinc-800 rounded-md border border-zinc-700 overflow-hidden">
+        <div class="relative bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200 group">
+            <!-- Subtle accent border -->
+            <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent"></div>
+
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-zinc-900 border-b border-zinc-700">
@@ -266,7 +293,7 @@
                 <div class="fixed inset-0 bg-black/75 transition-opacity" wire:click="closeRejectModal"></div>
 
                 <!-- Modal panel -->
-                <div class="relative inline-block bg-zinc-800 rounded-md text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full border border-zinc-700">
+                <div class="relative inline-block bg-zinc-800 rounded-md text-left overflow-hidden border border-zinc-700 sm:my-8 sm:max-w-lg sm:w-full">
                     <div class="px-6 py-5">
                         <h3 class="text-lg font-semibold text-zinc-100 mb-4">
                             {{ __('admin.reject_clip') }}

@@ -1,244 +1,145 @@
 <x-layouts.app title="{{ __('ui.home') }}">
     <div class="min-h-screen bg-zinc-950">
-        <!-- Hero Section -->
-        <section class="py-32 px-4 sm:px-6 lg:px-8 relative">
-            <div class="max-w-6xl mx-auto">
-                <div class="text-center space-y-16">
-                    <!-- Hero Icon Badge -->
-                    <div class="inline-flex items-center justify-center w-20 h-20 bg-zinc-900 border-2 border-violet-500 rounded-2xl">
-                        <i class="fa-solid fa-video text-3xl text-violet-400"></i>
-                    </div>
-                    
-                    <div class="space-y-6">
-                        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold text-zinc-100 leading-tight">
-                            {{ __('home.welcome_title', ['app_name' => config('app.name')]) }}
-                        </h1>
-
-                        <p class="text-xl text-zinc-400 max-w-3xl mx-auto leading-relaxed">
-                            {{ __('home.welcome_subtitle') }}
-                        </p>
-                    </div>
-
-                    <!-- Stats -->
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
-                        <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
-                            <div class="text-center space-y-2">
-                                <div class="text-3xl font-bold text-zinc-100">
-                                    {{ number_format($stats['clips_count'] ?? 0) }}
-                                </div>
-                                <div class="text-sm text-zinc-500 uppercase tracking-wider">{{ __('home.clips') }}</div>
-                            </div>
+        <!-- Header Section -->
+        <section class="bg-zinc-900/80 backdrop-blur-md border-b border-zinc-800/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
+                    <div class="flex items-center gap-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-(--color-accent-900)/20 border-2 border-(--color-accent-500) rounded-xl">
+                            <i class="fa-solid fa-video text-2xl text-(--color-accent-400)"></i>
                         </div>
-
-                        <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
-                            <div class="text-center space-y-2">
-                                <div class="text-3xl font-bold text-zinc-100">
-                                    {{ number_format($stats['games_count'] ?? 0) }}
-                                </div>
-                                <div class="text-sm text-zinc-500 uppercase tracking-wider">{{ __('home.games') }}</div>
-                            </div>
-                        </div>
-
-                        <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
-                            <div class="text-center space-y-2">
-                                <div class="text-3xl font-bold text-zinc-100">
-                                    {{ number_format($stats['users_count'] ?? 0) }}
-                                </div>
-                                <div class="text-sm text-zinc-500 uppercase tracking-wider">{{ __('home.users') }}</div>
-                            </div>
-                        </div>
-
-                        <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
-                            <div class="text-center space-y-2">
-                                <div class="text-3xl font-bold text-zinc-100">
-                                    {{ number_format($stats['views_count'] ?? 0) }}
-                                </div>
-                                <div class="text-sm text-zinc-500 uppercase tracking-wider">{{ __('home.views') }}</div>
-                            </div>
+                        <div>
+                            <h1 class="text-3xl font-bold text-zinc-100 mb-2">{{ __('home.welcome_title', ['app_name' => config('app.name')]) }}</h1>
+                            <p class="text-lg text-zinc-400">{{ __('home.welcome_subtitle') }}</p>
                         </div>
                     </div>
 
-                    <!-- CTA Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-                        @auth
-                            <a href="{{ route('clips.submit') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-(--color-accent-500) hover:bg-(--color-accent-600) text-zinc-100 rounded text-lg font-medium transition-colors">
-                                <i class="fa-solid fa-plus"></i>
-                                <span>{{ __('home.submit_clip') }}</span>
-                            </a>
-                            <a href="{{ route('clips.list') }}" class="inline-flex items-center gap-2 px-6 py-3 border border-zinc-700 hover:border-(--color-accent-500)/50 text-zinc-400 hover:text-(--color-accent-400) rounded text-lg font-medium transition-colors">
-                                <i class="fa-solid fa-film"></i>
-                                <span>{{ __('home.browse_clips') }}</span>
-                            </a>
-                        @else
-                            <a href="{{ route('auth.login') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-(--color-accent-500) hover:bg-(--color-accent-600) text-zinc-100 rounded text-lg font-medium transition-colors">
-                                <i class="fa-brands fa-twitch"></i>
-                                <span>{{ __('nav.login') }}</span>
-                            </a>
-                        @endauth
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-zinc-800/50 border border-zinc-700/50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-(--color-accent-300)">{{ number_format($stats['clips_count'] ?? 0) }}</div>
+                            <div class="text-sm text-zinc-400 uppercase tracking-wider">{{ __('home.clips') }}</div>
+                        </div>
+                        <div class="bg-zinc-800/50 border border-zinc-700/50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-(--color-accent-300)">{{ number_format($stats['games_count'] ?? 0) }}</div>
+                            <div class="text-sm text-zinc-400 uppercase tracking-wider">{{ __('home.games') }}</div>
+                        </div>
+                        <div class="bg-zinc-800/50 border border-zinc-700/50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-(--color-accent-300)">{{ number_format($stats['users_count'] ?? 0) }}</div>
+                            <div class="text-sm text-zinc-400 uppercase tracking-wider">{{ __('home.users') }}</div>
+                        </div>
+                        <div class="bg-zinc-800/50 border border-zinc-700/50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-(--color-accent-300)">{{ number_format($stats['views_count'] ?? 0) }}</div>
+                            <div class="text-sm text-zinc-400 uppercase tracking-wider">{{ __('home.views') }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Top Games Section -->
-        <section class="py-16 px-4 sm:px-6 lg:px-8 border-t border-zinc-800">
-            <div class="max-w-7xl mx-auto">
-                <div class="flex flex-col items-center gap-6 mb-16">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-zinc-900 border-2 border-violet-500 rounded-xl">
-                        <i class="fa-solid fa-gamepad text-2xl text-violet-400"></i>
-                    </div>
-                    <div class="text-center">
-                        <h2 class="text-4xl font-bold text-zinc-100 mb-3">{{ __('games.top_games') }}</h2>
-                        <p class="text-lg text-zinc-400 max-w-2xl">{{ __('games.discover_popular') }}</p>
-                    </div>
-                </div>
+        <!-- Content Sections -->
+        <section class="px-4 sm:px-6 lg:px-8 py-16">
+            <div class="max-w-7xl mx-auto space-y-16">
+                <!-- Latest Clips -->
+                <div class="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-8">
+                    <div class="accent-border-divider-large"></div>
 
-                @if($topGames->count() > 0)
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        @foreach($topGames as $game)
-                            <x-ui.game-card :game="$game" />
-                        @endforeach
-                    </div>
-
-                    <div class="text-center mt-8">
-                        <a href="{{ route('games.list') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-zinc-700 hover:border-(--color-accent-500)/50 text-zinc-400 hover:text-(--color-accent-400) rounded text-sm font-medium transition-colors">
-                            <i class="fa-solid fa-arrow-right"></i>
-                            <span>{{ __('games.view_all') }}</span>
-                        </a>
-                    </div>
-                @else
-                    <div class="text-center py-12">
-                        <div class="max-w-md mx-auto space-y-4">
-                            <div class="w-16 h-16 bg-zinc-800 rounded-lg flex items-center justify-center mx-auto">
-                                <i class="fa-solid fa-gamepad text-zinc-600 text-xl"></i>
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-4">
+                            <div class="inline-flex items-center justify-center w-12 h-12 bg-(--color-accent-900)/20 border border-(--color-accent-500) rounded-lg">
+                                <i class="fa-solid fa-clock text-xl text-(--color-accent-400)"></i>
                             </div>
-                            <div class="space-y-2">
-                                <h3 class="text-lg font-medium text-zinc-300">{{ __('games.no_games_yet') }}</h3>
-                                <p class="text-zinc-500 text-sm">{{ __('games.be_first_to_add') }}</p>
+                            <div>
+                                <h2 class="text-2xl font-bold text-zinc-100">{{ __('clips.latest_clips') }}</h2>
+                                <p class="text-sm text-zinc-400">{{ __('clips.discover_latest') }}</p>
                             </div>
                         </div>
-                    </div>
-                @endif
-            </div>
-        </section>
-
-        <!-- Latest Clips Section -->
-        <section class="py-16 px-4 sm:px-6 lg:px-8 border-t border-zinc-800">
-            <div class="max-w-7xl mx-auto">
-                <div class="flex flex-col items-center gap-6 mb-16">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-zinc-900 border-2 border-violet-500 rounded-xl">
-                        <i class="fa-solid fa-clock text-2xl text-violet-400"></i>
-                    </div>
-                    <div class="text-center">
-                        <h2 class="text-4xl font-bold text-zinc-100 mb-3">{{ __('clips.latest_clips') }}</h2>
-                        <p class="text-lg text-zinc-400 max-w-2xl">{{ __('clips.discover_latest') }}</p>
-                    </div>
-                </div>
-
-                @if($latestClips->count() > 0)
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        @foreach($latestClips as $clip)
-                            <x-ui.clip-card :clip="$clip" />
-                        @endforeach
-                    </div>
-
-                    <div class="text-center mt-8">
-                        <a href="{{ route('clips.list') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-zinc-700 hover:border-(--color-accent-500)/50 text-zinc-400 hover:text-(--color-accent-400) rounded text-sm font-medium transition-colors">
+                        <a href="{{ route('clips.list') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-(--color-accent-500) text-(--color-accent-400) hover:bg-(--color-accent-500) hover:text-zinc-100 rounded-lg font-medium transition-colors">
                             <i class="fa-solid fa-arrow-right"></i>
                             <span>{{ __('clips.view_all') }}</span>
                         </a>
                     </div>
-                @else
-                    <div class="text-center py-12">
-                        <div class="max-w-md mx-auto space-y-4">
-                            <div class="w-16 h-16 bg-zinc-800 rounded-lg flex items-center justify-center mx-auto">
-                                <i class="fa-solid fa-film text-zinc-600 text-xl"></i>
-                            </div>
-                            <div class="space-y-2">
-                                <h3 class="text-lg font-medium text-zinc-300">{{ __('clips.no_clips_yet') }}</h3>
-                                <p class="text-zinc-500 text-sm">{{ __('clips.be_first_to_submit') }}</p>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            </div>
-        </section>
 
-        <!-- Top Clips Section -->
-        <section class="py-16 px-4 sm:px-6 lg:px-8 border-t border-zinc-800">
-            <div class="max-w-7xl mx-auto">
-                <div class="flex flex-col items-center gap-6 mb-16">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-zinc-900 border-2 border-violet-500 rounded-xl">
-                        <i class="fa-solid fa-fire text-2xl text-violet-400"></i>
-                    </div>
-                    <div class="text-center">
-                        <h2 class="text-4xl font-bold text-zinc-100 mb-3">{{ __('clips.top_clips') }}</h2>
-                        <p class="text-lg text-zinc-400 max-w-2xl">{{ __('clips.discover_top') }}</p>
-                    </div>
+                    @if($latestClips->count() > 0)
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            @foreach($latestClips as $clip)
+                                <x-ui.clip-card :clip="$clip" />
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-12 bg-zinc-800/50 rounded-lg">
+                            <i class="fa-solid fa-film text-(--color-accent-400) text-3xl mb-4"></i>
+                            <p class="text-zinc-400">{{ __('clips.no_clips_yet') }}</p>
+                        </div>
+                    @endif
                 </div>
 
-                @if($topClips->count() > 0)
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        @foreach($topClips as $clip)
-                            <x-ui.clip-card :clip="$clip" />
-                        @endforeach
+                <!-- Top Games -->
+                <div class="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-8">
+                    <div class="accent-border-divider-large"></div>
+
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-4">
+                            <div class="inline-flex items-center justify-center w-12 h-12 bg-(--color-accent-900)/20 border border-(--color-accent-500) rounded-lg">
+                                <i class="fa-solid fa-gamepad text-xl text-(--color-accent-400)"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-zinc-100">{{ __('games.top_games') }}</h2>
+                                <p class="text-sm text-zinc-400">{{ __('games.discover_popular') }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('games.list') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-(--color-accent-500) text-(--color-accent-400) hover:bg-(--color-accent-500) hover:text-zinc-100 rounded-lg font-medium transition-colors">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            <span>{{ __('games.view_all') }}</span>
+                        </a>
                     </div>
 
-                    <div class="text-center mt-8">
-                        <a href="{{ route('clips.list', ['sort' => 'top']) }}" class="inline-flex items-center gap-2 px-4 py-2 border border-zinc-700 hover:border-(--color-accent-500)/50 text-zinc-400 hover:text-(--color-accent-400) rounded text-sm font-medium transition-colors">
+                    @if($topGames->count() > 0)
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                            @foreach($topGames as $game)
+                                <x-ui.game-card :game="$game" />
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-12 bg-zinc-800/50 rounded-lg">
+                            <i class="fa-solid fa-gamepad text-(--color-accent-400) text-3xl mb-4"></i>
+                            <p class="text-zinc-400">{{ __('games.no_games_yet') }}</p>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Top Clips -->
+                <div class="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-8">
+                    <div class="accent-border-divider-large"></div>
+
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-4">
+                            <div class="inline-flex items-center justify-center w-12 h-12 bg-(--color-accent-900)/20 border border-(--color-accent-500) rounded-lg">
+                                <i class="fa-solid fa-fire text-xl text-(--color-accent-400)"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-zinc-100">{{ __('clips.top_clips') }}</h2>
+                                <p class="text-sm text-zinc-400">{{ __('clips.discover_top') }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('clips.list', ['sort' => 'top']) }}" class="inline-flex items-center gap-2 px-4 py-2 border border-(--color-accent-500) text-(--color-accent-400) hover:bg-(--color-accent-500) hover:text-zinc-100 rounded-lg font-medium transition-colors">
                             <i class="fa-solid fa-arrow-right"></i>
                             <span>{{ __('clips.view_top') }}</span>
                         </a>
                     </div>
-                @else
-                    <div class="text-center py-12">
-                        <div class="max-w-md mx-auto space-y-4">
-                            <div class="w-16 h-16 bg-zinc-800 rounded-lg flex items-center justify-center mx-auto">
-                                <i class="fa-solid fa-trophy text-zinc-600 text-xl"></i>
-                            </div>
-                            <div class="space-y-2">
-                                <h3 class="text-lg font-medium text-zinc-300">{{ __('clips.no_clips_yet') }}</h3>
-                                <p class="text-zinc-500 text-sm">{{ __('clips.be_first_to_submit') }}</p>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            </div>
-        </section>
 
-        <!-- Call to Action Section -->
-        <section class="py-16 px-4 sm:px-6 lg:px-8 border-t border-zinc-800">
-            <div class="max-w-4xl mx-auto text-center">
-                <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-8">
-                    <div class="space-y-6">
-                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-400">
-                            <i class="fa-solid fa-rocket text-(--color-accent-400)"></i>
-                            {{ __('home.get_started') }}
+                    @if($topClips->count() > 0)
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            @foreach($topClips as $clip)
+                                <x-ui.clip-card :clip="$clip" />
+                            @endforeach
                         </div>
-
-                        <div class="space-y-4">
-                            <h2 class="text-4xl font-bold text-zinc-100">
-                                {{ __('home.cta_title') }}
-                            </h2>
-                            <p class="text-lg text-zinc-400 max-w-2xl mx-auto">
-                                {{ __('home.cta_subtitle') }}
-                            </p>
+                    @else
+                        <div class="text-center py-12 bg-zinc-800/50 rounded-lg">
+                            <i class="fa-solid fa-trophy text-(--color-accent-400) text-3xl mb-4"></i>
+                            <p class="text-zinc-400">{{ __('clips.no_clips_yet') }}</p>
                         </div>
-
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                            @auth
-                                <a href="{{ route('clips.submit') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-(--color-accent-500) hover:bg-(--color-accent-600) text-zinc-100 rounded text-lg font-medium transition-colors">
-                                    <i class="fa-solid fa-plus"></i>
-                                    <span>{{ __('home.submit_clip') }}</span>
-                                </a>
-                            @else
-                                <a href="{{ route('clips.list') }}" class="inline-flex items-center gap-2 px-6 py-3 border border-zinc-700 hover:border-(--color-accent-500)/50 text-zinc-400 hover:text-(--color-accent-400) rounded text-lg font-medium transition-colors">
-                                    <i class="fa-solid fa-film"></i>
-                                    <span>{{ __('home.browse_clips') }}</span>
-                                </a>
-                            @endauth
-                        </div>
-                    </div>
+                    @endif
                 </div>
             </div>
         </section>

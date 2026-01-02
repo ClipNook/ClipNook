@@ -1,12 +1,12 @@
 <div>
     @if (!$showPlayer)
         <!-- Privacy-First Player Placeholder -->
-        <div class="relative aspect-video bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden cursor-pointer group"
+        <div class="relative aspect-video bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden cursor-pointer group transition-all duration-200"
              wire:click="loadPlayer"
              role="button"
              tabindex="0"
              aria-label="{{ __('clips.twitch_consent_load_button') }}">
-            
+
             <!-- Thumbnail Background -->
             @if(isset($clipInfo['localThumbnailPath']))
                 <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30 group-hover:opacity-40 transition-opacity duration-300"
@@ -50,7 +50,7 @@
         </div>
     @else
         <!-- Twitch Player Embed -->
-        <div class="relative aspect-video rounded-lg overflow-hidden border border-zinc-700/50">
+        <div class="relative aspect-video rounded-xl overflow-hidden border border-zinc-700/50">
             <iframe
                 src="https://clips.twitch.tv/embed?clip={{ $clipInfo['twitchClipId'] }}&parent={{ request()->getHost() }}"
                 height="100%"

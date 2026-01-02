@@ -1,74 +1,143 @@
 <x-layouts.app title="{{ $game->name }} - {{ __('games.view_page_title') }}">
-    <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-zinc-950">
-        <div class="max-w-7xl mx-auto space-y-8">
-            <!-- Game Header -->
-            <div class="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
-                <div class="relative h-64 bg-zinc-800">
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        @if($game->local_box_art_path)
-                            <div class="w-40 h-56 bg-zinc-800 border-2 border-zinc-700 rounded-lg overflow-hidden">
-                                <img
-                                    src="{{ Storage::url($game->local_box_art_path) }}"
-                                    alt="{{ $game->name }}"
-                                    class="w-full h-full object-cover"
-                                >
+    <div class="min-h-screen bg-zinc-950">
+        <!-- Hero Section -->
+        <div class="relative overflow-hidden">
+            <!-- Background with subtle gradient -->
+            <div
+                class="absolute inset-0 bg-gradient-to-br from-(--color-accent-500)/10 via-transparent to-(--color-accent-600)/5">
+            </div>
+
+            <!-- Hero Content -->
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+
+                <x-ui.breadcrumb :items="[
+                    ['label' => __('games.list_page_title'), 'url' => route('games.list')],
+                    ['label' => $game->name, 'url' => route('games.view', $game)],
+                ]" class="mb-8" />
+
+                <!-- Background decorations -->
+                <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-(--color-accent-500)/5 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-1/4 right-1/4 w-48 h-48 bg-(--color-accent-600)/5 rounded-full blur-3xl">
+                </div>
+                <div
+                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-(--color-accent-400)/5 rounded-full blur-2xl">
+                </div>
+
+                <div class="relative flex flex-col lg:flex-row items-center gap-12">
+                    <!-- Game Cover -->
+                    <div class="flex-shrink-0">
+                        @if ($game->local_box_art_path)
+                            <div class="relative group">
+                                <div
+                                    class="absolute -inset-2 bg-gradient-to-r from-(--color-accent-500) to-(--color-accent-600) rounded-xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity">
+                                </div>
+                                <div
+                                    class="relative w-64 h-80 bg-zinc-800 border-2 border-(--color-accent-500)/30 rounded-xl overflow-hidden shadow-2xl">
+                                    <img src="{{ Storage::url($game->local_box_art_path) }}" alt="{{ $game->name }}"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                                </div>
                             </div>
                         @else
-                            <div class="w-40 h-56 bg-zinc-800 rounded-lg border-2 border-zinc-700 flex items-center justify-center shadow-2xl">
-                                <i class="fa-solid fa-gamepad text-zinc-600 text-5xl"></i>
+                            <div class="relative group">
+                                <div
+                                    class="absolute -inset-2 bg-gradient-to-r from-(--color-accent-500) to-(--color-accent-600) rounded-xl blur-lg opacity-20">
+                                </div>
+                                <div
+                                    class="relative w-64 h-80 bg-zinc-800 border-2 border-(--color-accent-500)/30 rounded-xl flex items-center justify-center shadow-2xl">
+                                    <i class="fa-solid fa-gamepad text-(--color-accent-400) text-6xl"></i>
+                                </div>
                             </div>
                         @endif
                     </div>
-                </div>
-                <div class="p-8 text-center">
-                    <h1 class="text-3xl font-bold text-zinc-100 mb-4">{{ $game->name }}</h1>
-                    <div class="flex flex-wrap justify-center gap-4 text-sm">
-                        <div class="px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-lg hover:border-violet-600 transition-colors">
-                            <i class="fa-solid fa-video mr-2 text-violet-400"></i>
-                            {{ number_format($clipsCount) }} {{ Str::plural(__('games.clip'), $clipsCount) }}
-                        </div>
-                        <div class="px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-lg hover:border-violet-600 transition-colors">
-                            <i class="fa-solid fa-users mr-2 text-violet-400"></i>
-                            {{ number_format($streamersCount) }} {{ Str::plural('streamer', $streamersCount) }}
+
+                    <!-- Game Info -->
+                    <div class="flex-1 text-center lg:text-left">
+                        <h1 class="text-4xl lg:text-6xl font-bold text-zinc-100 mb-4 leading-tight">
+                            {{ $game->name }}
+                        </h1>
+
+                        <!-- Game Stats - Dezente Anzeige oben -->
+                        <div class="flex items-center justify-center lg:justify-start gap-6 mb-6 text-sm text-zinc-400">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 bg-(--color-accent-500)/10 border border-(--color-accent-500)/20 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-video text-(--color-accent-400) text-xs"></i>
+                                </div>
+                                <span class="font-medium">{{ number_format($clipsCount) }} {{ Str::plural(__('games.clip'), $clipsCount) }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 bg-(--color-accent-500)/10 border border-(--color-accent-500)/20 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-user text-(--color-accent-400) text-xs"></i>
+                                </div>
+                                <span class="font-medium">{{ number_format($streamersCount) }} {{ Str::plural('streamer', $streamersCount) }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Clips Section -->
-            <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-8">
-                <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-2xl font-bold text-zinc-100">
-                        <i class="fa-solid fa-video mr-2 text-violet-400"></i>
-                        {{ __('games.clips_section') }}
-                    </h2>
-                </div>
+            <!-- Decorative Elements -->
+            <div class="absolute top-1/3 left-10 w-32 h-32 bg-(--color-accent-500)/5 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-1/3 right-10 w-40 h-40 bg-(--color-accent-600)/5 rounded-full blur-3xl"></div>
+        </div>
 
-                @if($game->clips->count() > 0)
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        @foreach($game->clips as $clip)
-                            <x-ui.clip-card :clip="$clip" />
-                        @endforeach
+        <!-- Content Section -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <!-- Clips Section -->
+            <div
+                class="relative bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 rounded-2xl p-8 lg:p-12 overflow-hidden">
+                <!-- Background decoration -->
+                <div class="absolute top-0 right-0 w-32 h-32 bg-(--color-accent-500)/5 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-(--color-accent-600)/5 rounded-full blur-2xl"></div>
+
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-12 h-12 bg-(--color-accent-500)/10 border border-(--color-accent-500)/20 rounded-xl flex items-center justify-center">
+                                <i class="fa-solid fa-video text-(--color-accent-400) text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-zinc-100">{{ __('games.clips_section') }}</h2>
+                                <p class="text-zinc-400 text-sm">
+                                    {{ __('games.clips_section_subtitle', ['count' => $clipsCount]) }}</p>
+                            </div>
+                        </div>
+
+                        @if ($clipsCount > 12)
+                            <a href="{{ route('clips.list', ['game' => $game->id]) }}"
+                                class="inline-flex items-center gap-2 px-6 py-3 bg-(--color-accent-500) hover:bg-(--color-accent-600) text-zinc-100 font-medium rounded-xl transition-all duration-200 shadow-lg shadow-(--color-accent-500)/20 hover:shadow-xl hover:shadow-(--color-accent-500)/30 hover:-translate-y-0.5">
+                                <span>{{ __('games.view_all_clips') }}</span>
+                                <i class="fa-solid fa-arrow-right text-sm"></i>
+                            </a>
+                        @endif
                     </div>
 
-                    @if($clipsCount > 12)
-                        <div class="mt-8 text-center">
-                            <x-ui.button
-                                :href="route('clips.list', ['game' => $game->id])"
-                                variant="secondary"
-                                icon="arrow-right"
-                                icon-position="right"
-                            >
-                                {{ __('games.view_all_clips') }}
-                            </x-ui.button>
+                    <!-- Subtle accent border -->
+                    <div class="accent-border-divider-medium"></div>
+
+                    @if ($game->clips->count() > 0)
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
+                            @foreach ($game->clips as $clip)
+                                <x-ui.clip-card :clip="$clip" />
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-16 mt-8">
+                            <div class="relative inline-flex mb-6">
+                                <div
+                                    class="absolute -inset-1 bg-gradient-to-r from-(--color-accent-500) to-(--color-accent-600) rounded-2xl blur-lg opacity-20">
+                                </div>
+                                <div
+                                    class="relative w-20 h-20 bg-zinc-800 border border-zinc-700 rounded-2xl flex items-center justify-center">
+                                    <i class="fa-solid fa-video text-zinc-500 text-3xl"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-semibold text-zinc-300 mb-2">{{ __('games.no_clips_yet') }}</h3>
+                            <p class="text-zinc-500 max-w-md mx-auto">{{ __('games.no_clips_found') }}</p>
                         </div>
                     @endif
-                @else
-                    <div class="text-center py-16 bg-zinc-800 border border-zinc-700 rounded-lg">
-                        <i class="fa-solid fa-video text-zinc-600 text-3xl mb-3 block"></i>
-                        <p class="text-zinc-400">{{ __('games.no_clips_found') }}</p>
-                    </div>
-                @endif
+                </div>
             </div>
         </div>
     </div>

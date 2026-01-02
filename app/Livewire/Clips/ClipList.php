@@ -11,6 +11,7 @@ use App\Models\Clip;
 use Livewire\Component;
 use Livewire\WithPagination as LivewirePagination;
 
+use function __;
 use function auth;
 use function view;
 
@@ -21,11 +22,14 @@ final class ClipList extends Component
     use WithSearch;
     use WithSorting;
 
+    public $componentName = 'clips';
+
     protected array $sortableColumns = ['created_at', 'upvotes', 'view_count', 'duration'];
 
     public function mount(): void
     {
-        $this->perPage = auth()->user()?->appearance_settings['clips_per_page'] ?? 12;
+        $this->perPage       = auth()->user()?->appearance_settings['clips_per_page'] ?? 12;
+        $this->componentName = 'clips';
     }
 
     public function render(): \Illuminate\View\View
@@ -36,8 +40,8 @@ final class ClipList extends Component
             ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate($this->perPage);
 
-        return view('livewire.clips.clip-list', [
+        return view('livewire.list.view', [
             'clips' => $clips,
-        ]);
+        ])->title(__('clips.library_page_title'));
     }
 }
