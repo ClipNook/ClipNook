@@ -54,8 +54,10 @@ final class AccountTab extends Component
             $streamerApi  = app(StreamerApiService::class);
             $tokenManager = app(TwitchTokenManager::class);
 
-            // Twitch-Daten synchronisieren
-            $twitchUser = $streamerApi->getStreamer($user->twitch_id, $tokenManager->getAppAccessToken());
+            // Twitch-Daten synchronisieren - verwende User Access Token für E-Mail-Adresse
+            // Synchronize Twitch data - use User Access Token for email address
+            $userAccessToken = $tokenManager->getValidAccessToken($user);
+            $twitchUser = $streamerApi->getStreamer($user->twitch_id, $userAccessToken);
 
             if ($twitchUser) {
                 $updatedFields = [];
@@ -67,21 +69,25 @@ final class AccountTab extends Component
                 if ($twitchUser->displayName !== $user->twitch_display_name) {
                     $updatedFields[] = 'display name';
                 }
-                if ($twitchUser->email !== $user->twitch_email) {
+                if ($twitchUser->email && $twitchUser->email !== $user->twitch_email) {
                     $updatedFields[] = 'email';
                 }
 
                 $user->update([
                     'twitch_login'        => $twitchUser->login,
                     'twitch_display_name' => $twitchUser->displayName,
-                    'twitch_email'        => $twitchUser->email,
+                    'twitch_email'        => $twitchUser->email ?: $user->twitch_email, // Keep existing email if not provided
                     'last_twitch_sync_at' => now(),
                 ]);
 
                 $this->updateSyncStatus();
 
                 if (empty($updatedFields)) {
-                    $this->dispatch('notify', type: 'info', message: __('Twitch data is already up to date.'));
+                    $message = __('Twitch data is already up to date.');
+                    if (!$twitchUser->email) {
+                        $message .= ' ' . __('Note: Email address could not be retrieved from Twitch.');
+                    }
+                    $this->dispatch('notify', type: 'info', message: $message);
                 } else {
                     $this->dispatch('notify', type: 'success', message: __('Twitch data synchronized successfully. Updated: :fields', ['fields' => implode(', ', $updatedFields)]));
                 }

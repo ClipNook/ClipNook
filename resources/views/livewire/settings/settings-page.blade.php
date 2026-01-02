@@ -1,19 +1,8 @@
 <div class="max-w-7xl mx-auto space-y-8">
-    <!-- Page Header -->
-    <div class="text-center space-y-4">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-zinc-900 border-2 border-(--color-accent-500) rounded-xl">
-            <i class="fa-solid fa-cog text-2xl text-(--color-accent-400)"></i>
-        </div>
-        <div class="space-y-2">
-            <h1 class="text-4xl font-bold text-zinc-100">{{ __('Settings') }}</h1>
-            <p class="text-lg text-zinc-400">{{ __('Manage your account settings and preferences') }}</p>
-        </div>
-    </div>
-
     <!-- Tab Navigation -->
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
+    <div class="bg-zinc-900 my-6 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
         <div class="border-b border-zinc-800">
-            <nav class="flex flex-wrap gap-1 p-2" aria-label="Tabs">
+            <nav class="flex flex-wrap gap-3 p-2" aria-label="Tabs">
                 <button
                     wire:click="setActiveTab('account')"
                     @class([

@@ -16,16 +16,24 @@
             <button
                 wire:click="revokeAllTokens"
                 wire:confirm="{{ __('Revoke all other tokens?') }}"
-                class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
+                class="group relative inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-red-500/25 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-zinc-900"
             >
+                <i class="fa-solid fa-trash"></i>
                 {{ __('Revoke All Others') }}
             </button>
             @endif
         </div>
 
         @if($tokens->isEmpty())
-        <div class="rounded-lg bg-(--color-accent-900)/20 border border-(--color-accent-500)/30 p-4">
-            <p class="text-sm text-zinc-300">{{ __('No active API tokens') }}</p>
+        <div class="rounded-lg bg-zinc-800/30 border border-zinc-700/50 p-4 backdrop-blur-sm">
+            <div class="flex gap-3">
+                <div class="shrink-0">
+                    <i class="fa-solid fa-key text-(--color-accent-400) text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm text-zinc-300">{{ __('No active API tokens') }}</p>
+                </div>
+            </div>
         </div>
         @else
         <div class="overflow-hidden rounded-lg bg-zinc-900 border border-zinc-800">
@@ -48,8 +56,9 @@
                             <button
                                 wire:click="revokeToken({{ $token->id }})"
                                 wire:confirm="{{ __('Revoke this token?') }}"
-                                class="text-red-400 transition hover:text-red-300"
+                                class="inline-flex items-center gap-2 rounded-lg bg-red-600/10 border border-red-600/20 px-3 py-1.5 text-sm font-medium text-red-400 transition-all hover:bg-red-600/20 hover:border-red-600/30 hover:text-red-300"
                             >
+                                <i class="fa-solid fa-times"></i>
                                 {{ __('Revoke') }}
                             </button>
                         </td>
@@ -72,16 +81,24 @@
             <button
                 wire:click="logoutOtherDevices"
                 wire:confirm="{{ __('Logout from all other devices?') }}"
-                class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
+                class="group relative inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-red-500/25 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-zinc-900"
             >
+                <i class="fa-solid fa-sign-out-alt"></i>
                 {{ __('Logout Other Devices') }}
             </button>
             @endif
         </div>
 
         @if($sessions->isEmpty())
-        <div class="rounded-lg bg-(--color-accent-900)/20 border border-(--color-accent-500)/30 p-4">
-            <p class="text-sm text-zinc-300">{{ __('No active sessions') }}</p>
+        <div class="rounded-lg bg-zinc-800/30 border border-zinc-700/50 p-4 backdrop-blur-sm">
+            <div class="flex gap-3">
+                <div class="shrink-0">
+                    <i class="fa-solid fa-desktop text-(--color-accent-400) text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm text-zinc-300">{{ __('No active sessions') }}</p>
+                </div>
+            </div>
         </div>
         @else
         <div class="space-y-3">
