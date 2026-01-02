@@ -96,10 +96,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Decorative Elements -->
-            <div class="absolute top-1/3 left-10 w-24 h-24 bg-(--color-accent-500)/5 rounded-full blur-2xl"></div>
-            <div class="absolute bottom-1/3 right-10 w-32 h-32 bg-(--color-accent-600)/5 rounded-full blur-2xl"></div>
         </div>
 
         <div class="accent-border-divider-large"></div>
