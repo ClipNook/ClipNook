@@ -8,7 +8,7 @@
 
             <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
                 <!-- Breadcrumb -->
-                <x-breadcrumb :items="[
+                <x-ui.breadcrumb :items="[
                     ['url' => route('home'), 'label' => __('common.home')],
                     ['url' => route('clips.list'), 'label' => __('clips.browse')],
                     ['label' => $clip->title, 'truncate' => 40, 'current' => true]
