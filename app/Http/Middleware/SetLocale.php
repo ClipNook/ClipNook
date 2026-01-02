@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -8,12 +10,19 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class SetLocale
+use function array_keys;
+use function config;
+use function explode;
+use function in_array;
+use function session;
+use function trim;
+
+final class SetLocale
 {
     /**
      * Supported locales from config.
      */
-    protected array $supportedLocales;
+    private array $supportedLocales;
 
     public function __construct()
     {
@@ -27,7 +36,7 @@ class SetLocale
     {
         $locale = $this->determineLocale($request);
 
-        if ($locale && in_array($locale, $this->supportedLocales)) {
+        if ($locale && in_array($locale, $this->supportedLocales, true)) {
             App::setLocale($locale);
 
             // Store in session for persistence
@@ -40,10 +49,10 @@ class SetLocale
     /**
      * Determine the locale from various sources.
      */
-    protected function determineLocale(Request $request): ?string
+    private function determineLocale(Request $request): ?string
     {
         // 1. Check URL parameter (highest priority)
-        if ($request->has('lang') && in_array($request->lang, $this->supportedLocales)) {
+        if ($request->has('lang') && in_array($request->lang, $this->supportedLocales, true)) {
             return $request->lang;
         }
 
@@ -75,7 +84,7 @@ class SetLocale
     /**
      * Get browser's preferred language.
      */
-    protected function getBrowserLocale(Request $request): ?string
+    private function getBrowserLocale(Request $request): ?string
     {
         $acceptLanguage = $request->header('Accept-Language');
 
@@ -90,13 +99,13 @@ class SetLocale
             $locale = trim(explode(';', $language)[0]);
 
             // Check for exact match
-            if (in_array($locale, $this->supportedLocales)) {
+            if (in_array($locale, $this->supportedLocales, true)) {
                 return $locale;
             }
 
             // Check for language prefix (e.g., 'en' from 'en-US')
             $prefix = explode('-', $locale)[0];
-            if (in_array($prefix, $this->supportedLocales)) {
+            if (in_array($prefix, $this->supportedLocales, true)) {
                 return $prefix;
             }
         }

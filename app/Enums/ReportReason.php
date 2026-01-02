@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
+use function __;
+use function array_column;
+
 enum ReportReason: string
 {
     case INAPPROPRIATE = 'inappropriate';
@@ -11,6 +14,11 @@ enum ReportReason: string
     case COPYRIGHT     = 'copyright';
     case MISLEADING    = 'misleading';
     case OTHER         = 'other';
+
+    public static function values(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 
     public function label(): string
     {
@@ -32,10 +40,5 @@ enum ReportReason: string
             self::MISLEADING    => 1,
             self::OTHER         => 1,
         };
-    }
-
-    public static function values(): array
-    {
-        return array_column(self::cases(), 'value');
     }
 }

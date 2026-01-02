@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Livewire\Concerns;
 
+use function trim;
+
 /**
  * Handles search functionality for Livewire components.
  */

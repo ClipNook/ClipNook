@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models\Concerns\User;
 
+use function min;
+use function now;
+use function round;
+
 /**
  * Handles user statistics and metrics.
  */

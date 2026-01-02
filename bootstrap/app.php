@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,33 +16,33 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withEvents(discover: [
         __DIR__.'/../app/Events',
     ])
-    ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->redirectGuestsTo(fn () => route('auth.login'));
-        $middleware->redirectUsersTo(fn () => route('home'));
+    ->withMiddleware(static function (Middleware $middleware): void {
+        $middleware->redirectGuestsTo(static fn () => route('auth.login'));
+        $middleware->redirectUsersTo(static fn () => route('home'));
 
         // Register the SetLocale middleware alias and append it to the 'web' middleware group.
         // This is configured during bootstrap so middleware is available early in the app lifecycle
         // and works consistently across HTTP and console contexts.
         $middleware->alias([
-            'setlocale'             => \App\Http\Middleware\SetLocale::class,
-            'trackactivity'         => \App\Http\Middleware\TrackLastActivity::class,
-            'security'              => \App\Http\Middleware\SecurityHeaders::class,
-            'performance'           => \App\Http\Middleware\PerformanceMonitoring::class,
-            'cache.response'        => \App\Http\Middleware\CacheResponse::class,
-            'throttle.clips'        => \App\Http\Middleware\ThrottleClipSubmissions::class,
+            'setlocale'             => App\Http\Middleware\SetLocale::class,
+            'trackactivity'         => App\Http\Middleware\TrackLastActivity::class,
+            'security'              => App\Http\Middleware\SecurityHeaders::class,
+            'performance'           => App\Http\Middleware\PerformanceMonitoring::class,
+            'cache.response'        => App\Http\Middleware\CacheResponse::class,
+            'throttle.clips'        => App\Http\Middleware\ThrottleClipSubmissions::class,
         ]);
 
         // Append to the 'web' group so the locale is applied to all regular HTTP routes
-        $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
-        $middleware->appendToGroup('web', \App\Http\Middleware\TrackLastActivity::class);
+        $middleware->appendToGroup('web', App\Http\Middleware\SetLocale::class);
+        $middleware->appendToGroup('web', App\Http\Middleware\TrackLastActivity::class);
         // $middleware->appendToGroup('web', \App\Http\Middleware\SecurityHeaders::class);
-        $middleware->appendToGroup('web', \App\Http\Middleware\PerformanceMonitoring::class);
+        $middleware->appendToGroup('web', App\Http\Middleware\PerformanceMonitoring::class);
 
         // Add Sanctum middleware to API routes
-        $middleware->appendToGroup('api', \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class);
+        $middleware->appendToGroup('api', Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (\App\Exceptions\ClipNotFoundException $e, $request) {
+    ->withExceptions(static function (Exceptions $exceptions): void {
+        $exceptions->render(static function (App\Exceptions\ClipNotFoundException $e, $request) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => $e->getMessage(),
@@ -49,7 +51,7 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (\App\Exceptions\ClipPermissionException $e, $request) {
+        $exceptions->render(static function (App\Exceptions\ClipPermissionException $e, $request) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => $e->getMessage(),
@@ -58,7 +60,7 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (\App\Exceptions\BroadcasterNotRegisteredException $e, $request) {
+        $exceptions->render(static function (App\Exceptions\BroadcasterNotRegisteredException $e, $request) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => $e->getMessage(),
@@ -67,7 +69,7 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (\App\Exceptions\ClipValidationException $e, $request) {
+        $exceptions->render(static function (App\Exceptions\ClipValidationException $e, $request) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => $e->getMessage(),

@@ -6,7 +6,9 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-class CleanupExpiredTokens extends Command
+use function now;
+
+final class CleanupExpiredTokens extends Command
 {
     /**
      * The name and signature of the console command.
@@ -52,14 +54,12 @@ class CleanupExpiredTokens extends Command
                 \Laravel\Sanctum\PersonalAccessToken::where('expires_at', '<', now())
                     ->with('tokenable:id,twitch_display_name')
                     ->get()
-                    ->map(function ($token) {
-                        return [
-                            $token->id,
-                            $token->name,
-                            $token->tokenable->twitch_display_name ?? 'Unknown',
-                            $token->expires_at?->format('Y-m-d H:i:s') ?? 'Never',
-                        ];
-                    })
+                    ->map(static fn ($token) => [
+                        $token->id,
+                        $token->name,
+                        $token->tokenable->twitch_display_name ?? 'Unknown',
+                        $token->expires_at?->format('Y-m-d H:i:s') ?? 'Never',
+                    ])
             );
         } else {
             // Perform actual cleanup

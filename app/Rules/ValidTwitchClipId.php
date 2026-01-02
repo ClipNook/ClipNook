@@ -7,7 +7,11 @@ namespace App\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class ValidTwitchClipId implements ValidationRule
+use function __;
+use function is_string;
+use function preg_match;
+
+final class ValidTwitchClipId implements ValidationRule
 {
     /**
      * Run the validation rule.

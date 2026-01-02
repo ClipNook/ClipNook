@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
  * This listener handles logging for clip submissions and moderations
  * to provide audit trails for administrative purposes.
  */
-class LogClipActivity
+final class LogClipActivity
 {
     /**
      * Handle the ClipSubmitted event.

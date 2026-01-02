@@ -8,10 +8,13 @@ use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 
+use function collect;
+use function now;
+
 /**
  * User repository implementation.
  */
-class UserRepository extends BaseRepository implements UserRepositoryInterface
+final class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
     public function __construct(User $model)
     {
@@ -19,7 +22,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function findByTwitchId(string $twitchId): ?User
     {
@@ -27,7 +30,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function findByTwitchLogin(string $login): ?User
     {
@@ -35,7 +38,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function findByEmail(string $email): ?User
     {
@@ -43,7 +46,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getStreamers(): Collection
     {
@@ -51,7 +54,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getModerators(): Collection
     {
@@ -59,7 +62,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getAdministrators(): Collection
     {
@@ -67,7 +70,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getActiveUsers(int $days = 30): Collection
     {
@@ -78,7 +81,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getUsersByRole(string $role): Collection
     {
@@ -91,7 +94,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function existsByTwitchId(string $twitchId): bool
     {
@@ -99,7 +102,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function updateLastActivity(User $user): bool
     {
@@ -107,7 +110,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function countByRole(string $role): int
     {

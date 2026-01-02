@@ -9,7 +9,12 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class AccountDeletionRequested extends Notification
+use function config;
+use function hash_hmac;
+use function now;
+use function url;
+
+final class AccountDeletionRequested extends Notification
 {
     use Queueable;
 
@@ -17,7 +22,7 @@ class AccountDeletionRequested extends Notification
      * Create a new notification instance.
      */
     public function __construct(
-        public User $user
+        public User $user,
     ) {}
 
     /**
@@ -37,7 +42,7 @@ class AccountDeletionRequested extends Notification
     {
         $deletionToken = $this->generateDeletionToken($notifiable);
 
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject('Account Deletion Request Confirmation')
             ->greeting('Hello '.$notifiable->twitch_display_name.',')
             ->line('We received your request to delete your account and all associated data.')
@@ -50,14 +55,6 @@ class AccountDeletionRequested extends Notification
     }
 
     /**
-     * Generate a secure deletion token
-     */
-    private function generateDeletionToken(User $user): string
-    {
-        return hash_hmac('sha256', $user->id.$user->email.'deletion'.now()->timestamp, config('app.key'));
-    }
-
-    /**
      * Get the array representation of the notification.
      *
      * @return array<string, mixed>
@@ -65,7 +62,14 @@ class AccountDeletionRequested extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
         ];
+    }
+
+    /**
+     * Generate a secure deletion token.
+     */
+    private function generateDeletionToken(User $user): string
+    {
+        return hash_hmac('sha256', $user->id.$user->email.'deletion'.now()->timestamp, config('app.key'));
     }
 }

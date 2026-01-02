@@ -4,10 +4,20 @@ declare(strict_types=1);
 
 namespace App\Services\Twitch\Api;
 
+use function filter_var;
+use function is_numeric;
+use function max;
+use function mb_substr;
+use function preg_replace;
+use function str_starts_with;
+use function trim;
+
+use const FILTER_VALIDATE_URL;
+
 /**
  * Service for sanitizing and validating Twitch API data.
  */
-class DataSanitizerService
+final class DataSanitizerService
 {
     /**
      * Sanitize text content.

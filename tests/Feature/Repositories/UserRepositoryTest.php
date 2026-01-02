@@ -8,10 +8,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('can find user by twitch id', function () {
+it('can find user by twitch id', function (): void {
     $user = User::factory()->create(['twitch_id' => '12345']);
 
-    $repository = new UserRepository(new User);
+    $repository = new UserRepository(new User());
 
     $foundUser = $repository->findByTwitchId('12345');
 
@@ -19,18 +19,18 @@ it('can find user by twitch id', function () {
     expect($foundUser->id)->toBe($user->id);
 });
 
-it('returns null when user not found by twitch id', function () {
-    $repository = new UserRepository(new User);
+it('returns null when user not found by twitch id', function (): void {
+    $repository = new UserRepository(new User());
 
     $foundUser = $repository->findByTwitchId('nonexistent');
 
     expect($foundUser)->toBeNull();
 });
 
-it('can find user by twitch login', function () {
+it('can find user by twitch login', function (): void {
     $user = User::factory()->create(['twitch_login' => 'testuser']);
 
-    $repository = new UserRepository(new User);
+    $repository = new UserRepository(new User());
 
     $foundUser = $repository->findByTwitchLogin('testuser');
 
@@ -38,49 +38,49 @@ it('can find user by twitch login', function () {
     expect($foundUser->id)->toBe($user->id);
 });
 
-it('can get all streamers', function () {
+it('can get all streamers', function (): void {
     User::factory()->count(3)->create(['is_streamer' => true]);
     User::factory()->count(2)->create(['is_streamer' => false]);
 
-    $repository = new UserRepository(new User);
+    $repository = new UserRepository(new User());
 
     $streamers = $repository->getStreamers();
 
     expect($streamers)->toHaveCount(3);
-    $streamers->each(function ($user) {
+    $streamers->each(static function ($user): void {
         expect($user->is_streamer)->toBeTrue();
     });
 });
 
-it('can get all moderators', function () {
+it('can get all moderators', function (): void {
     User::factory()->count(2)->create(['is_moderator' => true]);
     User::factory()->count(3)->create(['is_moderator' => false]);
 
-    $repository = new UserRepository(new User);
+    $repository = new UserRepository(new User());
 
     $moderators = $repository->getModerators();
 
     expect($moderators)->toHaveCount(2);
-    $moderators->each(function ($user) {
+    $moderators->each(static function ($user): void {
         expect($user->is_moderator)->toBeTrue();
     });
 });
 
-it('can check if user exists by twitch id', function () {
+it('can check if user exists by twitch id', function (): void {
     User::factory()->create(['twitch_id' => '12345']);
 
-    $repository = new UserRepository(new User);
+    $repository = new UserRepository(new User());
 
     expect($repository->existsByTwitchId('12345'))->toBeTrue();
     expect($repository->existsByTwitchId('nonexistent'))->toBeFalse();
 });
 
-it('can count users by role', function () {
+it('can count users by role', function (): void {
     User::factory()->count(3)->create(['is_streamer' => true]);
     User::factory()->count(2)->create(['is_moderator' => true]);
     User::factory()->count(1)->create(['is_admin' => true]);
 
-    $repository = new UserRepository(new User);
+    $repository = new UserRepository(new User());
 
     expect($repository->countByRole('streamer'))->toBe(3);
     expect($repository->countByRole('moderator'))->toBe(2);

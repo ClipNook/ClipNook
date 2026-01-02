@@ -7,7 +7,4 @@ namespace App\Exceptions;
 /**
  * Base exception for Twitch-related errors.
  */
-abstract class TwitchException extends AppException
-{
-    //
-}
+abstract class TwitchException extends AppException {}

@@ -6,17 +6,17 @@ use App\Models\Clip;
 use App\Models\User;
 use Livewire\Livewire;
 
-test('renders clip list component', function () {
+test('renders clip list component', function (): void {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
-        ->test(\App\Livewire\Clips\ClipList::class)
+        ->test(App\Livewire\Clips\ClipList::class)
         ->assertOk()
         ->assertSet('perPage', 12)
         ->assertSet('search', '');
 });
 
-test('displays clips in list', function () {
+test('displays clips in list', function (): void {
     $user        = User::factory()->create();
     $broadcaster = User::factory()->create();
 
@@ -28,13 +28,13 @@ test('displays clips in list', function () {
     ]);
 
     Livewire::actingAs($user)
-        ->test(\App\Livewire\Clips\ClipList::class)
+        ->test(App\Livewire\Clips\ClipList::class)
         ->assertOk()
         ->assertSee('Test Clip')
         ->assertDontSee('Approved');
 });
 
-test('searches clips by title', function () {
+test('searches clips by title', function (): void {
     $user        = User::factory()->create();
     $broadcaster = User::factory()->create();
 
@@ -53,13 +53,13 @@ test('searches clips by title', function () {
     ]);
 
     Livewire::actingAs($user)
-        ->test(\App\Livewire\Clips\ClipList::class)
+        ->test(App\Livewire\Clips\ClipList::class)
         ->set('search', 'Amazing')
         ->assertSee('Amazing Clip')
         ->assertDontSee('Boring Clip');
 });
 
-test('paginates clips', function () {
+test('paginates clips', function (): void {
     $user        = User::factory()->create();
     $broadcaster = User::factory()->create();
 
@@ -71,6 +71,6 @@ test('paginates clips', function () {
     ]);
 
     Livewire::actingAs($user)
-        ->test(\App\Livewire\Clips\ClipList::class)
+        ->test(App\Livewire\Clips\ClipList::class)
         ->assertOk();
 });

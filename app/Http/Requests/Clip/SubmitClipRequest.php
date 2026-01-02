@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Clip;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -10,7 +12,7 @@ use Illuminate\Foundation\Http\FormRequest;
  * Handles validation for clip submission including Twitch clip ID validation
  * and permission checks.
  */
-class SubmitClipRequest extends FormRequest
+final class SubmitClipRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +25,7 @@ class SubmitClipRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, array<mixed>|\Illuminate\Contracts\Validation\ValidationRule|string>
      */
     public function rules(): array
     {
@@ -34,7 +36,7 @@ class SubmitClipRequest extends FormRequest
                 'regex:/^[A-Za-z0-9_-]+$/',
                 'max:255',
                 // Custom rule to check if clip already exists
-                function ($attribute, $value, $fail) {
+                static function ($attribute, $value, $fail): void {
                     if (\App\Models\Clip::where('twitch_clip_id', $value)->exists()) {
                         $fail('This clip has already been submitted.');
                     }

@@ -9,10 +9,12 @@ use App\Services\Twitch\Contracts\TwitchApiClientInterface;
 use App\Services\Twitch\DTOs\ClipDTO;
 use App\Services\Twitch\Exceptions\TwitchApiException;
 
+use function array_map;
+
 /**
  * Service for fetching Twitch clip data.
  */
-class ClipApiService
+final class ClipApiService
 {
     public function __construct(
         private readonly TwitchApiClientInterface $apiClient,

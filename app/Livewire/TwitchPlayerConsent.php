@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
 use Livewire\Component;
 
-class TwitchPlayerConsent extends Component
+use function view;
+
+final class TwitchPlayerConsent extends Component
 {
     public bool $consented = false;
 
@@ -12,18 +16,18 @@ class TwitchPlayerConsent extends Component
 
     public ?array $clipInfo = null;
 
-    public function mount(?array $clipInfo = null)
+    public function mount(?array $clipInfo = null): void
     {
         $this->clipInfo = $clipInfo;
     }
 
-    public function loadPlayer()
+    public function loadPlayer(): void
     {
         $this->showPlayer = true;
         $this->dispatch('twitch-player-loaded');
     }
 
-    public function resetPlayer()
+    public function resetPlayer(): void
     {
         $this->showPlayer = false;
     }

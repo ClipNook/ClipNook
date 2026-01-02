@@ -17,7 +17,7 @@ if (! function_exists('mask_email')) {
      *  - visible_domain_end: int (default: 1)
      *  - mask_domain_before_tld: bool (default: true)
      *
-     * @param  array<string,mixed>  $options
+     * @param array<string,mixed> $options
      */
     function mask_email(?string $email, array $options = []): string
     {
@@ -80,7 +80,7 @@ if (! function_exists('mask_ip')) {
         if (empty($ip)) {
             return null;
         }
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        if (filter_var($ip, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4)) {
             $parts = explode('.', $ip);
             if (count($parts) === 4) {
                 $parts[3] = '0';
@@ -88,7 +88,7 @@ if (! function_exists('mask_ip')) {
                 return implode('.', $parts);
             }
         }
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        if (filter_var($ip, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6)) {
             $parts = explode(':', $ip);
 
             return implode(':', array_slice($parts, 0, 4)).'::';
@@ -110,6 +110,6 @@ if (! function_exists('pseudonymize_ip')) {
      */
     function pseudonymize_ip(?string $ip): ?string
     {
-        return \App\Models\IpPseudonymizationSalt::pseudonymizeIp($ip);
+        return App\Models\IpPseudonymizationSalt::pseudonymizeIp($ip);
     }
 }

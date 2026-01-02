@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 /**
- * Notify admins of performance issues
+ * Notify admins of performance issues.
  */
-class NotifyPerformanceIssue
+final class NotifyPerformanceIssue
 {
     public function handle(PerformanceThresholdExceeded $event): void
     {

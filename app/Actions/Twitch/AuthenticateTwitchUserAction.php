@@ -10,7 +10,12 @@ use App\Services\Twitch\Auth\TwitchTokenManager;
 use App\Services\Twitch\DTOs\TokenDTO;
 use Illuminate\Support\Facades\Auth;
 
-class AuthenticateTwitchUserAction
+use function explode;
+use function in_array;
+use function now;
+use function session;
+
+final class AuthenticateTwitchUserAction
 {
     public function __construct(
         private readonly StreamerApiService $streamerApiService,
@@ -28,7 +33,7 @@ class AuthenticateTwitchUserAction
         // Only save email if user:read:email scope was granted
         $email         = null;
         $grantedScopes = explode(' ', $token->scope ?? '');
-        if (in_array('user:read:email', $grantedScopes)) {
+        if (in_array('user:read:email', $grantedScopes, true)) {
             $email = $twitchUser->email;
         }
 

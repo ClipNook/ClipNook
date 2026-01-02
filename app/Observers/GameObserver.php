@@ -8,7 +8,9 @@ use App\Jobs\DownloadTwitchImage;
 use App\Models\Game;
 use Illuminate\Support\Str;
 
-class GameObserver
+use function str_replace;
+
+final class GameObserver
 {
     /**
      * Handle the Game "creating" event.
@@ -37,7 +39,25 @@ class GameObserver
     }
 
     /**
-     * Generate a unique slug for the game
+     * Handle the Game "deleted" event.
+     */
+    public function deleted(Game $game): void {}
+
+    /**
+     * Handle the Game "restored" event.
+     */
+    public function restored(Game $game): void
+    {
+        $this->dispatchBoxArtDownload($game);
+    }
+
+    /**
+     * Handle the Game "force deleted" event.
+     */
+    public function forceDeleted(Game $game): void {}
+
+    /**
+     * Generate a unique slug for the game.
      */
     private function generateSlug(Game $game): void
     {
@@ -54,7 +74,7 @@ class GameObserver
     }
 
     /**
-     * Dispatch box art download job for new games
+     * Dispatch box art download job for new games.
      */
     private function dispatchBoxArtDownload(Game $game): void
     {
@@ -67,29 +87,5 @@ class GameObserver
             $boxArtPath = 'games/box-art/'.$game->id.'.jpg';
             DownloadTwitchImage::dispatch($boxArtUrl, $boxArtPath, 'box_art', null, $game->id);
         }
-    }
-
-    /**
-     * Handle the Game "deleted" event.
-     */
-    public function deleted(Game $game): void
-    {
-        //
-    }
-
-    /**
-     * Handle the Game "restored" event.
-     */
-    public function restored(Game $game): void
-    {
-        $this->dispatchBoxArtDownload($game);
-    }
-
-    /**
-     * Handle the Game "force deleted" event.
-     */
-    public function forceDeleted(Game $game): void
-    {
-        //
     }
 }

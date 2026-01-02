@@ -7,13 +7,16 @@ namespace App\Policies;
 use App\Models\ClipComment;
 use App\Models\User;
 
+use function config;
+use function now;
+
 /**
  * Policy for controlling access to ClipComment resources.
  *
  * This policy implements authorization logic for comment operations including
  * viewing, creating, updating, and deleting comments on clips.
  */
-class ClipCommentPolicy
+final class ClipCommentPolicy
 {
     /**
      * Determine whether the user can view any comments.

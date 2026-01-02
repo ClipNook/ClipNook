@@ -8,10 +8,13 @@ use App\Models\Clip;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+use function fake;
+use function now;
+
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ClipComment>
  */
-class ClipCommentFactory extends Factory
+final class ClipCommentFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -33,7 +36,7 @@ class ClipCommentFactory extends Factory
      */
     public function reply(int $parentId): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(static fn (array $attributes) => [
             'parent_id' => $parentId,
         ]);
     }
@@ -43,7 +46,7 @@ class ClipCommentFactory extends Factory
      */
     public function deleted(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(static fn (array $attributes) => [
             'is_deleted' => true,
             'deleted_at' => now(),
         ]);

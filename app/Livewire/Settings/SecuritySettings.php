@@ -8,10 +8,14 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 
+use function auth;
+use function session;
+use function view;
+
 /**
  * User security settings component.
  */
-class SecuritySettings extends Component
+final class SecuritySettings extends Component
 {
     public User $user;
 

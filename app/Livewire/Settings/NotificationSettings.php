@@ -7,10 +7,14 @@ namespace App\Livewire\Settings;
 use App\Models\User;
 use Livewire\Component;
 
+use function auth;
+use function session;
+use function view;
+
 /**
  * User notification settings component.
  */
-class NotificationSettings extends Component
+final class NotificationSettings extends Component
 {
     public User $user;
 

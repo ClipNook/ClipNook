@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
 |--------------------------------------------------------------------------
 | Clip Submission Language Lines
@@ -17,15 +19,15 @@ return [
     // =========================================================================
 
     // Page Headers & Navigation
-    'ui_title'            => 'Submit a Twitch Clip',
-    'ui_description'      => 'Share your favorite Twitch clips with the community. Just paste the clip ID or the full Twitch URL.',
-    'submit_page_title'   => 'Submit a Clip',
-    'submit_page_subtitle' => 'Share your favorite Twitch clips with the community',
-    'library_page_title'  => 'Clip Library',
+    'ui_title'              => 'Submit a Twitch Clip',
+    'ui_description'        => 'Share your favorite Twitch clips with the community. Just paste the clip ID or the full Twitch URL.',
+    'submit_page_title'     => 'Submit a Clip',
+    'submit_page_subtitle'  => 'Share your favorite Twitch clips with the community',
+    'library_page_title'    => 'Clip Library',
     'library_page_subtitle' => 'Discover and explore submitted clips',
-    'library_title'       => 'Clip Library',
-    'library_subtitle'    => 'Browse all submitted clips',
-    'view_page_title'     => 'View Clip',
+    'library_title'         => 'Clip Library',
+    'library_subtitle'      => 'Browse all submitted clips',
+    'view_page_title'       => 'View Clip',
 
     // Form Labels & Inputs
     'clip_id_label'       => 'Twitch Clip ID',
@@ -60,9 +62,9 @@ return [
     // =========================================================================
 
     // Clip Info Headers
-    'clip_info_title'     => 'Clip Information',
-    'clip_info_subtitle'  => 'Review the clip details before submitting',
-    'clip_preview_title'  => 'Clip Preview',
+    'clip_info_title'       => 'Clip Information',
+    'clip_info_subtitle'    => 'Review the clip details before submitting',
+    'clip_preview_title'    => 'Clip Preview',
     'clip_preview_subtitle' => 'Preview the clip before submitting',
 
     // Clip Metadata Labels
@@ -237,7 +239,7 @@ return [
     // SHARING
     // =========================================================================
 
-    'share' => 'Share',
+    'share'  => 'Share',
     'copied' => 'Copied to clipboard!',
 
     // =========================================================================

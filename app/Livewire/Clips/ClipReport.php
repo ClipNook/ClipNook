@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Clips;
 
 use App\Enums\ReportReason;
@@ -10,7 +12,13 @@ use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
-class ClipReport extends Component
+use function __;
+use function auth;
+use function route;
+use function session;
+use function view;
+
+final class ClipReport extends Component
 {
     public Clip $clip;
 

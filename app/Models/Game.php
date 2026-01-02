@@ -8,7 +8,7 @@ use App\Observers\GameObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Game extends Model
+final class Game extends Model
 {
     protected $fillable = [
         'twitch_game_id',
@@ -21,7 +21,22 @@ class Game extends Model
 
     protected static function booted(): void
     {
-        static::observe(GameObserver::class);
+        self::observe(GameObserver::class);
+    }
+
+    /**
+     * Find or create game from Twitch data.
+     */
+    public static function findOrCreateFromTwitch(array $gameData): self
+    {
+        return self::firstOrCreate(
+            ['twitch_game_id' => $gameData['id']],
+            [
+                'name'        => $gameData['name'],
+                'box_art_url' => $gameData['box_art_url'],
+                'igdb_id'     => $gameData['igdb_id'] ?? null,
+            ]
+        );
     }
 
     /**
@@ -35,20 +50,5 @@ class Game extends Model
     public function clips(): HasMany
     {
         return $this->hasMany(Clip::class);
-    }
-
-    /**
-     * Find or create game from Twitch data
-     */
-    public static function findOrCreateFromTwitch(array $gameData): self
-    {
-        return static::firstOrCreate(
-            ['twitch_game_id' => $gameData['id']],
-            [
-                'name'        => $gameData['name'],
-                'box_art_url' => $gameData['box_art_url'],
-                'igdb_id'     => $gameData['igdb_id'] ?? null,
-            ]
-        );
     }
 }

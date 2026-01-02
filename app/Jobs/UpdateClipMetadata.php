@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Models\Clip;
 use App\Services\Twitch\Api\ClipApiService;
 use App\Services\Twitch\Auth\TwitchTokenManager;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -14,9 +15,15 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class UpdateClipMetadata implements ShouldQueue
+use function array_merge;
+use function array_unique;
+
+final class UpdateClipMetadata implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct(public Clip $clip) {}
 
@@ -52,12 +59,13 @@ class UpdateClipMetadata implements ShouldQueue
                 'twitch_clip_id' => $this->clip->twitch_clip_id,
                 'new_view_count' => $clipData['view_count'],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Clip metadata update job failed', [
                 'clip_id'        => $this->clip->id,
                 'twitch_clip_id' => $this->clip->twitch_clip_id,
                 'error'          => $e->getMessage(),
             ]);
+
             throw $e;
         }
     }

@@ -6,6 +6,8 @@ namespace App\Models\Concerns\Clip;
 
 use Illuminate\Support\Facades\Storage;
 
+use function asset;
+
 /**
  * Handles clip media management (thumbnails, etc.).
  */

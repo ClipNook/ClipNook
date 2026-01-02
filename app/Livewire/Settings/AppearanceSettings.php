@@ -7,10 +7,17 @@ namespace App\Livewire\Settings;
 use App\Models\User;
 use Livewire\Component;
 
+use function app;
+use function array_keys;
+use function auth;
+use function implode;
+use function session;
+use function view;
+
 /**
  * User appearance settings component.
  */
-class AppearanceSettings extends Component
+final class AppearanceSettings extends Component
 {
     public User $user;
 

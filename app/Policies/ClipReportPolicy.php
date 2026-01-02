@@ -13,7 +13,7 @@ use App\Models\User;
  * This policy implements authorization logic for report operations including
  * creating and viewing reports on clips.
  */
-class ClipReportPolicy
+final class ClipReportPolicy
 {
     /**
      * Determine whether the user can view any reports.

@@ -8,6 +8,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TwitchOAuthController;
 use App\Livewire\Clips\ClipList;
 use App\Livewire\Games\GameList;
+use App\Livewire\Settings\SettingsPage;
 use Illuminate\Support\Facades\Route;
 
 // Home
@@ -44,6 +45,11 @@ Route::group(['prefix' => 'games', 'as' => 'games.'], static function (): void {
 // Admin
 Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], static function (): void {
     Route::get('/clips', static fn () => view('admin.clips'))->name('clips');
+});
+
+// Settings
+Route::middleware('auth')->group(static function (): void {
+    Route::get('/settings', SettingsPage::class)->name('settings');
 });
 
 // Theme

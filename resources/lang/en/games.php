@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     // =========================================================================
     // PAGE TITLES & HEADERS
@@ -14,10 +16,10 @@ return [
     // GAME CONTENT
     // =========================================================================
 
-    'clips_section'        => 'Clips',
+    'clips_section'          => 'Clips',
     'clips_section_subtitle' => 'Discover the best clips from this game',
-    'clips_count'          => '{0} clips|{1} clip|[2,*] clips',
-    'clip'                 => 'clip',
+    'clips_count'            => '{0} clips|{1} clip|[2,*] clips',
+    'clip'                   => 'clip',
 
     // =========================================================================
     // ACTIONS & NAVIGATION

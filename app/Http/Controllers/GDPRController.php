@@ -4,17 +4,28 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Contracts\GDPRServiceInterface;
+use App\Models\User;
 use Illuminate\Http\Request;
 
-class GDPRController extends Controller
+use function auth;
+use function config;
+use function hash;
+use function hash_equals;
+use function hash_hmac;
+use function now;
+use function pseudonymize_ip;
+use function request;
+use function response;
+
+final class GDPRController extends Controller
 {
     public function __construct(
         private readonly GDPRServiceInterface $gdprService,
     ) {}
+
     /**
-     * Export user data (Right to Data Portability)
+     * Export user data (Right to Data Portability).
      */
     public function exportData(Request $request)
     {
@@ -28,7 +39,7 @@ class GDPRController extends Controller
     }
 
     /**
-     * Request account deletion (Right to be Forgotten)
+     * Request account deletion (Right to be Forgotten).
      */
     public function requestDeletion(Request $request)
     {
@@ -60,7 +71,7 @@ class GDPRController extends Controller
     }
 
     /**
-     * Confirm account deletion
+     * Confirm account deletion.
      */
     public function confirmDeletion(Request $request)
     {
@@ -90,7 +101,7 @@ class GDPRController extends Controller
     }
 
     /**
-     * Get data processing consent status
+     * Get data processing consent status.
      */
     public function getConsents(Request $request)
     {
@@ -99,15 +110,13 @@ class GDPRController extends Controller
         $consents = $user->consents()
             ->orderBy('updated_at', 'desc')
             ->get()
-            ->map(function ($consent) {
-                return [
-                    'type'         => $consent->consent_type,
-                    'version'      => $consent->consent_version,
-                    'consented'    => $consent->consented,
-                    'consented_at' => $consent->consented_at,
-                    'updated_at'   => $consent->updated_at,
-                ];
-            });
+            ->map(static fn ($consent) => [
+                'type'         => $consent->consent_type,
+                'version'      => $consent->consent_version,
+                'consented'    => $consent->consented,
+                'consented_at' => $consent->consented_at,
+                'updated_at'   => $consent->updated_at,
+            ]);
 
         return response()->json([
             'consents'          => $consents,
@@ -120,7 +129,7 @@ class GDPRController extends Controller
     }
 
     /**
-     * Update consent preferences
+     * Update consent preferences.
      */
     public function updateConsents(Request $request)
     {
@@ -164,7 +173,7 @@ class GDPRController extends Controller
     }
 
     /**
-     * Get data retention information
+     * Get data retention information.
      */
     public function getRetentionInfo(Request $request)
     {
@@ -190,7 +199,7 @@ class GDPRController extends Controller
 
     /**
      * This is a simplified example
-     * Implement proper token verification (e.g., signed tokens with expiration)
+     * Implement proper token verification (e.g., signed tokens with expiration).
      */
     private function verifyDeletionToken(User $user, string $token): bool
     {

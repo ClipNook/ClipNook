@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use function implode;
+use function ucfirst;
+
 /**
  * Model for managing granular clip permissions granted by broadcasters to users.
  *
@@ -15,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * been granted specific permissions to manage clips on behalf of the broadcaster.
  * Permissions include submitting, editing, deleting, and moderating clips.
  */
-class BroadcasterClipPermission extends Model
+final class BroadcasterClipPermission extends Model
 {
     use HasFactory;
 

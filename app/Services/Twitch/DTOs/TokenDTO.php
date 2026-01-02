@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Twitch\DTOs;
 
-readonly class TokenDTO
+use function time;
+
+final readonly class TokenDTO
 {
     public function __construct(
         public string $accessToken,

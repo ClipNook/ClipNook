@@ -9,14 +9,19 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class DeleteUserDataAction
+use function method_exists;
+use function now;
+use function pseudonymize_ip;
+use function request;
+
+final class DeleteUserDataAction
 {
     /**
-     * Execute the user data deletion/anonymization
+     * Execute the user data deletion/anonymization.
      */
     public function execute(User $user, bool $softDelete = true): void
     {
-        DB::transaction(function () use ($user, $softDelete) {
+        DB::transaction(static function () use ($user, $softDelete): void {
             // Log the deletion action
             $user->activityLogs()->create([
                 'action'      => 'account_deletion_completed',
@@ -37,8 +42,6 @@ class DeleteUserDataAction
                 'twitch_access_token'     => null,
                 'twitch_refresh_token'    => null,
                 'twitch_token_expires_at' => null,
-                'twitch_avatar'           => null,
-                'custom_avatar_path'      => null,
                 'description'             => null,
                 'preferences'             => [],
                 'scopes'                  => [],
@@ -47,8 +50,8 @@ class DeleteUserDataAction
             $user->update($anonymizedData);
 
             // Delete avatar files
-            if ($user->custom_avatar_path) {
-                Storage::delete($user->custom_avatar_path);
+            if ($user->hasAvatar()) {
+                $user->deleteAvatar();
             }
 
             // Handle clips (anonymize, don't delete)

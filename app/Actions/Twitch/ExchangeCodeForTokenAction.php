@@ -6,11 +6,17 @@ namespace App\Actions\Twitch;
 
 use App\Services\Twitch\Contracts\TwitchApiClientInterface;
 use App\Services\Twitch\DTOs\TokenDTO;
+use Exception;
 
-class ExchangeCodeForTokenAction
+use function config;
+use function implode;
+use function is_array;
+use function time;
+
+final class ExchangeCodeForTokenAction
 {
     public function __construct(
-        protected readonly TwitchApiClientInterface $apiClient,
+        private readonly TwitchApiClientInterface $apiClient,
     ) {}
 
     public function execute(string $code): ?TokenDTO
@@ -29,7 +35,7 @@ class ExchangeCodeForTokenAction
                 scope: is_array($data['scope']) ? implode(' ', $data['scope']) : ($data['scope'] ?? null),
                 issuedAt: time(),
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }

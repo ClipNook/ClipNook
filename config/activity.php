@@ -1,7 +1,8 @@
 <?php
 
-return [
+declare(strict_types=1);
 
+return [
     /*
     |--------------------------------------------------------------------------
     | Activity Tracking Configuration
@@ -72,5 +73,4 @@ return [
     'cache_prefix' => 'activity_',
 
     'cache_ttl' => env('ACTIVITY_CACHE_TTL', 3600), // 1 hour
-
 ];

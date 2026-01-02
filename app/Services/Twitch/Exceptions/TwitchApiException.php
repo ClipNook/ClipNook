@@ -9,7 +9,7 @@ use App\Exceptions\TwitchException;
 /**
  * Exception thrown when Twitch API operations fail.
  */
-class TwitchApiException extends TwitchException
+final class TwitchApiException extends TwitchException
 {
     /**
      * Create exception for general API errors.

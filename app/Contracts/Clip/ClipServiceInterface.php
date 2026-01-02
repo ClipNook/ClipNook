@@ -18,57 +18,57 @@ use Illuminate\Pagination\LengthAwarePaginator;
 interface ClipServiceInterface
 {
     /**
-     * Submit a clip for a user
+     * Submit a clip for a user.
      */
     public function submitClip(User $user, string $clipId): Clip;
 
     /**
-     * Get clips for a user with pagination
+     * Get clips for a user with pagination.
      */
     public function getUserClips(User $user, ?int $perPage = null): LengthAwarePaginator;
 
     /**
-     * Get clips for a specific broadcaster
+     * Get clips for a specific broadcaster.
      */
     public function getBroadcasterClips(int $broadcasterId, ?int $perPage = null): LengthAwarePaginator;
 
     /**
-     * Get featured/popular clips
+     * Get featured/popular clips.
      */
     public function getFeaturedClips(?int $limit = null): Collection;
 
     /**
-     * Get recent clips
+     * Get recent clips.
      */
     public function getRecentClips(?int $limit = null): Collection;
 
     /**
-     * Search clips by title or tags with improved security
+     * Search clips by title or tags with improved security.
      */
     public function searchClips(string $query, ?int $perPage = null): LengthAwarePaginator;
 
     /**
-     * Get clip statistics for a user
+     * Get clip statistics for a user.
      */
     public function getUserStats(User $user): array;
 
     /**
-     * Check if user can submit more clips (rate limiting)
+     * Check if user can submit more clips (rate limiting).
      */
     public function canUserSubmitClip(User $user): bool;
 
     /**
-     * Get clips by game/category
+     * Get clips by game/category.
      */
     public function getClipsByGame(int $gameId, ?int $perPage = null): LengthAwarePaginator;
 
     /**
-     * Toggle featured status for a clip (admin only)
+     * Toggle featured status for a clip (admin only).
      */
     public function toggleFeatured(Clip $clip): bool;
 
     /**
-     * Delete a clip
+     * Delete a clip.
      */
     public function deleteClip(Clip $clip): bool;
 }

@@ -7,7 +7,7 @@ namespace Database\Factories;
 use App\Models\Clip;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class ClipFactory extends Factory
+final class ClipFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -43,7 +43,7 @@ class ClipFactory extends Factory
      */
     public function approved(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(static fn (array $attributes) => [
             'status' => 'approved',
         ]);
     }
@@ -53,7 +53,7 @@ class ClipFactory extends Factory
      */
     public function pending(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(static fn (array $attributes) => [
             'status' => 'pending',
         ]);
     }
@@ -63,7 +63,7 @@ class ClipFactory extends Factory
      */
     public function featured(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(static fn (array $attributes) => [
             'is_featured' => true,
         ]);
     }

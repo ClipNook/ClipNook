@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 use function __;
@@ -65,18 +64,12 @@ final class User extends Authenticatable
         'twitch_access_token',
         'twitch_refresh_token',
         'twitch_token_expires_at',
+        'last_twitch_sync_at',
 
         // Profile Data
         'description',
         'preferences',
         'scopes',
-
-        // Avatar Management
-        'twitch_avatar',
-        'custom_avatar_path',
-        'avatar_source',
-        'avatar_disabled',
-        'avatar_disabled_at',
 
         // Role Flags
         'is_viewer',
@@ -115,7 +108,7 @@ final class User extends Authenticatable
     protected $casts = [
         // Timestamps
         'twitch_token_expires_at' => 'datetime',
-        'avatar_disabled_at'      => 'datetime',
+        'last_twitch_sync_at'     => 'datetime',
         'last_activity_at'        => 'datetime',
         'last_login_at'           => 'datetime',
 
@@ -128,7 +121,6 @@ final class User extends Authenticatable
         'description'              => 'string',
 
         // Booleans
-        'avatar_disabled'         => 'boolean',
         'is_viewer'               => 'boolean',
         'is_cutter'               => 'boolean',
         'is_streamer'             => 'boolean',
@@ -261,16 +253,6 @@ final class User extends Authenticatable
         return $this->last_activity_at?->diffForHumans() ?? __('user.never');
     }
 
-    /**
-     * Check if the user has completed their profile.
-     */
-    public function getProfileCompleteAttribute(): bool
-    {
-        return ! empty($this->description)
-               && ! empty($this->twitch_display_name)
-               && ($this->avatar_url !== null);
-    }
-
     // Helper Methods
 
     /**
@@ -387,16 +369,6 @@ final class User extends Authenticatable
     public function isTwitchTokenExpired(): bool
     {
         return $this->twitch_token_expires_at && $this->twitch_token_expires_at->isPast();
-    }
-
-    /**
-     * Delete the user's custom avatar files.
-     */
-    public function deleteAvatar(): void
-    {
-        if ($this->custom_avatar_path) {
-            Storage::delete($this->custom_avatar_path);
-        }
     }
 
     /**

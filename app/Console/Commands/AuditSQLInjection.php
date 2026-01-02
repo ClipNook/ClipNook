@@ -7,7 +7,14 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
-class AuditSQLInjection extends Command
+use function app_path;
+use function array_filter;
+use function count;
+use function explode;
+use function preg_match;
+use function trim;
+
+final class AuditSQLInjection extends Command
 {
     /**
      * The name and signature of the console command.
@@ -93,7 +100,7 @@ class AuditSQLInjection extends Command
         $this->error('⚠️  Found '.count($vulnerabilities).' potential SQL injection vulnerabilities:');
         $this->newLine();
 
-        $highRisk = array_filter($vulnerabilities, fn ($v) => $v['severity'] === 'HIGH');
+        $highRisk = array_filter($vulnerabilities, static fn ($v) => $v['severity'] === 'HIGH');
 
         if (! empty($highRisk)) {
             $this->error('🚨 HIGH RISK VULNERABILITIES:');

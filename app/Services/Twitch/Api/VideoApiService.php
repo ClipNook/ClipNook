@@ -9,10 +9,12 @@ use App\Services\Twitch\Contracts\TwitchApiClientInterface;
 use App\Services\Twitch\DTOs\VideoDTO;
 use App\Services\Twitch\Exceptions\TwitchApiException;
 
+use function array_map;
+
 /**
  * Service for fetching Twitch video data.
  */
-class VideoApiService
+final class VideoApiService
 {
     public function __construct(
         private readonly TwitchApiClientInterface $apiClient,

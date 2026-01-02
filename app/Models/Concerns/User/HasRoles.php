@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models\Concerns\User;
 
+use function in_array;
+
 /**
  * Handles user role management and permissions.
  */
@@ -90,7 +92,7 @@ trait HasRoles
     {
         $roleField = "is_{$role}";
 
-        if (! in_array($roleField, ['is_viewer', 'is_cutter', 'is_streamer', 'is_moderator', 'is_admin'])) {
+        if (! in_array($roleField, ['is_viewer', 'is_cutter', 'is_streamer', 'is_moderator', 'is_admin'], true)) {
             return false;
         }
 
@@ -106,7 +108,7 @@ trait HasRoles
     {
         $roleField = "is_{$role}";
 
-        if (! in_array($roleField, ['is_viewer', 'is_cutter', 'is_streamer', 'is_moderator', 'is_admin'])) {
+        if (! in_array($roleField, ['is_viewer', 'is_cutter', 'is_streamer', 'is_moderator', 'is_admin'], true)) {
             return false;
         }
 

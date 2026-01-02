@@ -6,7 +6,7 @@ namespace App\Services\Twitch\Exceptions;
 
 use Exception;
 
-class InvalidImageException extends Exception
+final class InvalidImageException extends Exception
 {
     public static function invalidMimeType(string $mimeType): self
     {

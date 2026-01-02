@@ -5,8 +5,27 @@ declare(strict_types=1);
 namespace App\Helpers;
 
 use App\Exceptions\DataSanitizationException;
+use Exception;
 
-class TwitchDataSanitizer
+use function config;
+use function filter_var;
+use function html_entity_decode;
+use function in_array;
+use function max;
+use function min;
+use function parse_url;
+use function pathinfo;
+use function str_starts_with;
+use function strip_tags;
+use function strtolower;
+
+use const ENT_QUOTES;
+use const FILTER_VALIDATE_URL;
+use const PATHINFO_EXTENSION;
+use const PHP_URL_HOST;
+use const PHP_URL_PATH;
+
+final class TwitchDataSanitizer
 {
     /**
      * Sanitize text content from Twitch API to prevent XSS.
@@ -47,7 +66,7 @@ class TwitchDataSanitizer
         $allowedDomains = config('twitch.security.allowed_domains', ['twitch.tv', 'static-cdn.jtvnw.net']);
         $host           = parse_url($url, PHP_URL_HOST);
 
-        if (! in_array($host, $allowedDomains)) {
+        if (! in_array($host, $allowedDomains, true)) {
             throw DataSanitizationException::domainNotAllowed($host);
         }
 
@@ -64,8 +83,8 @@ class TwitchDataSanitizer
             // Additional checks for image extensions
             $extension = strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION));
 
-            return in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-        } catch (\Exception $e) {
+            return in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true);
+        } catch (Exception $e) {
             return false;
         }
     }

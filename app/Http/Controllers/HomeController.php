@@ -8,7 +8,11 @@ use App\Models\Clip;
 use App\Models\Game;
 use Illuminate\View\View;
 
-class HomeController extends Controller
+use function compact;
+use function config;
+use function view;
+
+final class HomeController extends Controller
 {
     public function index(): View
     {
@@ -35,13 +39,13 @@ class HomeController extends Controller
             ->get();
 
         $topGames = Game::select(['id', 'name', 'local_box_art_path', 'slug'])
-            ->withCount(['clips' => function ($query) {
+            ->withCount(['clips' => static function ($query): void {
                 $query->where('status', 'approved');
             }])
             ->orderBy('clips_count', 'desc')
             ->limit($limit)
             ->get()
-            ->filter(fn ($game) => $game->clips_count > 0);
+            ->filter(static fn ($game) => $game->clips_count > 0);
 
         return view('home', compact('latestClips', 'topClips', 'topGames'));
     }

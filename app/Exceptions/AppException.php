@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Exceptions;
 
 use Exception;
+use Throwable;
 
 /**
  * Base exception for all application-specific exceptions.
@@ -18,7 +19,7 @@ abstract class AppException extends Exception
     public function __construct(
         string $message = '',
         int $code = 0,
-        ?\Throwable $previous = null
+        ?Throwable $previous = null,
     ) {
         parent::__construct($message, $code, $previous);
     }
@@ -26,7 +27,7 @@ abstract class AppException extends Exception
     /**
      * Get the exception context for logging/debugging.
      */
-    public function getContext(): array
+    final public function getContext(): array
     {
         return [
             'line'            => $this->getLine(),

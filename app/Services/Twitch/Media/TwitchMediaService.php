@@ -7,13 +7,18 @@ namespace App\Services\Twitch\Media;
 use App\Contracts\ImageValidatorInterface;
 use App\Services\Twitch\Contracts\DownloadInterface;
 use App\Services\Twitch\Exceptions\TwitchApiException;
+use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+
+use function config;
+use function parse_url;
+use function str_ends_with;
 
 /**
  * Service for downloading and managing Twitch media (thumbnails, avatars).
  */
-class TwitchMediaService implements DownloadInterface
+final class TwitchMediaService implements DownloadInterface
 {
     public function __construct(
         private readonly ImageValidatorInterface $imageValidator,
@@ -34,7 +39,7 @@ class TwitchMediaService implements DownloadInterface
             ->get($url);
 
         if (! $response->successful()) {
-            throw new \Exception('Failed to download image: HTTP '.$response->status());
+            throw new Exception('Failed to download image: HTTP '.$response->status());
         }
 
         $image = $response->body();
@@ -60,7 +65,7 @@ class TwitchMediaService implements DownloadInterface
     {
         try {
             return $this->downloadImage($url, $savePath);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw TwitchApiException::thumbnailDownloadFailed($e->getMessage());
         }
     }
@@ -72,7 +77,7 @@ class TwitchMediaService implements DownloadInterface
     {
         try {
             return $this->downloadImage($url, $savePath);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw TwitchApiException::profileImageDownloadFailed($e->getMessage());
         }
     }
@@ -84,7 +89,7 @@ class TwitchMediaService implements DownloadInterface
     {
         try {
             return $this->downloadImage($url, $savePath);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw TwitchApiException::boxArtDownloadFailed($e->getMessage());
         }
     }

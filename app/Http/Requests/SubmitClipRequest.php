@@ -1,11 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use App\Rules\ValidClipId;
 use Illuminate\Foundation\Http\FormRequest;
 
-class SubmitClipRequest extends FormRequest
+use function __;
+use function preg_match;
+use function str_contains;
+
+final class SubmitClipRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,7 +27,7 @@ class SubmitClipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'twitch_clip_id' => ['required', 'string', new ValidClipId],
+            'twitch_clip_id' => ['required', 'string', new ValidClipId()],
         ];
     }
 

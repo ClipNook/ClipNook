@@ -7,10 +7,10 @@ namespace App\Observers;
 use App\Models\Clip;
 use App\Services\Cache\QueryCacheService;
 
-class ClipObserver
+final class ClipObserver
 {
     public function __construct(
-        private QueryCacheService $cache
+        private QueryCacheService $cache,
     ) {}
 
     public function creating(Clip $clip): void

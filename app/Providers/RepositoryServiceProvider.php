@@ -16,7 +16,7 @@ use Illuminate\Support\ServiceProvider;
  * Repository service provider.
  * Registers all repository bindings and implementations.
  */
-class RepositoryServiceProvider extends ServiceProvider
+final class RepositoryServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
@@ -24,21 +24,14 @@ class RepositoryServiceProvider extends ServiceProvider
     public function register(): void
     {
         // User Repository
-        $this->app->bind(UserRepositoryInterface::class, function ($app) {
-            return new UserRepository(new User);
-        });
+        $this->app->bind(UserRepositoryInterface::class, static fn ($app) => new UserRepository(new User()));
 
         // Clip Repository
-        $this->app->bind(ClipRepositoryInterface::class, function ($app) {
-            return new ClipRepository(new Clip);
-        });
+        $this->app->bind(ClipRepositoryInterface::class, static fn ($app) => new ClipRepository(new Clip()));
     }
 
     /**
      * Bootstrap services.
      */
-    public function boot(): void
-    {
-        //
-    }
+    public function boot(): void {}
 }

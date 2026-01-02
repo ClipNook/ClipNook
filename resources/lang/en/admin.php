@@ -1,7 +1,8 @@
 <?php
 
-return [
+declare(strict_types=1);
 
+return [
     /*
     |--------------------------------------------------------------------------
     | Admin Language Lines
@@ -61,5 +62,4 @@ return [
     'clip_deleted'          => 'Clip has been deleted',
     'clip_featured_toggled' => 'Featured status updated',
     'confirm_delete'        => 'Are you sure you want to delete this clip? This action cannot be undone.',
-
 ];

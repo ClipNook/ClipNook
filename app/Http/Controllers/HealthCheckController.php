@@ -5,12 +5,33 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Services\Cache\CacheBackendManager;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class HealthCheckController extends Controller
+use function app;
+use function config;
+use function count;
+use function function_exists;
+use function getenv;
+use function in_array;
+use function ini_get;
+use function memory_get_peak_usage;
+use function memory_get_usage;
+use function now;
+use function response;
+use function round;
+use function shell_exec;
+use function strtolower;
+use function substr;
+use function sys_getloadavg;
+use function time;
+
+use const PHP_OS_FAMILY;
+
+final class HealthCheckController extends Controller
 {
     public function __construct(
         private CacheBackendManager $cacheBackend,
@@ -53,7 +74,7 @@ class HealthCheckController extends Controller
             DB::select('SELECT 1');
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -70,7 +91,7 @@ class HealthCheckController extends Controller
             Cache::forget($testKey);
 
             return $result === true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -95,7 +116,7 @@ class HealthCheckController extends Controller
             Storage::disk('local')->delete($testFile);
 
             return $exists;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -114,7 +135,7 @@ class HealthCheckController extends Controller
                 ->get('https://api.twitch.tv/helix/games/top?first=1');
 
             return $response->successful();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }

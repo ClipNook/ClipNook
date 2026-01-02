@@ -1,7 +1,8 @@
 <?php
 
-return [
+declare(strict_types=1);
 
+return [
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -150,5 +151,4 @@ return [
     */
 
     'home_items_limit' => env('HOME_ITEMS_LIMIT', 6),
-
 ];

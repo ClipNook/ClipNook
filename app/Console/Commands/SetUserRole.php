@@ -7,7 +7,10 @@ namespace App\Console\Commands;
 use App\Models\User;
 use Illuminate\Console\Command;
 
-class SetUserRole extends Command
+use function in_array;
+use function strtolower;
+
+final class SetUserRole extends Command
 {
     /**
      * The name and signature of the console command.
@@ -43,7 +46,7 @@ class SetUserRole extends Command
         }
 
         // Validate role
-        if (! in_array($role, ['admin', 'moderator'])) {
+        if (! in_array($role, ['admin', 'moderator'], true)) {
             $this->error('Role must be either "admin" or "moderator"');
 
             return self::FAILURE;

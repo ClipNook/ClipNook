@@ -10,19 +10,21 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+use function url;
+
 /**
  * Notification sent to users when their clip is rejected.
  *
  * This notification informs submitters that their clip has been rejected,
  * including the reason for rejection to help them improve future submissions.
  */
-class ClipRejected extends Notification implements ShouldQueue
+final class ClipRejected extends Notification implements ShouldQueue
 {
     use Queueable;
 
     public function __construct(
         public Clip $clip,
-        public string $reason
+        public string $reason,
     ) {}
 
     /**
@@ -40,7 +42,7 @@ class ClipRejected extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject("Your clip was not approved: {$this->clip->title}")
             ->greeting("Hello {$notifiable->twitch_display_name},")
             ->line("Unfortunately, your submitted clip '{$this->clip->title}' was not approved.")

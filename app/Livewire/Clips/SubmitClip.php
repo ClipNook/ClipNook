@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Clips;
 
 use App\Actions\Clip\SubmitClipAction;
@@ -8,18 +10,24 @@ use App\Exceptions\ClipNotFoundException;
 use App\Exceptions\ClipPermissionException;
 use App\Services\Twitch\Api\ClipApiService;
 use App\Services\Twitch\Auth\TwitchTokenManager;
+use Exception;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
-class SubmitClip extends Component
+use function __;
+use function app;
+use function auth;
+use function config;
+use function data_get;
+use function preg_match;
+use function report;
+use function view;
+
+final class SubmitClip extends Component
 {
     private const TWITCH_CLIP_URL_REGEX = '/^(?:https?:\/\/(?:www\.)?twitch\.tv\/[^\/]+\/clip\/)?([a-zA-Z0-9_-]{1,100})$/';
-
-    protected ?ClipApiService $clipApiService = null;
-
-    protected ?TwitchTokenManager $tokenManager = null;
 
     #[Validate('required|string|regex:'.self::TWITCH_CLIP_URL_REGEX)]
     public string $twitchClipId = '';
@@ -36,18 +44,22 @@ class SubmitClip extends Component
 
     public bool $showPlayer = false;
 
+    protected ?ClipApiService $clipApiService = null;
+
+    protected ?TwitchTokenManager $tokenManager = null;
+
     protected $listeners = [
         'clip-submitted'       => 'handleClipSubmitted',
         'twitch-player-loaded' => 'handlePlayerLoaded',
     ];
 
-    public function mount(ClipApiService $clipApiService, TwitchTokenManager $tokenManager)
+    public function mount(ClipApiService $clipApiService, TwitchTokenManager $tokenManager): void
     {
         $this->clipApiService = $clipApiService;
         $this->tokenManager   = $tokenManager;
     }
 
-    public function checkClip()
+    public function checkClip(): void
     {
         $this->resetMessages();
         $this->isChecking = true;
@@ -79,11 +91,10 @@ class SubmitClip extends Component
                 'thumbnailUrl'    => $clipData->thumbnailUrl,
                 'embedUrl'        => $clipData->embedUrl,
             ];
-
         } catch (ValidationException $e) {
             $errors             = $e->errors();
             $this->errorMessage = $errors['twitch_clip_id'][0] ?? $e->getMessage();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->errorMessage = __('clips.unexpected_error');
             report($e);
         } finally {
@@ -91,12 +102,12 @@ class SubmitClip extends Component
         }
     }
 
-    public function loadPlayer()
+    public function loadPlayer(): void
     {
         $this->showPlayer = true;
     }
 
-    public function resetClip()
+    public function resetClip(): void
     {
         $this->clipInfo     = null;
         $this->showPlayer   = false;
@@ -104,7 +115,7 @@ class SubmitClip extends Component
         $this->resetMessages();
     }
 
-    public function submit()
+    public function submit(): void
     {
         if (empty($this->clipInfo) || ! isset($this->clipInfo['id'])) {
             $this->errorMessage = __('clips.please_check_clip_first');
@@ -138,7 +149,6 @@ class SubmitClip extends Component
             $this->resetMessages();
             $this->successMessage = __('clips.submission_success');
             $this->dispatch('clip-submitted');
-
         } catch (ClipNotFoundException $e) {
             $this->errorMessage = __('clips.clip_not_found');
         } catch (BroadcasterNotRegisteredException $e) {
@@ -148,7 +158,7 @@ class SubmitClip extends Component
         } catch (ValidationException $e) {
             $errors             = $e->errors();
             $this->errorMessage = $errors['twitch_clip_id'][0] ?? $e->getMessage();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->errorMessage = __('clips.unexpected_error');
             report($e);
         } finally {
@@ -156,17 +166,22 @@ class SubmitClip extends Component
         }
     }
 
-    public function handlePlayerLoaded()
+    public function handlePlayerLoaded(): void
     {
         $this->showPlayer = true;
     }
 
-    public function handleClipSubmitted()
+    public function handleClipSubmitted(): void
     {
         $this->dispatch('refresh-clip-list');
     }
 
-    private function resetMessages()
+    public function render()
+    {
+        return view('livewire.clips.submit-clip');
+    }
+
+    private function resetMessages(): void
     {
         $this->successMessage = null;
         $this->errorMessage   = null;
@@ -180,10 +195,5 @@ class SubmitClip extends Component
         }
 
         return $input;
-    }
-
-    public function render()
-    {
-        return view('livewire.clips.submit-clip');
     }
 }

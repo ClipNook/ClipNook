@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use App\Services\Monitoring\PerformanceMonitor;
@@ -7,7 +9,13 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class PerformanceMonitoring
+use function count;
+use function memory_get_peak_usage;
+use function memory_get_usage;
+use function microtime;
+use function round;
+
+final class PerformanceMonitoring
 {
     public function __construct(private PerformanceMonitor $monitor) {}
 

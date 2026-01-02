@@ -15,36 +15,46 @@ use App\Services\Twitch\Api\GameApiService;
 use App\Services\Twitch\Api\StreamerApiService;
 use App\Services\Twitch\Api\VideoApiService;
 use App\Services\Twitch\Auth\TwitchTokenManager;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
-class SubmitClipAction
+use function __;
+use function array_filter;
+use function array_unique;
+use function config;
+use function dirname;
+use function file_get_contents;
+use function now;
+use function str_replace;
+
+final class SubmitClipAction
 {
     public function __construct(
         private ClipApiService $clipApiService,
         private GameApiService $gameApiService,
         private StreamerApiService $streamerApiService,
         private VideoApiService $videoApiService,
-        private TwitchTokenManager $tokenManager
+        private TwitchTokenManager $tokenManager,
     ) {}
 
     /**
-     * Submit a clip from Twitch
+     * Submit a clip from Twitch.
      *
      * This action handles the initial clip submission validation and dispatches
      * a background job for processing. This improves response times and handles
      * API rate limits gracefully.
      *
-     * @param  User  $user  The user submitting the clip
-     * @param  string  $twitchClipId  The Twitch clip ID
-     * @return bool True if job was dispatched successfully
+     * @param  User   $user         The user submitting the clip
+     * @param  string $twitchClipId The Twitch clip ID
+     * @return bool   True if job was dispatched successfully
      *
-     * @throws ClipNotFoundException When clip is not found on Twitch
+     * @throws ClipNotFoundException             When clip is not found on Twitch
      * @throws BroadcasterNotRegisteredException When broadcaster is not registered
-     * @throws ClipPermissionException When user lacks permission
+     * @throws ClipPermissionException           When user lacks permission
      */
     public function execute(User $user, string $twitchClipId): bool
     {
@@ -199,7 +209,7 @@ class SubmitClipAction
             } else {
                 Log::warning('Failed to download thumbnail', ['clip_id' => $clip->id, 'url' => $thumbnailUrl]);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Thumbnail download failed', ['clip_id' => $clip->id, 'error' => $e->getMessage()]);
         }
     }
@@ -226,7 +236,7 @@ class SubmitClipAction
             } else {
                 Log::warning('Failed to download game box art', ['game_id' => $game->id, 'url' => $resolvedUrl]);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Game box art download failed', ['game_id' => $game->id, 'error' => $e->getMessage()]);
         }
     }

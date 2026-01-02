@@ -10,14 +10,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class DeleteClipAction
+final class DeleteClipAction
 {
     /**
-     * Delete a clip and its associated files
+     * Delete a clip and its associated files.
      */
     public function execute(Clip $clip, User $user): bool
     {
-        return DB::transaction(function () use ($clip, $user) {
+        return DB::transaction(static function () use ($clip, $user) {
             // Delete local thumbnail if exists
             if ($clip->local_thumbnail_path) {
                 Storage::disk('public')->delete($clip->local_thumbnail_path);

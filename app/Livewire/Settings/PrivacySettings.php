@@ -7,10 +7,14 @@ namespace App\Livewire\Settings;
 use App\Models\User;
 use Livewire\Component;
 
+use function auth;
+use function session;
+use function view;
+
 /**
  * User privacy settings component.
  */
-class PrivacySettings extends Component
+final class PrivacySettings extends Component
 {
     public User $user;
 

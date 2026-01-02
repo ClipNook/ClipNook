@@ -16,12 +16,14 @@ use Illuminate\Queue\SerializesModels;
  * This event is dispatched whenever a user submits a new clip for moderation.
  * It can be used for logging, notifications, or triggering background processes.
  */
-class ClipSubmitted
+final class ClipSubmitted
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public function __construct(
         public Clip $clip,
-        public User $submitter
+        public User $submitter,
     ) {}
 }

@@ -7,7 +7,9 @@ namespace App\Console\Commands;
 use App\Models\IpPseudonymizationSalt;
 use Illuminate\Console\Command;
 
-class RotateIpSalts extends Command
+use function now;
+
+final class RotateIpSalts extends Command
 {
     /**
      * The name and signature of the console command.
