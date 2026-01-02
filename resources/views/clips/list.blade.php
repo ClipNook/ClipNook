@@ -47,7 +47,7 @@
             </div>
 
             <!-- Content -->
-            <div class="border border-zinc-800 rounded-lg p-6 bg-zinc-900/50">
+            <div class="bg-zinc-900/40 backdrop-blur-sm border border-zinc-800/30 rounded-2xl p-6 lg:p-8">
                 <livewire:clips.clip-list />
             </div>
         </div>
