@@ -1,113 +1,188 @@
 <x-layouts.app title="{{ $clip->title }}">
-    <div class="min-h-screen bg-zinc-950 py-8 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-6xl mx-auto space-y-8">
-            <!-- Clip Player -->
-            <div class="relative border border-zinc-800 rounded-lg overflow-hidden bg-zinc-900/50">
-                <div class="aspect-video bg-zinc-800">
-                    <livewire:twitch-player-consent :clip-info="[
-                        'twitchClipId' => $clip->twitch_clip_id,
-                        'localThumbnailPath' => $clip->local_thumbnail_path,
-                    ]" />
-                </div>
-            </div>
+    <div class="min-h-screen bg-zinc-950">
+        <!-- Hero Section -->
+        <div class="relative overflow-hidden">
+            <!-- Background with subtle gradient -->
+            <div class="absolute inset-0 bg-gradient-to-br from-(--color-accent-500)/10 via-transparent to-(--color-accent-600)/5"></div>
 
-            <!-- Clip Info -->
-            <div class="border border-zinc-800 rounded-lg p-6 bg-zinc-900/50">
-                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-3">
-                    <div class="flex-1">
-                        <h1 class="text-2xl font-semibold text-zinc-100 mb-4">{{ $clip->title }}</h1>
-                        <div class="flex flex-wrap items-center gap-4 text-sm text-zinc-400 mb-4">
-                            <a href="{{ route('clips.list', ['broadcaster' => $clip->broadcaster->twitch_login]) }}"
-                                class="flex items-center gap-2 text-zinc-400 hover:text-(--color-accent-400) transition-colors">
-                                <i class="fa-solid fa-user"></i>
-                                {{ $clip->broadcaster->twitch_display_name }}
-                            </a>
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-eye"></i>
-                                {{ __('clips.views_count', ['count' => number_format($clip->view_count)]) }}
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-calendar"></i>
-                                {{ $clip->created_at_twitch->format('M j, Y') }}
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-clock"></i>
-                                {{ __('clips.duration_seconds', ['seconds' => number_format($clip->duration, 2)]) }}
+            <!-- Hero Content -->
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+                    <!-- Clip Player - Large -->
+                    <div class="lg:col-span-2">
+                        <div class="relative group">
+                            <div class="absolute -inset-1 bg-gradient-to-r from-(--color-accent-500) to-(--color-accent-600) rounded-2xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity"></div>
+                            <div class="relative bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl">
+                                <div class="aspect-video bg-zinc-800">
+                                    <livewire:twitch-player-consent :clip-info="[
+                                        'twitchClipId' => $clip->twitch_clip_id,
+                                        'localThumbnailPath' => $clip->local_thumbnail_path,
+                                    ]" />
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Actions -->
-                    <div class="flex items-center gap-3">
-                        <x-ui.button x-data="{ copied: false }"
-                            x-on:click="navigator.clipboard.writeText(window.location.href); copied = true; setTimeout(() => copied = false, 2000)"
-                            variant="secondary" size="md" icon="share-nodes">
-                            <span x-text="copied ? '{{ __('clips.copied') }}' : '{{ __('clips.share') }}'"></span>
-                        </x-ui.button>
-                    </div>
-                </div>
+                    <!-- Clip Info Sidebar -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <!-- Title & Actions -->
+                        <div>
+                            <h1 class="text-2xl lg:text-3xl font-bold text-zinc-100 mb-4 leading-tight">{{ $clip->title }}</h1>
 
-                <!-- Description -->
-                @if ($clip->description)
-                    <!-- Subtle accent border at top -->
-                    <div class="accent-border-divider">
-                    </div>
+                            <!-- Quick Actions -->
+                            <div class="flex items-center gap-3 mb-6">
+                                <x-ui.button x-data="{ copied: false }"
+                                    x-on:click="navigator.clipboard.writeText(window.location.href); copied = true; setTimeout(() => copied = false, 2000)"
+                                    variant="secondary" size="md" icon="share-nodes">
+                                    <span x-text="copied ? '{{ __('clips.copied') }}' : '{{ __('clips.share') }}'"></span>
+                                </x-ui.button>
+                            </div>
+                        </div>
 
-                    <div class="border-t border-zinc-800 pt-6 mb-3">
-                        <p class="text-zinc-300 leading-relaxed">
-                            {{ $clip->description }}
-                        </p>
-                    </div>
-                @endif
+                        <!-- Broadcaster Info -->
+                        <div class="bg-zinc-900/80 backdrop-blur-sm border border-zinc-800/50 rounded-xl p-6">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 bg-(--color-accent-500)/10 border border-(--color-accent-500)/20 rounded-xl flex items-center justify-center">
+                                    <i class="fa-solid fa-user text-(--color-accent-400) text-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-zinc-500 uppercase tracking-wide font-medium">{{ __('clips.streamer') }}</div>
+                                    <a href="{{ route('clips.list', ['broadcaster' => $clip->broadcaster->twitch_login]) }}"
+                                        class="text-lg font-semibold text-zinc-100 hover:text-(--color-accent-400) transition-colors">
+                                        {{ $clip->broadcaster->twitch_display_name }}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
 
-                <!-- Subtle accent border at top -->
-                <div class="accent-border-divider"></div>
+                        <!-- Stats Grid -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-zinc-900/80 backdrop-blur-sm border border-zinc-800/50 rounded-xl p-4 text-center group hover:border-(--color-accent-500)/30 transition-colors">
+                                <div class="text-2xl font-bold text-(--color-accent-400) mb-1 group-hover:text-(--color-accent-300) transition-colors">
+                                    {{ number_format($clip->view_count) }}
+                                </div>
+                                <div class="text-xs text-zinc-500 uppercase tracking-wide font-medium">
+                                    {{ __('clips.views') }}
+                                </div>
+                            </div>
 
+                            <div class="bg-zinc-900/80 backdrop-blur-sm border border-zinc-800/50 rounded-xl p-4 text-center group hover:border-(--color-accent-500)/30 transition-colors">
+                                <div class="text-2xl font-bold text-(--color-accent-400) mb-1 group-hover:text-(--color-accent-300) transition-colors">
+                                    {{ number_format($clip->duration, 1) }}s
+                                </div>
+                                <div class="text-xs text-zinc-500 uppercase tracking-wide font-medium">
+                                    {{ __('clips.duration') }}
+                                </div>
+                            </div>
+                        </div>
 
-                <!-- Tags/Meta -->
-                <div class="pt-6">
-                    <div class="flex flex-wrap gap-3">
-                        @if ($clip->game)
-                            <x-ui.button :href="route('games.view', $clip->game->id)" variant="outline" size="sm" icon="gamepad">
-                                {{ $clip->game->name }}
-                            </x-ui.button>
-                        @endif
-                        @if ($clip->submitter)
-                            <span class="px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded text-sm">
-                                <i class="fa-solid fa-user-pen mr-2 text-(--color-accent-400)"></i>
-                                {{ __('clips.submitted_by_label') }}: {{ $clip->submitter->twitch_login }}
-                            </span>
-                        @endif
-                        <span class="px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded text-sm">
-                            <i class="fa-solid fa-scissors mr-2 text-(--color-accent-400)"></i>
-                            {{ __('clips.created_by_label') }}: {{ $clip->clip_creator_name }}
-                        </span>
-                        <span class="px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded text-sm">
-                            <i class="fa-solid fa-plus mr-2 text-(--color-accent-400)"></i>
-                            {{ __('clips.added_on_label', ['date' => $clip->created_at->format('M j, Y')]) }}
-                        </span>
+                        <!-- Date Info -->
+                        <div class="bg-zinc-900/80 backdrop-blur-sm border border-zinc-800/50 rounded-xl p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-zinc-800/50 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-calendar text-zinc-400 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-zinc-500 uppercase tracking-wide font-medium">{{ __('clips.created') }}</div>
+                                    <div class="text-zinc-300">{{ $clip->created_at_twitch->format('M j, Y') }}</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Rating & Actions -->
-            @auth
-                <livewire:clips.clip-rating :clip="$clip" :key="'rating-' . $clip->id" />
-            @endauth
+            <!-- Decorative Elements -->
+            <div class="absolute top-1/3 left-10 w-24 h-24 bg-(--color-accent-500)/5 rounded-full blur-2xl"></div>
+            <div class="absolute bottom-1/3 right-10 w-32 h-32 bg-(--color-accent-600)/5 rounded-full blur-2xl"></div>
+        </div>
 
-            <!-- Comments Section -->
-            <livewire:clips.clip-comments :clip="$clip" :key="'comments-' . $clip->id" />
+        <!-- Content Section -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+            <!-- Description Section -->
+            @if ($clip->description)
+                <div class="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 rounded-2xl p-8 lg:p-12">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-12 h-12 bg-(--color-accent-500)/10 border border-(--color-accent-500)/20 rounded-xl flex items-center justify-center">
+                            <i class="fa-solid fa-quote-left text-(--color-accent-400) text-lg"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-zinc-100">{{ __('clips.description') }}</h2>
+                    </div>
+
+                    <div class="accent-border-divider-medium"></div>
+
+                    <div class="prose prose-invert max-w-none">
+                        <p class="text-zinc-300 leading-relaxed text-lg">
+                            {{ $clip->description }}
+                        </p>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Tags & Meta Section -->
+            <div class="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 rounded-2xl p-8 lg:p-12">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 bg-(--color-accent-500)/10 border border-(--color-accent-500)/20 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-tags text-(--color-accent-400) text-lg"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-zinc-100">{{ __('clips.details') }}</h2>
+                </div>
+
+                <div class="accent-border-divider-medium"></div>
+
+                <div class="flex flex-wrap gap-3">
+                    @if ($clip->game)
+                        <x-ui.button :href="route('games.view', $clip->game->id)" variant="outline" size="lg" icon="gamepad">
+                            {{ $clip->game->name }}
+                        </x-ui.button>
+                    @endif
+
+                    @if ($clip->submitter)
+                        <div class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 rounded-xl text-sm hover:border-(--color-accent-500)/30 transition-colors">
+                            <i class="fa-solid fa-user-pen text-(--color-accent-400)"></i>
+                            <span class="font-medium">{{ __('clips.submitted_by_label') }}:</span>
+                            <span>{{ $clip->submitter->twitch_login }}</span>
+                        </div>
+                    @endif
+
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 rounded-xl text-sm hover:border-(--color-accent-500)/30 transition-colors">
+                        <i class="fa-solid fa-scissors text-(--color-accent-400)"></i>
+                        <span class="font-medium">{{ __('clips.created_by_label') }}:</span>
+                        <span>{{ $clip->clip_creator_name }}</span>
+                    </div>
+
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 rounded-xl text-sm hover:border-(--color-accent-500)/30 transition-colors">
+                        <i class="fa-solid fa-plus text-(--color-accent-400)"></i>
+                        <span class="font-medium">{{ __('clips.added_on_label', ['date' => $clip->created_at->format('M j, Y')]) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rating & Comments -->
+            <div class="space-y-8">
+                @auth
+                    <livewire:clips.clip-rating :clip="$clip" :key="'rating-' . $clip->id" />
+                @endauth
+
+                <livewire:clips.clip-comments :clip="$clip" :key="'comments-' . $clip->id" />
+            </div>
 
             <!-- Related Clips -->
             @if ($relatedClips->isNotEmpty())
-                <div class="border border-zinc-800 rounded-lg p-6 bg-zinc-900/50">
-                    <div class="flex items-center justify-between mb-3">
-                        <h2 class="text-xl font-semibold text-zinc-100">{{ __('clips.related_clips') }}</h2>
+                <div class="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 rounded-2xl p-8 lg:p-12">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-(--color-accent-500)/10 border border-(--color-accent-500)/20 rounded-xl flex items-center justify-center">
+                                <i class="fa-solid fa-video text-(--color-accent-400) text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-zinc-100">{{ __('clips.related_clips') }}</h2>
+                                <p class="text-zinc-400 text-sm">{{ __('clips.related_clips_subtitle') }}</p>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <!-- Subtle accent border at top -->
-                    <div class="accent-border-divider">
-                    </div>
+
+                    <div class="accent-border-divider-medium"></div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         @foreach ($relatedClips as $relatedClip)
