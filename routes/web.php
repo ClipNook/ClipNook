@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Http\Controllers\ClipController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\GDPRController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LegalController;
 use App\Http\Controllers\TwitchOAuthController;
 use App\Livewire\Clips\ClipList;
 use App\Livewire\Games\GameList;
@@ -47,6 +49,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::get('/clips', static fn () => view('admin.clips'))->name('clips');
 });
 
+// GDPR
+Route::middleware(['auth', 'throttle:3,60'])->group(static function (): void {
+    Route::post('/gdpr/export', [GDPRController::class, 'exportData'])
+        ->name('gdpr.export');
+    Route::post('/gdpr/delete', [GDPRController::class, 'requestDeletion'])
+        ->name('gdpr.delete');
+});
+
 // Settings
 Route::middleware('auth')->group(static function (): void {
     Route::get('/settings', SettingsPage::class)->name('settings');
@@ -62,3 +72,10 @@ Route::post('/theme/{theme}', static function (string $theme) {
 
     return response()->json(['error' => 'Invalid theme'], 400);
 })->name('theme.set');
+
+// Legal Pages
+Route::group(['prefix' => 'legal', 'as' => 'legal.'], static function (): void {
+    Route::get('/imprint', [LegalController::class, 'imprint'])->name('imprint');
+    Route::get('/privacy', [LegalController::class, 'privacy'])->name('privacy');
+    Route::get('/terms', [LegalController::class, 'terms'])->name('terms');
+});

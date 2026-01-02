@@ -84,9 +84,9 @@
                             <p class="text-sm text-zinc-500 leading-relaxed">
                                 {!! __('auth.privacy_notice', [
                                     'terms' =>
-                                        '<a href="#" class="text-(--color-accent-400) hover:text-(--color-accent-300) underline transition-colors">Terms of Service</a>',
+                                        '<a href="' . route('legal.terms') . '" class="text-(--color-accent-400) hover:text-(--color-accent-300) underline transition-colors">Terms of Service</a>',
                                     'privacy' =>
-                                        '<a href="#" class="text-(--color-accent-400) hover:text-(--color-accent-300) underline transition-colors">Privacy Policy</a>',
+                                        '<a href="' . route('legal.privacy') . '" class="text-(--color-accent-400) hover:text-(--color-accent-300) underline transition-colors">Privacy Policy</a>',
                                 ]) !!}
                             </p>
                         </div>

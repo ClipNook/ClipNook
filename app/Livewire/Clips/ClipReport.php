@@ -7,20 +7,22 @@ namespace App\Livewire\Clips;
 use App\Enums\ReportReason;
 use App\Enums\ReportStatus;
 use App\Models\Clip;
+use App\Models\ClipComment;
 use App\Models\ClipReport as ClipReportModel;
 use Illuminate\Support\Facades\RateLimiter;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 use function __;
 use function auth;
 use function route;
-use function session;
-use function view;
 
 final class ClipReport extends Component
 {
     public Clip $clip;
+
+    public ?ClipComment $comment = null;
 
     public bool $showModal = false;
 
@@ -40,14 +42,20 @@ final class ClipReport extends Component
 
         $this->authorize('create', ClipReportModel::class);
 
-        // Check if user already reported this clip
-        $existingReport = ClipReportModel::query()
-            ->where('clip_id', $this->clip->id)
-            ->where('user_id', auth()->id())
-            ->exists();
+        // Check if user already reported this clip or comment
+        $query = ClipReportModel::query()
+            ->where('user_id', auth()->id());
+
+        if ($this->comment) {
+            $query->where('comment_id', $this->comment->id);
+        } else {
+            $query->where('clip_id', $this->clip->id);
+        }
+
+        $existingReport = $query->exists();
 
         if ($existingReport) {
-            session()->flash('error', __('clips.report_already_submitted'));
+            $this->dispatch('notify', type: 'error', message: __('clips.report_already_submitted'));
 
             return;
         }
@@ -72,7 +80,7 @@ final class ClipReport extends Component
         // Rate limiting: 5 reports per hour
         $key = 'report:'.auth()->id();
         if (RateLimiter::tooManyAttempts($key, 5)) {
-            session()->flash('error', __('clips.too_many_reports'));
+            $this->dispatch('notify', type: 'error', message: __('clips.too_many_reports'));
             $this->closeModal();
 
             return;
@@ -82,20 +90,41 @@ final class ClipReport extends Component
 
         $this->validate();
 
-        ClipReportModel::create([
-            'clip_id'     => $this->clip->id,
+        $data = [
             'user_id'     => auth()->id(),
             'reason'      => ReportReason::from($this->reason),
             'status'      => ReportStatus::PENDING,
             'description' => $this->description,
-        ]);
+        ];
+
+        if ($this->comment) {
+            $data['comment_id'] = $this->comment->id;
+            $data['clip_id'] = $this->comment->clip_id;
+        } else {
+            $data['clip_id'] = $this->clip->id;
+        }
+
+        ClipReportModel::create($data);
 
         $this->closeModal();
-        session()->flash('message', __('clips.report_success'));
+        $this->dispatch('notify', type: 'success', message: __('clips.report_success'));
     }
 
-    public function render()
+    #[Computed]
+    public function reportType(): string
     {
-        return view('livewire.clips.clip-report');
+        return $this->comment ? 'comment' : 'clip';
+    }
+
+    #[Computed]
+    public function reportText(): string
+    {
+        return $this->comment ? __('clips.report_comment') : __('clips.report_clip');
+    }
+
+    #[Computed]
+    public function reportTitle(): string
+    {
+        return $this->comment ? __('clips.report_comment_title') : __('clips.report_title');
     }
 }

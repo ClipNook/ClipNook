@@ -189,6 +189,7 @@ return [
     'votes'        => ':count votes',
     'vote_success' => 'Vote recorded',
     'vote_removed' => 'Vote removed',
+    'too_many_votes' => 'Too many votes submitted. Please try again later.',
 
     // =========================================================================
     // COMMENTS SYSTEM
@@ -200,8 +201,11 @@ return [
     'post_comment'            => 'Post Comment',
     'login_to_comment'        => 'to comment',
     'no_comments'             => 'No comments yet',
+    'be_first_to_comment'     => 'Be the first to comment!',
     'reply'                   => 'Reply',
+    'reply_to_comment'        => 'Reply to comment',
     'delete_comment'          => 'Delete',
+    'confirm_delete_comment'  => 'Are you sure you want to delete this comment?',
     'comment_deleted'         => '[Comment deleted]',
     'unknown'                 => 'Unknown',
     'comment_posted'          => 'Comment posted successfully',
@@ -212,13 +216,18 @@ return [
     // REPORTING SYSTEM
     // =========================================================================
 
-    'report_clip'              => 'Report',
-    'report_title'             => 'Report Clip',
-    'report_reason'            => 'Reason',
-    'report_description'       => 'Description (optional)',
-    'submit_report'            => 'Submit Report',
-    'report_success'           => 'Report submitted successfully',
-    'report_already_submitted' => 'You have already reported this clip',
+    'report_clip'                    => 'Report',
+    'report_comment'                 => 'Report Comment',
+    'report_title'                   => 'Report Clip',
+    'report_comment_title'           => 'Report Comment',
+    'report_reason'                  => 'Reason',
+    'report_description'             => 'Description (optional)',
+    'report_description_placeholder' => 'Please provide additional details about this report...',
+    'submit_report'                  => 'Submit Report',
+    'cancel'                         => 'Cancel',
+    'report_success'                 => 'Report submitted successfully',
+    'report_already_submitted'       => 'You have already reported this item',
+    'too_many_reports'               => 'Too many reports submitted. Please try again later.',
 
     'report_reasons' => [
         'inappropriate' => 'Inappropriate Content',
@@ -255,4 +264,11 @@ return [
 
     'clip_approved' => 'Clip has been approved successfully',
     'clip_rejected' => 'Clip has been rejected',
+
+    // =========================================================================
+    // LEGAL & PRIVACY
+    // =========================================================================
+
+    'submit_terms_notice' => 'By submitting this clip, you agree to our :terms.',
+    'learn_more_privacy'  => 'Learn more',
 ];

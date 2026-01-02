@@ -200,6 +200,15 @@
                 {{ __('clips.cancel_button') }}
             </x-ui.button>
         </div>
+
+        <!-- Terms Notice -->
+        <div class="text-center pt-6">
+            <p class="text-sm text-zinc-500 leading-relaxed">
+                {!! __('clips.submit_terms_notice', [
+                    'terms' => '<a href="' . route('legal.terms') . '" class="text-(--color-accent-400) hover:text-(--color-accent-300) underline transition-colors">Terms of Service</a>',
+                ]) !!}
+            </p>
+        </div>
     @endif
 
     <!-- Messages -->

@@ -13,6 +13,7 @@ final class ClipReport extends Model
 {
     protected $fillable = [
         'clip_id',
+        'comment_id',
         'user_id',
         'reason',
         'description',
@@ -25,6 +26,11 @@ final class ClipReport extends Model
     public function clip(): BelongsTo
     {
         return $this->belongsTo(Clip::class);
+    }
+
+    public function comment(): BelongsTo
+    {
+        return $this->belongsTo(ClipComment::class, 'comment_id');
     }
 
     public function user(): BelongsTo

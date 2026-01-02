@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Log;
 use function abort;
 use function compact;
 use function config;
+use function min;
 use function response;
 use function view;
 
@@ -54,31 +55,32 @@ final class ClipController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $query = Clip::withRelations()
+            $perPage = min($request->integer('per_page', 15), 100);
+
+            $clips = Clip::query()
+                ->select([
+                    'id', 'uuid', 'title', 'description', 'url',
+                    'thumbnail_url', 'local_thumbnail_path', 'duration',
+                    'view_count', 'upvotes', 'downvotes', 'created_at',
+                    'submitter_id', 'broadcaster_id', 'game_id',
+                ])
+                ->with([
+                    'submitter:id,twitch_display_name,twitch_login',
+                    'broadcaster:id,twitch_display_name,twitch_login',
+                    'game:id,name,box_art_url,local_box_art_path',
+                ])
                 ->approved()
-                ->orderBy('created_at', 'desc');
-
-            // Filter by featured status
-            if ($request->boolean('featured')) {
-                $query->where('is_featured', true);
-            }
-
-            // Filter by specific user
-            if ($request->has('user_id')) {
-                $query->where('user_id', $request->integer('user_id'));
-            }
-
-            // Search by title or description
-            if ($request->has('search')) {
-                $query->search($request->string('search'));
-            }
-
-            $clips = $this->queryCache->remember(
-                prefix: 'clips:index',
-                query: $query,
-                ttl: 300, // 5 minutes
-                tags: ['clips', 'public']
-            );
+                ->when($request->boolean('featured'), static fn ($q) => $q->featured())
+                ->when(
+                    $request->has('user_id'),
+                    static fn ($q) => $q->where('submitter_id', $request->integer('user_id'))
+                )
+                ->when(
+                    $request->has('search'),
+                    static fn ($q, $search) => $q->where('title', 'LIKE', "%{$search}%")
+                )
+                ->latest('created_at')
+                ->paginate($perPage);
 
             return response()->json([
                 'data' => $clips,

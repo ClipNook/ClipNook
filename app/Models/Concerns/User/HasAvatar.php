@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 
 use function __;
+use function asset;
 use function fclose;
 use function filter_var;
 use function fwrite;
@@ -113,7 +114,11 @@ trait HasAvatar
      */
     public function hasAvatar(): bool
     {
-        return Storage::disk('public')->exists($this->getAvatarStoragePath());
+        return Cache::remember(
+            "user:{$this->id}:has_avatar",
+            3600,
+            fn () => Storage::disk('public')->exists($this->getAvatarStoragePath())
+        );
     }
 
     /**
@@ -121,6 +126,8 @@ trait HasAvatar
      */
     public function deleteAvatar(): bool
     {
+        Cache::forget("user:{$this->id}:has_avatar");
+
         if (Storage::disk('public')->exists($this->getAvatarStoragePath())) {
             return Storage::disk('public')->delete($this->getAvatarStoragePath());
         }
@@ -242,11 +249,6 @@ trait HasAvatar
 
             if ($imageInfo === false) {
                 throw new InvalidArgumentException('Downloaded content is not a valid image.');
-            }
-
-            // Validate image dimensions (prevent extremely large images)
-            if ($imageInfo[0] > self::MAX_IMAGE_DIMENSION || $imageInfo[1] > self::MAX_IMAGE_DIMENSION) {
-                throw new InvalidArgumentException('Avatar image dimensions are too large. Maximum allowed is '.self::MAX_IMAGE_DIMENSION.'x'.self::MAX_IMAGE_DIMENSION.' pixels.');
             }
 
             // Delete existing avatar

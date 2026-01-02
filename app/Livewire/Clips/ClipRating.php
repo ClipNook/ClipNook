@@ -15,7 +15,6 @@ use Livewire\Component;
 use function __;
 use function config;
 use function route;
-use function session;
 use function view;
 
 final class ClipRating extends Component
@@ -54,7 +53,7 @@ final class ClipRating extends Component
         // Rate limiting: 10 votes per minute
         $key = 'vote:'.Auth::user()->id;
         if (RateLimiter::tooManyAttempts($key, config('constants.rate_limiting.vote_max_attempts'))) {
-            session()->flash('error', __('clips.too_many_votes'));
+            $this->dispatch('notify', type: 'error', message: __('clips.too_many_votes'));
 
             return;
         }
@@ -73,14 +72,14 @@ final class ClipRating extends Component
                     $existingVote->delete();
                     $this->decrementVote($voteType);
                     $this->userVote = null;
-                    session()->flash('message', __('clips.vote_removed'));
+                    $this->dispatch('notify', type: 'info', message: __('clips.vote_removed'));
                 } else {
                     // Change vote
                     $this->decrementVote($existingVote->vote_type);
                     $existingVote->update(['vote_type' => $voteType]);
                     $this->incrementVote($voteType);
                     $this->userVote = $voteType;
-                    session()->flash('message', __('clips.vote_success'));
+                    $this->dispatch('notify', type: 'success', message: __('clips.vote_success'));
                 }
             } else {
                 // New vote
@@ -91,7 +90,7 @@ final class ClipRating extends Component
                 ]);
                 $this->incrementVote($voteType);
                 $this->userVote = $voteType;
-                session()->flash('message', __('clips.vote_success'));
+                $this->dispatch('notify', type: 'success', message: __('clips.vote_success'));
             }
         });
     }

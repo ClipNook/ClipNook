@@ -42,6 +42,9 @@
                             </h4>
                             <p class="text-zinc-300/90 text-sm leading-relaxed">
                                 {{ __('clips.twitch_consent_privacy_notice') }}
+                                <a href="{{ route('legal.privacy') }}" class="text-violet-400 hover:text-violet-300 underline transition-colors ml-1">
+                                    {{ __('clips.learn_more_privacy') }}
+                                </a>
                             </p>
                         </div>
                     </div>

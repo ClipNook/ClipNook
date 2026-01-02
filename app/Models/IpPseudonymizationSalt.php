@@ -7,8 +7,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
+use function filter_var;
 use function hash_hmac;
 use function now;
+use function substr;
+
+use const FILTER_VALIDATE_IP;
 
 /**
  * Model for managing rotating salts used in IP pseudonymization.
@@ -103,8 +107,17 @@ final class IpPseudonymizationSalt extends Model
             return null;
         }
 
+        // Validation
+        if (! filter_var($ip, FILTER_VALIDATE_IP)) {
+            return null;
+        }
+
         $salt = static::getActiveSalt();
 
-        return hash_hmac('sha256', $ip, $salt);
+        // Use stronger hashing method
+        $hash = hash_hmac('sha3-256', $ip, $salt);
+
+        // Truncate to 64 characters for database efficiency
+        return substr($hash, 0, 64);
     }
 }

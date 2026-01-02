@@ -131,9 +131,11 @@ final class User extends Authenticatable
         'notifications_ntfy'      => 'boolean',
 
         // JSON
-        'preferences'             => 'array',
-        'scopes'                  => 'array',
-        'gdpr_consent_log'        => 'array',
+        'preferences'              => 'array',
+        'appearance_settings'      => 'array',
+        'notification_preferences' => 'array',
+        'scopes'                   => 'array',
+        'gdpr_consent_log'         => 'array',
 
         // GDPR timestamps
         'deletion_requested_at'   => 'datetime',
