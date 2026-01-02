@@ -6,7 +6,13 @@ namespace App\Actions\Twitch;
 
 use Illuminate\Http\RedirectResponse;
 
-class RedirectToTwitchAction
+use function config;
+use function http_build_query;
+use function implode;
+use function redirect;
+use function session;
+
+final class RedirectToTwitchAction
 {
     public function execute(?array $customScopes = null): RedirectResponse
     {

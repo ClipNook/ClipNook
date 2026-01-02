@@ -9,20 +9,28 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
+use function app;
+use function config;
+use function implode;
+use function is_array;
+use function md5;
+use function serialize;
+use function sprintf;
+
 /**
- * Intelligent Query Caching Service
+ * Intelligent Query Caching Service.
  *
  * Automatically caches expensive queries with smart invalidation
  */
-class QueryCacheService
+final class QueryCacheService
 {
     /**
-     * Cache a query with automatic key generation
+     * Cache a query with automatic key generation.
      */
     public function remember(CacheConfigDTO $config, Builder $query): Collection
     {
         $key    = $this->generateKey($config, $query);
-        $result = Cache::remember($key, $config->ttl, fn () => $query->get());
+        $result = Cache::remember($key, $config->ttl, static fn () => $query->get());
         // Log cache hit/miss
         $this->logCacheMetrics($key, Cache::has($key));
 
@@ -30,7 +38,7 @@ class QueryCacheService
     }
 
     /**
-     * Invalidate cache by tag
+     * Invalidate cache by tag.
      */
     public function invalidate(string|array $tags): void
     {
@@ -42,9 +50,9 @@ class QueryCacheService
     }
 
     /**
-     * Generate unique cache key from query
+     * Generate unique cache key from query.
      */
-    protected function generateKey(CacheConfigDTO $config, Builder $query): string
+    private function generateKey(CacheConfigDTO $config, Builder $query): string
     {
         $sql       = $query->toSql();
         $bindings  = $query->getBindings();
@@ -55,9 +63,9 @@ class QueryCacheService
     }
 
     /**
-     * Log cache metrics for monitoring
+     * Log cache metrics for monitoring.
      */
-    protected function logCacheMetrics(string $key, bool $hit): void
+    private function logCacheMetrics(string $key, bool $hit): void
     {
         if (config('performance.cache.log_metrics', false)) {
             app(\App\Services\Monitoring\PerformanceMonitor::class)->recordMetric(

@@ -12,10 +12,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
+use function implode;
+use function is_array;
+use function now;
+use function time;
+
 /**
  * Service for managing Twitch OAuth tokens.
  */
-class TwitchTokenManager
+final class TwitchTokenManager
 {
     private const TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
 

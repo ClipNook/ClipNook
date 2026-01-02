@@ -9,14 +9,19 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class DeleteUserDataAction
+use function method_exists;
+use function now;
+use function pseudonymize_ip;
+use function request;
+
+final class DeleteUserDataAction
 {
     /**
-     * Execute the user data deletion/anonymization
+     * Execute the user data deletion/anonymization.
      */
     public function execute(User $user, bool $softDelete = true): void
     {
-        DB::transaction(function () use ($user, $softDelete) {
+        DB::transaction(static function () use ($user, $softDelete): void {
             // Log the deletion action
             $user->activityLogs()->create([
                 'action'      => 'account_deletion_completed',

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class ClipComment extends Model
+final class ClipComment extends Model
 {
     use HasFactory;
 
@@ -22,14 +22,6 @@ class ClipComment extends Model
         'is_deleted',
         'deleted_at',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'is_deleted' => 'boolean',
-            'deleted_at' => 'datetime',
-        ];
-    }
 
     protected static function newFactory(): ClipCommentFactory
     {
@@ -48,11 +40,19 @@ class ClipComment extends Model
 
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(ClipComment::class, 'parent_id');
+        return $this->belongsTo(self::class, 'parent_id');
     }
 
     public function replies(): HasMany
     {
-        return $this->hasMany(ClipComment::class, 'parent_id');
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_deleted' => 'boolean',
+            'deleted_at' => 'datetime',
+        ];
     }
 }

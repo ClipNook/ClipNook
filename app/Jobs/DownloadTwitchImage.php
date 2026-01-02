@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Services\Twitch\Contracts\DownloadInterface;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 
-class DownloadTwitchImage implements ShouldQueue
+use function __;
+use function dirname;
+
+final class DownloadTwitchImage implements ShouldQueue
 {
     use Queueable;
 
@@ -63,8 +67,9 @@ class DownloadTwitchImage implements ShouldQueue
                     \App\Models\Game::where('id', $this->gameId)->update(['local_box_art_path' => $this->savePath]);
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error(__('twitch.download_failed', ['type' => $this->type, 'error' => $e->getMessage()]));
+
             throw $e;
         }
     }

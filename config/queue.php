@@ -1,7 +1,8 @@
 <?php
 
-return [
+declare(strict_types=1);
 
+return [
     /*
     |--------------------------------------------------------------------------
     | Default Queue Connection Name
@@ -30,7 +31,6 @@ return [
     */
 
     'connections' => [
-
         'sync' => [
             'driver' => 'sync',
         ],
@@ -88,7 +88,6 @@ return [
                 'deferred',
             ],
         ],
-
     ],
 
     /*
@@ -125,5 +124,4 @@ return [
         'database' => env('DB_CONNECTION', 'sqlite'),
         'table'    => 'failed_jobs',
     ],
-
 ];

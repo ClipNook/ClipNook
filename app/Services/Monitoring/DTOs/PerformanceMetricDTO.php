@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Monitoring\DTOs;
 
-readonly class PerformanceMetricDTO
+use function sprintf;
+use function time;
+
+final readonly class PerformanceMetricDTO
 {
     public function __construct(
         public string $name,

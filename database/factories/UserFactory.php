@@ -6,10 +6,12 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+use function now;
+
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
  */
-class UserFactory extends Factory
+final class UserFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -37,7 +39,7 @@ class UserFactory extends Factory
      */
     public function streamer(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(static fn (array $attributes) => [
             'is_streamer' => true,
         ]);
     }
@@ -47,7 +49,7 @@ class UserFactory extends Factory
      */
     public function moderator(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(static fn (array $attributes) => [
             'is_moderator' => true,
         ]);
     }
@@ -57,7 +59,7 @@ class UserFactory extends Factory
      */
     public function admin(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(static fn (array $attributes) => [
             'is_admin' => true,
         ]);
     }

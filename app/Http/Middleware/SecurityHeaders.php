@@ -8,7 +8,15 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class SecurityHeaders
+use function app;
+use function array_filter;
+use function array_merge;
+use function base64_encode;
+use function config;
+use function implode;
+use function random_bytes;
+
+final class SecurityHeaders
 {
     /**
      * Handle an incoming request with comprehensive security headers.
@@ -39,9 +47,9 @@ class SecurityHeaders
     }
 
     /**
-     * Apply base security headers to the response
+     * Apply base security headers to the response.
      */
-    protected function applySecurityHeaders(Response $response): void
+    private function applySecurityHeaders(Response $response): void
     {
         $response
             // Prevent MIME type sniffing
@@ -57,9 +65,9 @@ class SecurityHeaders
     }
 
     /**
-     * Apply HSTS header to the response
+     * Apply HSTS header to the response.
      */
-    protected function applyHstsHeader(Response $response): void
+    private function applyHstsHeader(Response $response): void
     {
         $hstsConfig        = config('performance.security_headers.hsts', []);
         $maxAge            = $hstsConfig['max_age'] ?? 31536000;

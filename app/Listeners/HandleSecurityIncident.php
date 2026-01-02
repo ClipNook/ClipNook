@@ -9,10 +9,12 @@ use App\Notifications\AdminAlert;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
+use function app;
+
 /**
- * Handle security incidents
+ * Handle security incidents.
  */
-class HandleSecurityIncident
+final class HandleSecurityIncident
 {
     public function handle(SecurityIncidentDetected $event): void
     {
@@ -33,13 +35,13 @@ class HandleSecurityIncident
         $this->notifySecurityTeam($event);
     }
 
-    protected function lockAccount(string $identifier): void
+    private function lockAccount(string $identifier): void
     {
         app(\App\Services\Security\LoginMonitor::class)
             ->lock($identifier);
     }
 
-    protected function notifySecurityTeam(SecurityIncidentDetected $event): void
+    private function notifySecurityTeam(SecurityIncidentDetected $event): void
     {
         $admins = \App\Models\User::where('is_admin', true)->get();
 

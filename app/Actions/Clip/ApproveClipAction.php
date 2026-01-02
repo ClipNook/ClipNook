@@ -9,14 +9,14 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class ApproveClipAction
+final class ApproveClipAction
 {
     /**
-     * Approve a clip
+     * Approve a clip.
      */
     public function execute(Clip $clip, User $moderator): bool
     {
-        return DB::transaction(function () use ($clip, $moderator) {
+        return DB::transaction(static function () use ($clip, $moderator) {
             $clip->approve($moderator);
 
             Log::info('Clip approved', [

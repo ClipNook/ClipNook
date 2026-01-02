@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Twitch\DTOs;
 
-readonly class VideoDTO
+final readonly class VideoDTO
 {
     public function __construct(
         public string $id,

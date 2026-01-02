@@ -4,18 +4,24 @@ declare(strict_types=1);
 
 namespace App\Services\Cache;
 
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
+
+use function class_exists;
+use function config;
+use function method_exists;
+use function uniqid;
 
 /**
  * Centralized cache backend manager for Redis availability checks
  * Provides unified interface for cache backend operations and availability checks
  * across the application, eliminating code duplication.
  */
-class CacheBackendManager
+final class CacheBackendManager
 {
     /**
-     * Check if Redis is available and responding
+     * Check if Redis is available and responding.
      */
     public function isRedisAvailable(): bool
     {
@@ -25,13 +31,13 @@ class CacheBackendManager
 
         try {
             return Redis::ping() !== false;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
 
     /**
-     * Check if the default cache store is available
+     * Check if the default cache store is available.
      */
     public function isCacheAvailable(): bool
     {
@@ -44,13 +50,13 @@ class CacheBackendManager
             $store->forget($testKey);
 
             return $result === 'test';
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
 
     /**
-     * Get the current cache backend type
+     * Get the current cache backend type.
      */
     public function getCurrentBackend(): string
     {
@@ -58,7 +64,7 @@ class CacheBackendManager
     }
 
     /**
-     * Get the recommended storage backend based on availability
+     * Get the recommended storage backend based on availability.
      */
     public function getRecommendedBackend(): string
     {
@@ -66,7 +72,7 @@ class CacheBackendManager
     }
 
     /**
-     * Execute callback with Redis if available, fallback otherwise
+     * Execute callback with Redis if available, fallback otherwise.
      */
     public function withRedis(callable $redisCallback, callable $fallbackCallback): mixed
     {
@@ -74,7 +80,7 @@ class CacheBackendManager
     }
 
     /**
-     * Execute callback with cache store if available, fallback otherwise
+     * Execute callback with cache store if available, fallback otherwise.
      */
     public function withCache(callable $cacheCallback, callable $fallbackCallback): mixed
     {
@@ -82,7 +88,7 @@ class CacheBackendManager
     }
 
     /**
-     * Get cache statistics if available
+     * Get cache statistics if available.
      */
     public function getCacheStats(): ?array
     {
@@ -98,13 +104,13 @@ class CacheBackendManager
             }
 
             return null;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }
 
     /**
-     * Get Redis connection info if available
+     * Get Redis connection info if available.
      */
     public function getRedisInfo(): ?array
     {
@@ -114,13 +120,13 @@ class CacheBackendManager
 
         try {
             return Redis::info();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }
 
     /**
-     * Check if Redis is configured in the application
+     * Check if Redis is configured in the application.
      */
     public function isRedisConfigured(): bool
     {
@@ -128,7 +134,7 @@ class CacheBackendManager
     }
 
     /**
-     * Get health status for monitoring
+     * Get health status for monitoring.
      */
     public function getHealthStatus(): array
     {

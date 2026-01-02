@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Cache\DTOs;
 
-readonly class CacheConfigDTO
+final readonly class CacheConfigDTO
 {
     public function __construct(
         public string $key,

@@ -1,17 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('users', static function (Blueprint $table): void {
             $table->id();
 
             // Twitch OAuth Authentication Fields
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->text('twitch_access_token')->nullable();
             $table->text('twitch_refresh_token')->nullable();
             $table->timestamp('twitch_token_expires_at')->nullable();
+            $table->timestamp('last_twitch_sync_at')->nullable();
             $table->json('scopes')->nullable();
 
             // Description
@@ -32,8 +34,6 @@ return new class extends Migration
             $table->string('twitch_avatar')->nullable();
             $table->string('custom_avatar_path')->nullable();
             $table->string('avatar_source')->nullable();
-            $table->boolean('avatar_disabled')->default(false);
-            $table->timestamp('avatar_disabled_at')->nullable();
 
             // User Roles and Permissions
             $table->boolean('is_viewer')->default(true);
@@ -80,7 +80,7 @@ return new class extends Migration
             $table->index('anonymized_at', 'idx_users_anonymized');
         });
 
-        Schema::create('sessions', function (Blueprint $table) {
+        Schema::create('sessions', static function (Blueprint $table): void {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();

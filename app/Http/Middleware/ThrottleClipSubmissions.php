@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -7,13 +9,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 
+use function __;
+use function response;
+
 /**
  * Middleware for rate limiting clip submissions.
  *
  * Implements tiered rate limiting based on user verification status
  * to prevent spam while allowing legitimate users reasonable access.
  */
-class ThrottleClipSubmissions
+final class ThrottleClipSubmissions
 {
     /**
      * Handle an incoming request.
@@ -47,7 +52,7 @@ class ThrottleClipSubmissions
     /**
      * Resolve the rate limiter key for the request.
      */
-    protected function resolveRequestSignature(Request $request): string
+    private function resolveRequestSignature(Request $request): string
     {
         return 'clip-submission:'.$request->user()->id;
     }
@@ -57,7 +62,7 @@ class ThrottleClipSubmissions
      *
      * All authenticated users get the same limit.
      */
-    protected function getMaxAttempts(Request $request): int
+    private function getMaxAttempts(Request $request): int
     {
         return 20;
     }
@@ -65,7 +70,7 @@ class ThrottleClipSubmissions
     /**
      * Get the decay time in seconds (24 hours).
      */
-    protected function getDecaySeconds(Request $request): int
+    private function getDecaySeconds(Request $request): int
     {
         return 86400; // 24 hours
     }

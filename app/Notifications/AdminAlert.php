@@ -7,12 +7,14 @@ namespace App\Notifications;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class AdminAlert extends Notification
+use function url;
+
+final class AdminAlert extends Notification
 {
     public function __construct(
         public string $title,
         public string $message,
-        public string $level = 'info'
+        public string $level = 'info',
     ) {}
 
     public function via(object $notifiable): array
@@ -36,7 +38,7 @@ class AdminAlert extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject($this->title)
             ->line($this->message)
             ->action('View Dashboard', url('/admin'));

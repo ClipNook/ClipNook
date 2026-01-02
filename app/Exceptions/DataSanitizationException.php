@@ -7,7 +7,7 @@ namespace App\Exceptions;
 /**
  * Exception thrown when data sanitization fails.
  */
-class DataSanitizationException extends ValidationException
+final class DataSanitizationException extends ValidationException
 {
     /**
      * Create exception for invalid URL.

@@ -13,15 +13,15 @@ declare(strict_types=1);
 */
 
 return [
-    'link'                => 'Link',
-    'button'              => 'Button',
-    'preview'             => 'Preview',
-    'appearance'          => 'Appearance',
-    'select_accent_color' => 'Select Accent Color',
-    'choose_theme'        => 'Choose Theme',
-    'pick_favorite'       => 'Pick your favorite',
-    'close_selector'      => 'Close selector',
-    'current_theme'      => 'Current theme',
-    'active'              => 'Active',
+    'link'                    => 'Link',
+    'button'                  => 'Button',
+    'preview'                 => 'Preview',
+    'appearance'              => 'Appearance',
+    'select_accent_color'     => 'Select Accent Color',
+    'choose_theme'            => 'Choose Theme',
+    'pick_favorite'           => 'Pick your favorite',
+    'close_selector'          => 'Close selector',
+    'current_theme'           => 'Current theme',
+    'active'                  => 'Active',
     'changes_apply_instantly' => 'Changes apply instantly',
 ];

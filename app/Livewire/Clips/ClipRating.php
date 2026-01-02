@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Clips;
 
 use App\Enums\VoteType;
@@ -10,7 +12,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
 
-class ClipRating extends Component
+use function __;
+use function config;
+use function route;
+use function session;
+use function view;
+
+final class ClipRating extends Component
 {
     public Clip $clip;
 
@@ -53,7 +61,7 @@ class ClipRating extends Component
 
         RateLimiter::hit($key, config('constants.rate_limiting.vote_decay_minutes') * 60);
 
-        DB::transaction(function () use ($voteType) {
+        DB::transaction(function () use ($voteType): void {
             $existingVote = ClipVote::query()
                 ->where('clip_id', $this->clip->id)
                 ->where('user_id', Auth::user()->id)
@@ -88,6 +96,11 @@ class ClipRating extends Component
         });
     }
 
+    public function render()
+    {
+        return view('livewire.clips.clip-rating');
+    }
+
     protected function incrementVote(VoteType $type): void
     {
         if ($type === VoteType::UPVOTE) {
@@ -108,10 +121,5 @@ class ClipRating extends Component
             $this->clip->decrement('downvotes');
             $this->downvotes--;
         }
-    }
-
-    public function render()
-    {
-        return view('livewire.clips.clip-rating');
     }
 }

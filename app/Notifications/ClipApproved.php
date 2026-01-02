@@ -10,18 +10,20 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+use function url;
+
 /**
  * Notification sent to users when their clip is approved.
  *
  * This notification informs submitters that their clip has been approved
  * and is now publicly visible.
  */
-class ClipApproved extends Notification implements ShouldQueue
+final class ClipApproved extends Notification implements ShouldQueue
 {
     use Queueable;
 
     public function __construct(
-        public Clip $clip
+        public Clip $clip,
     ) {}
 
     /**
@@ -39,7 +41,7 @@ class ClipApproved extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject("Your clip has been approved: {$this->clip->title}")
             ->greeting("Great news, {$notifiable->twitch_display_name}!")
             ->line("Your submitted clip '{$this->clip->title}' has been approved and is now live!")

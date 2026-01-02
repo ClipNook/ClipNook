@@ -122,7 +122,7 @@
                                         </div>
                                         <span class="font-medium">{{ __('nav.profile') }}</span>
                                     </a>
-                                    <a href="#" @click="userMenuOpen = false"
+                                    <a href="{{ route('settings') }}" @click="userMenuOpen = false"
                                         class="flex items-center gap-3 px-5 py-3 text-sm text-zinc-300 hover:text-(--color-accent-400) hover:bg-(--color-accent-500)/10 transition-all duration-200 group">
                                         <div class="w-8 h-8 bg-zinc-800 group-hover:bg-(--color-accent-500)/20 rounded-lg flex items-center justify-center transition-colors">
                                             <i class="fa-solid fa-gear text-xs text-zinc-400 group-hover:text-(--color-accent-400) transition-colors"></i>
@@ -207,7 +207,7 @@
                                 <i class="fa-solid fa-user w-5 text-center"></i>
                                 {{ __('nav.profile') }}
                             </a>
-                            <a href="#"
+                            <a href="{{ route('settings') }}"
                                 class="flex items-center gap-3 px-4 py-3 text-sm text-zinc-400 hover:text-(--color-accent-400) hover:bg-zinc-800 transition-colors rounded">
                                 <i class="fa-solid fa-gear w-5 text-center"></i>
                                 {{ __('nav.settings') }}
@@ -434,6 +434,10 @@
     </script>
 
     @stack('scripts_footer')
+
+    <!-- Notification System -->
+    <x-notification-system />
+
 </body>
 
 </html>

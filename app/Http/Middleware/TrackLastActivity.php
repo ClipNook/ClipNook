@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -8,12 +10,18 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
-class TrackLastActivity
+use function cache;
+use function config;
+use function now;
+use function session;
+use function str_contains;
+
+final class TrackLastActivity
 {
     /**
      * Routes to exclude from activity tracking.
      */
-    protected array $excludeRoutes;
+    private array $excludeRoutes;
 
     public function __construct()
     {
@@ -46,7 +54,7 @@ class TrackLastActivity
     /**
      * Check if activity tracking should be skipped.
      */
-    protected function shouldSkipTracking(Request $request): bool
+    private function shouldSkipTracking(Request $request): bool
     {
         $currentRoute = $request->route()?->getName();
 
@@ -63,17 +71,13 @@ class TrackLastActivity
         }
 
         // Skip AJAX requests if configured
-        if (config('activity.skip_ajax', true) && $request->ajax()) {
-            return true;
-        }
-
-        return false;
+        return (bool) (config('activity.skip_ajax', true) && $request->ajax());
     }
 
     /**
      * Track user activity.
      */
-    protected function trackActivity(Request $request): void
+    private function trackActivity(Request $request): void
     {
         $now = now();
 
@@ -94,7 +98,7 @@ class TrackLastActivity
     /**
      * Update user's last activity in database.
      */
-    protected function updateUserLastActivity(int $userId, $timestamp): void
+    private function updateUserLastActivity(int $userId, mixed $timestamp): void
     {
         // Only update if it's been more than the configured interval
         $updateInterval = config('activity.update_interval', 300); // 5 minutes default
@@ -116,7 +120,7 @@ class TrackLastActivity
     /**
      * Track guest activity.
      */
-    protected function trackGuestActivity(Request $request, $timestamp): void
+    private function trackGuestActivity(Request $request, mixed $timestamp): void
     {
         $sessionId = session()->getId();
         $ip        = $request->ip();

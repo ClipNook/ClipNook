@@ -7,17 +7,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Session extends Model
-{
-    /**
-     * The table associated with the model.
-     */
-    protected $table = 'sessions';
+use function base64_decode;
+use function base64_encode;
+use function config;
+use function serialize;
+use function time;
+use function unserialize;
 
+final class Session extends Model
+{
     /**
      * Indicates if the model's ID is auto-incrementing.
      */
     public $incrementing = false;
+
+    /**
+     * Indicates if the model should be timestamped.
+     */
+    public $timestamps = false;
+
+    /**
+     * The table associated with the model.
+     */
+    protected $table = 'sessions';
 
     /**
      * The data type of the auto-incrementing ID.
@@ -43,11 +55,6 @@ class Session extends Model
         'last_activity' => 'integer',
         'payload'       => 'array',
     ];
-
-    /**
-     * Indicates if the model should be timestamped.
-     */
-    public $timestamps = false;
 
     /**
      * Get the user that owns the session.
@@ -80,7 +87,7 @@ class Session extends Model
      */
     public function getSessionData(): array
     {
-        return unserialize(base64_decode($this->payload)) ?: [];
+        return unserialize(base64_decode($this->payload, true)) ?: [];
     }
 
     /**

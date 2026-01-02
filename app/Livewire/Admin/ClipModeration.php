@@ -13,7 +13,15 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class ClipModeration extends Component
+use function __;
+use function abort;
+use function app;
+use function auth;
+use function config;
+use function session;
+use function view;
+
+final class ClipModeration extends Component
 {
     use AuthorizesRequests;
     use WithPagination;
@@ -46,18 +54,18 @@ class ClipModeration extends Component
     {
         $clips = Clip::query()
             ->with(['submitter', 'broadcaster', 'game', 'moderator'])
-            ->when($this->statusFilter !== 'all', function ($query) {
+            ->when($this->statusFilter !== 'all', function ($query): void {
                 $query->where('status', $this->statusFilter);
             })
-            ->when($this->searchQuery, function ($query) {
-                $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->searchQuery . '%')
-                        ->orWhere('twitch_clip_id', 'like', '%' . $this->searchQuery . '%')
-                        ->orWhereHas('broadcaster', function ($q) {
-                            $q->where('twitch_display_name', 'like', '%' . $this->searchQuery . '%');
+            ->when($this->searchQuery, function ($query): void {
+                $query->where(function ($q): void {
+                    $q->where('title', 'like', '%'.$this->searchQuery.'%')
+                        ->orWhere('twitch_clip_id', 'like', '%'.$this->searchQuery.'%')
+                        ->orWhereHas('broadcaster', function ($q): void {
+                            $q->where('twitch_display_name', 'like', '%'.$this->searchQuery.'%');
                         })
-                        ->orWhereHas('submitter', function ($q) {
-                            $q->where('twitch_display_name', 'like', '%' . $this->searchQuery . '%');
+                        ->orWhereHas('submitter', function ($q): void {
+                            $q->where('twitch_display_name', 'like', '%'.$this->searchQuery.'%');
                         });
                 });
             })
@@ -113,7 +121,7 @@ class ClipModeration extends Component
     public function rejectClip(): void
     {
         $this->validate([
-            'rejectReason' => 'required|string|min:' . config('constants.limits.reject_reason_min_length') . '|max:' . config('constants.limits.reject_reason_max_length'),
+            'rejectReason' => 'required|string|min:'.config('constants.limits.reject_reason_min_length').'|max:'.config('constants.limits.reject_reason_max_length'),
         ]);
 
         $clip = Clip::findOrFail($this->selectedClipId);

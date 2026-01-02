@@ -6,6 +6,8 @@ namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
+use function config;
+
 abstract class TestCase extends BaseTestCase
 {
     protected function setUp(): void

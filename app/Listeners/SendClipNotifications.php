@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Notification;
  * This listener handles sending notifications to users when clips are
  * submitted or moderated, keeping users informed about their content.
  */
-class SendClipNotifications
+final class SendClipNotifications
 {
     /**
      * Handle the ClipSubmitted event.
@@ -45,9 +45,11 @@ class SendClipNotifications
         switch ($event->action) {
             case 'approve':
                 $event->clip->submitter->notify(new ClipApproved($event->clip));
+
                 break;
             case 'reject':
                 $event->clip->submitter->notify(new ClipRejected($event->clip, $event->reason));
+
                 break;
                 // For 'flag', we might not notify immediately to avoid spam
         }

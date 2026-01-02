@@ -9,7 +9,7 @@ use Exception;
 /**
  * Exception thrown when cache operations fail.
  */
-class CacheException extends Exception
+final class CacheException extends Exception
 {
     /**
      * Create exception for cache connection failure.

@@ -7,6 +7,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
+use function hash_hmac;
+use function now;
+
 /**
  * Model for managing rotating salts used in IP pseudonymization.
  *
@@ -14,11 +17,11 @@ use Illuminate\Support\Str;
  * to hash IP addresses, making it harder to correlate user activity
  * over time while maintaining functionality for rate limiting.
  */
-class IpPseudonymizationSalt extends Model
+final class IpPseudonymizationSalt extends Model
 {
-    protected $keyType = 'string';
-
     public $incrementing = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'id',
@@ -39,11 +42,11 @@ class IpPseudonymizationSalt extends Model
      */
     public static function getActiveSalt(): string
     {
-        $activeSalt = static::where('is_active', true)->first();
+        $activeSalt = self::where('is_active', true)->first();
 
         if (! $activeSalt) {
             // Create initial salt if none exists
-            $activeSalt = static::createInitialSalt();
+            $activeSalt = self::createInitialSalt();
         }
 
         return $activeSalt->salt;
@@ -56,13 +59,13 @@ class IpPseudonymizationSalt extends Model
     public static function rotateSalt(): static
     {
         // Deactivate current active salt
-        static::where('is_active', true)->update([
+        self::where('is_active', true)->update([
             'is_active'   => false,
             'valid_until' => now(),
         ]);
 
         // Create new active salt
-        return static::create([
+        return self::create([
             'id'         => Str::uuid(),
             'salt'       => Str::random(64), // 512-bit cryptographically secure salt
             'valid_from' => now(),

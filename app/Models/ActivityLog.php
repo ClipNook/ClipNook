@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ActivityLog extends Model
+use function now;
+
+final class ActivityLog extends Model
 {
     use HasFactory;
 
@@ -37,7 +39,7 @@ class ActivityLog extends Model
     /**
      * Scope for recent activities.
      */
-    public function scopeRecent($query, int $days = 30)
+    public function scopeRecent(mixed $query, int $days = 30)
     {
         return $query->where('performed_at', '>=', now()->subDays($days));
     }
@@ -45,7 +47,7 @@ class ActivityLog extends Model
     /**
      * Scope for specific actions.
      */
-    public function scopeAction($query, string $action)
+    public function scopeAction(mixed $query, string $action)
     {
         return $query->where('action', $action);
     }

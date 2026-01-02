@@ -9,7 +9,7 @@ use App\Models\User;
 trait HasClipPermissions
 {
     /**
-     * Check if user can submit clips
+     * Check if user can submit clips.
      */
     public function canSubmitClips(): bool
     {
@@ -17,7 +17,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Check if user can manage users
+     * Check if user can manage users.
      */
     public function canManageUsers(): bool
     {
@@ -25,7 +25,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Check if user can moderate
+     * Check if user can moderate.
      */
     public function canModerate(): bool
     {
@@ -33,7 +33,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Check if user can submit clips for a specific broadcaster
+     * Check if user can submit clips for a specific broadcaster.
      */
     public function canSubmitClipsFor(User $broadcaster): bool
     {
@@ -55,7 +55,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Check if user can edit clips for a specific broadcaster
+     * Check if user can edit clips for a specific broadcaster.
      */
     public function canEditClipsFor(User $broadcaster): bool
     {
@@ -72,7 +72,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Check if user can delete clips for a specific broadcaster
+     * Check if user can delete clips for a specific broadcaster.
      */
     public function canDeleteClipsFor(User $broadcaster): bool
     {
@@ -89,7 +89,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Check if user can moderate clips for a specific broadcaster
+     * Check if user can moderate clips for a specific broadcaster.
      */
     public function canModerateClipsFor(User $broadcaster): bool
     {
@@ -106,7 +106,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Grant clip submission permission to a user
+     * Grant clip submission permission to a user.
      */
     public function grantClipSubmissionPermission(User $user): void
     {
@@ -117,7 +117,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Grant clip editing permission to a user
+     * Grant clip editing permission to a user.
      */
     public function grantClipEditingPermission(User $user): void
     {
@@ -128,7 +128,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Grant clip deletion permission to a user
+     * Grant clip deletion permission to a user.
      */
     public function grantClipDeletionPermission(User $user): void
     {
@@ -139,7 +139,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Grant clip moderation permission to a user
+     * Grant clip moderation permission to a user.
      */
     public function grantClipModerationPermission(User $user): void
     {
@@ -150,7 +150,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Revoke clip submission permission from a user
+     * Revoke clip submission permission from a user.
      */
     public function revokeClipSubmissionPermission(User $user): void
     {
@@ -161,7 +161,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Revoke clip editing permission from a user
+     * Revoke clip editing permission from a user.
      */
     public function revokeClipEditingPermission(User $user): void
     {
@@ -172,7 +172,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Revoke clip deletion permission from a user
+     * Revoke clip deletion permission from a user.
      */
     public function revokeClipDeletionPermission(User $user): void
     {
@@ -183,7 +183,7 @@ trait HasClipPermissions
     }
 
     /**
-     * Revoke clip moderation permission from a user
+     * Revoke clip moderation permission from a user.
      */
     public function revokeClipModerationPermission(User $user): void
     {

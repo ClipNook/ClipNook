@@ -11,7 +11,7 @@ use App\Listeners\HandleSecurityIncident;
 use App\Listeners\NotifyPerformanceIssue;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
-class EventServiceProvider extends ServiceProvider
+final class EventServiceProvider extends ServiceProvider
 {
     protected $listen = [
         ClipStatusChanged::class => [
@@ -28,8 +28,5 @@ class EventServiceProvider extends ServiceProvider
         ],
     ];
 
-    public function boot(): void
-    {
-        //
-    }
+    public function boot(): void {}
 }

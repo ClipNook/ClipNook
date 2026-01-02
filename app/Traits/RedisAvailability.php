@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
+use Exception;
 use Illuminate\Support\Facades\Redis;
 
+use function class_exists;
+
 /**
- * Trait for checking Redis availability
+ * Trait for checking Redis availability.
  *
  * Eliminates code duplication across monitoring services
  */
 trait RedisAvailability
 {
     /**
-     * Check if Redis is available
+     * Check if Redis is available.
      */
     protected function isRedisAvailable(): bool
     {
@@ -24,13 +27,13 @@ trait RedisAvailability
 
         try {
             return Redis::ping() !== false;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
 
     /**
-     * Get storage backend (redis or file)
+     * Get storage backend (redis or file).
      */
     protected function getStorageBackend(): string
     {
@@ -38,7 +41,7 @@ trait RedisAvailability
     }
 
     /**
-     * Execute callback with appropriate storage backend
+     * Execute callback with appropriate storage backend.
      */
     protected function withStorage(callable $redisCallback, callable $fileCallback): mixed
     {

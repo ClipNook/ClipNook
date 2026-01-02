@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class UserConsent extends Model
+final class UserConsent extends Model
 {
     use HasFactory;
 
@@ -28,6 +28,17 @@ class UserConsent extends Model
     ];
 
     /**
+     * Get the consent status for a specific type.
+     */
+    public static function getConsentStatus(int $userId, string $consentType): ?self
+    {
+        return self::where('user_id', $userId)
+            ->where('consent_type', $consentType)
+            ->latest()
+            ->first();
+    }
+
+    /**
      * Get the user that owns the consent.
      */
     public function user(): BelongsTo
@@ -41,16 +52,5 @@ class UserConsent extends Model
     public function isValid(): bool
     {
         return $this->consented && $this->consented_at;
-    }
-
-    /**
-     * Get the consent status for a specific type.
-     */
-    public static function getConsentStatus(int $userId, string $consentType): ?self
-    {
-        return self::where('user_id', $userId)
-            ->where('consent_type', $consentType)
-            ->latest()
-            ->first();
     }
 }

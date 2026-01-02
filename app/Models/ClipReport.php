@@ -9,7 +9,7 @@ use App\Enums\ReportStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ClipReport extends Model
+final class ClipReport extends Model
 {
     protected $fillable = [
         'clip_id',
@@ -21,15 +21,6 @@ class ClipReport extends Model
         'reviewed_at',
         'review_notes',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'reason'      => ReportReason::class,
-            'status'      => ReportStatus::class,
-            'reviewed_at' => 'datetime',
-        ];
-    }
 
     public function clip(): BelongsTo
     {
@@ -44,5 +35,14 @@ class ClipReport extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'reason'      => ReportReason::class,
+            'status'      => ReportStatus::class,
+            'reviewed_at' => 'datetime',
+        ];
     }
 }

@@ -6,6 +6,8 @@ namespace App\Models\Concerns\User;
 
 use Illuminate\Support\Facades\Storage;
 
+use function asset;
+
 /**
  * Handles user avatar management.
  */
@@ -16,16 +18,12 @@ trait HasAvatar
      */
     public function getAvatarUrlAttribute(): ?string
     {
-        if ($this->avatar_disabled) {
-            return null;
-        }
-
         if ($this->custom_avatar_path && Storage::exists($this->custom_avatar_path)) {
             return Storage::url($this->custom_avatar_path);
         }
 
-        if ($this->twitch_avatar) {
-            return $this->twitch_avatar;
+        if ($this->hasCustomAvatar()) {
+            return $this->custom_avatar_path;
         }
 
         // Return default avatar if no other avatar is available
@@ -50,28 +48,6 @@ trait HasAvatar
         }
 
         return false;
-    }
-
-    /**
-     * Disable avatar.
-     */
-    public function disableAvatar(): void
-    {
-        $this->update([
-            'avatar_disabled'    => true,
-            'avatar_disabled_at' => now(),
-        ]);
-    }
-
-    /**
-     * Enable avatar.
-     */
-    public function enableAvatar(): void
-    {
-        $this->update([
-            'avatar_disabled'    => false,
-            'avatar_disabled_at' => null,
-        ]);
     }
 
     /**

@@ -16,14 +16,16 @@ use Illuminate\Queue\SerializesModels;
  * This event is dispatched whenever a moderator approves, rejects, or flags a clip.
  * It includes the action taken and the moderator who performed it.
  */
-class ClipModerated
+final class ClipModerated
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public function __construct(
         public Clip $clip,
         public User $moderator,
         public string $action,
-        public ?string $reason = null
+        public ?string $reason = null,
     ) {}
 }

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
+use function __;
+use function in_array;
+
 enum ClipStatus: string
 {
     case PENDING  = 'pending';
@@ -33,6 +36,6 @@ enum ClipStatus: string
 
     public function isActive(): bool
     {
-        return in_array($this, [self::PENDING, self::APPROVED, self::FLAGGED]);
+        return in_array($this, [self::PENDING, self::APPROVED, self::FLAGGED], true);
     }
 }

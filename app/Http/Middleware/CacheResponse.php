@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -7,7 +9,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
-class CacheResponse
+use function config;
+use function md5;
+use function now;
+use function response;
+
+final class CacheResponse
 {
     /**
      * Handle an incoming request with response caching.

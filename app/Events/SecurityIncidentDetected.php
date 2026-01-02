@@ -7,9 +7,9 @@ namespace App\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 
 /**
- * Security incident detected event
+ * Security incident detected event.
  */
-class SecurityIncidentDetected
+final class SecurityIncidentDetected
 {
     use Dispatchable;
 
@@ -17,6 +17,6 @@ class SecurityIncidentDetected
         public string $type,
         public string $identifier,
         public string $severity,
-        public array $details = []
+        public array $details = [],
     ) {}
 }

@@ -9,10 +9,12 @@ use App\Services\Twitch\Contracts\TwitchApiClientInterface;
 use App\Services\Twitch\DTOs\StreamerDTO;
 use App\Services\Twitch\Exceptions\TwitchApiException;
 
+use function array_map;
+
 /**
  * Service for fetching Twitch streamer/user data.
  */
-class StreamerApiService
+final class StreamerApiService
 {
     public function __construct(
         private readonly TwitchApiClientInterface $apiClient,

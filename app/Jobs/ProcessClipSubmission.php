@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\Twitch\Api\ClipApiService;
 use App\Services\Twitch\Api\GameApiService;
 use App\Services\Twitch\Auth\TwitchTokenManager;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -18,6 +19,10 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+use function array_unique;
+use function now;
+use function str_contains;
+
 /**
  * Job for processing clip submissions asynchronously.
  *
@@ -25,13 +30,16 @@ use Illuminate\Support\Facades\Log;
  * including Twitch API calls, validation, and database operations.
  * Useful for improving response times and handling API rate limits.
  */
-class ProcessClipSubmission implements ShouldQueue
+final class ProcessClipSubmission implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public function __construct(
         public readonly User $user,
-        public readonly string $twitchClipId
+        public readonly string $twitchClipId,
     ) {}
 
     /**
@@ -141,6 +149,7 @@ class ProcessClipSubmission implements ShouldQueue
 
                         return;
                     }
+
                     throw $e;
                 }
 
@@ -160,18 +169,17 @@ class ProcessClipSubmission implements ShouldQueue
 
                 // Dispatch event for notifications and further processing
                 \App\Events\ClipSubmitted::dispatch($clip, $this->user);
-
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 DB::rollBack();
                 Log::error('Failed to create clip in job', [
                     'user_id'        => $this->user->id,
                     'twitch_clip_id' => $this->twitchClipId,
                     'error'          => $e->getMessage(),
                 ]);
+
                 throw $e;
             }
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Clear processing cache on failure
             Cache::forget("processing_clip_{$this->twitchClipId}");
 
@@ -180,6 +188,7 @@ class ProcessClipSubmission implements ShouldQueue
                 'twitch_clip_id' => $this->twitchClipId,
                 'error'          => $e->getMessage(),
             ]);
+
             throw $e;
         }
 

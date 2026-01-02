@@ -7,6 +7,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use InvalidArgumentException;
+
+use function in_array;
 
 /**
  * Model for managing broadcaster-specific settings and preferences.
@@ -14,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * This model controls various settings that broadcasters can configure
  * for their clip management system, such as public submission permissions.
  */
-class BroadcasterSettings extends Model
+final class BroadcasterSettings extends Model
 {
     use HasFactory;
 
@@ -39,7 +42,7 @@ class BroadcasterSettings extends Model
      */
     public function allowsPublicSubmissions(): bool
     {
-        return in_array($this->clip_submission_permission, ['everyone', 'followers', 'subscribers']);
+        return in_array($this->clip_submission_permission, ['everyone', 'followers', 'subscribers'], true);
     }
 
     /**
@@ -71,8 +74,8 @@ class BroadcasterSettings extends Model
      */
     public function setClipSubmissionPermission(string $permission): void
     {
-        if (! in_array($permission, ['everyone', 'followers', 'subscribers', 'none'])) {
-            throw new \InvalidArgumentException('Invalid clip submission permission');
+        if (! in_array($permission, ['everyone', 'followers', 'subscribers', 'none'], true)) {
+            throw new InvalidArgumentException('Invalid clip submission permission');
         }
 
         $this->update(['clip_submission_permission' => $permission]);

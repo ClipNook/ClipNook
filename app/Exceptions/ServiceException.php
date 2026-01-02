@@ -7,7 +7,4 @@ namespace App\Exceptions;
 /**
  * Base exception for service layer errors.
  */
-abstract class ServiceException extends AppException
-{
-    //
-}
+abstract class ServiceException extends AppException {}

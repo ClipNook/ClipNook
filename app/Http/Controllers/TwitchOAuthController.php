@@ -11,7 +11,11 @@ use App\Http\Requests\TwitchLoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class TwitchOAuthController extends Controller
+use function __;
+use function redirect;
+use function session;
+
+final class TwitchOAuthController extends Controller
 {
     public function redirectToTwitch(TwitchLoginRequest $request, RedirectToTwitchAction $action)
     {
@@ -31,7 +35,7 @@ class TwitchOAuthController extends Controller
     {
         $validated = $request->validate([
             'code'  => 'required|string',
-            'state' => ['required', 'string', new \App\Rules\ValidOAuthState],
+            'state' => ['required', 'string', new \App\Rules\ValidOAuthState()],
         ]);
 
         $code = $validated['code'];

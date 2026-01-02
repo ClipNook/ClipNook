@@ -7,7 +7,12 @@ namespace App\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class ValidOAuthState implements ValidationRule
+use function __;
+use function hash_equals;
+use function is_string;
+use function session;
+
+final class ValidOAuthState implements ValidationRule
 {
     /**
      * Run the validation rule.

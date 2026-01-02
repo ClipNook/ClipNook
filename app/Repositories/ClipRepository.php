@@ -10,10 +10,12 @@ use App\Models\User;
 use App\Repositories\Contracts\ClipRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 
+use function config;
+
 /**
  * Clip repository implementation.
  */
-class ClipRepository extends BaseRepository implements ClipRepositoryInterface
+final class ClipRepository extends BaseRepository implements ClipRepositoryInterface
 {
     public function __construct(Clip $model)
     {
@@ -21,7 +23,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function findByTwitchId(string $twitchClipId): ?Clip
     {
@@ -29,7 +31,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getByStatus(ClipStatus $status): Collection
     {
@@ -37,7 +39,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getBySubmitter(User $user): Collection
     {
@@ -45,7 +47,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getByBroadcaster(User $broadcaster): Collection
     {
@@ -53,7 +55,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getPending(): Collection
     {
@@ -61,7 +63,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getApproved(): Collection
     {
@@ -69,7 +71,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getRejected(): Collection
     {
@@ -77,7 +79,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getFeatured(): Collection
     {
@@ -85,7 +87,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getForModeration(): Collection
     {
@@ -95,7 +97,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function approveClip(Clip $clip, ?User $moderator = null): bool
     {
@@ -105,7 +107,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function rejectClip(Clip $clip, string $reason, ?User $moderator = null): bool
     {
@@ -115,7 +117,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function toggleFeatured(Clip $clip): bool
     {
@@ -125,7 +127,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getByGame(int $gameId): Collection
     {
@@ -133,7 +135,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getPopular(?int $limit = null): Collection
     {
@@ -146,7 +148,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getRecent(?int $limit = null): Collection
     {
@@ -159,7 +161,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function search(string $query): Collection
     {
@@ -169,7 +171,7 @@ class ClipRepository extends BaseRepository implements ClipRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getStats(): array
     {

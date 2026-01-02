@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Livewire\Concerns;
 
+use function in_array;
+
 /**
  * Handles sorting functionality for Livewire components.
  */
@@ -15,7 +17,7 @@ trait WithSorting
 
     public function sortBy(string $column): void
     {
-        if (! in_array($column, $this->sortableColumns)) {
+        if (! in_array($column, $this->sortableColumns, true)) {
             return;
         }
 

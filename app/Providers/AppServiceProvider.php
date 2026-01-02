@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use App\Models\Clip;
@@ -11,7 +13,11 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
+use function class_exists;
+use function config;
+use function is_string;
+
+final class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
@@ -24,6 +30,32 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('local') && class_exists(\Laravel\Telescope\TelescopeServiceProvider::class)) {
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
             $this->app->register(TelescopeServiceProvider::class);
+        }
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        if ($this->app->environment('local')) {
+            Mail::alwaysTo('local@localhost');
+        }
+
+        // Register model observers
+        Clip::observe(ClipObserver::class);
+
+        // Register custom notification channels
+        $this->app->make(\Illuminate\Notifications\ChannelManager::class)->extend('ntfy', static fn ($app) => new \App\Notifications\Channels\NtfyChannel());
+
+        // Paginator::defaultView('vendor.pagination.tailwind');
+
+        $this->configureLocale();
+        $this->configureSecureUrls();
+
+        // Prevent lazy loading in local environment to catch N+1 problems
+        if ($this->app->environment('local')) {
+            \Illuminate\Database\Eloquent\Model::preventLazyLoading();
         }
     }
 
@@ -58,34 +90,6 @@ class AppServiceProvider extends ServiceProvider
             \App\Contracts\CacheServiceInterface::class,
             \App\Services\Cache\CacheBackendManager::class
         );
-    }
-
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
-    {
-        if ($this->app->environment('local')) {
-            Mail::alwaysTo('local@localhost');
-        }
-
-        // Register model observers
-        Clip::observe(ClipObserver::class);
-
-        // Register custom notification channels
-        $this->app->make(\Illuminate\Notifications\ChannelManager::class)->extend('ntfy', function ($app) {
-            return new \App\Notifications\Channels\NtfyChannel;
-        });
-
-        // Paginator::defaultView('vendor.pagination.tailwind');
-
-        $this->configureLocale();
-        $this->configureSecureUrls();
-
-        // Prevent lazy loading in local environment to catch N+1 problems
-        if ($this->app->environment('local')) {
-            \Illuminate\Database\Eloquent\Model::preventLazyLoading();
-        }
     }
 
     protected function configureLocale(): void

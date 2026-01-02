@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use App\Rules\ValidOAuthState;
 use Illuminate\Foundation\Http\FormRequest;
 
-class TwitchOAuthCallbackRequest extends FormRequest
+use function __;
+
+final class TwitchOAuthCallbackRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +26,7 @@ class TwitchOAuthCallbackRequest extends FormRequest
     {
         return [
             'code'  => 'required|string|min:10|max:100',
-            'state' => ['required', 'string', 'size:40', new ValidOAuthState],
+            'state' => ['required', 'string', 'size:40', new ValidOAuthState()],
         ];
     }
 

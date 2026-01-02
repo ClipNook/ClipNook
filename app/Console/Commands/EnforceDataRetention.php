@@ -8,7 +8,10 @@ use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Console\Command;
 
-class EnforceDataRetention extends Command
+use function app;
+use function now;
+
+final class EnforceDataRetention extends Command
 {
     /**
      * The name and signature of the console command.

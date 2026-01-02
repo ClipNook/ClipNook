@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Twitch\DTOs;
 
-readonly class ApiLogEntryDTO
+final readonly class ApiLogEntryDTO
 {
     public function __construct(
         public string $endpoint,

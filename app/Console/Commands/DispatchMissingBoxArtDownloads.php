@@ -1,12 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Jobs\DownloadTwitchImage;
 use App\Models\Game;
 use Illuminate\Console\Command;
 
-class DispatchMissingBoxArtDownloads extends Command
+use function str_replace;
+
+final class DispatchMissingBoxArtDownloads extends Command
 {
     /**
      * The name and signature of the console command.
@@ -25,7 +29,7 @@ class DispatchMissingBoxArtDownloads extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $games = Game::whereNotNull('box_art_url')
             ->whereNull('local_box_art_path')

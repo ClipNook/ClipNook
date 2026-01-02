@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 use App\Exceptions\ClipNotFoundException;
 
-describe('ClipNotFoundExceptionTest', function () {
-    test('creates exception for clip id', function () {
+describe('ClipNotFoundExceptionTest', static function (): void {
+    test('creates exception for clip id', static function (): void {
         $exception = ClipNotFoundException::forId('TestClip123');
 
         expect($exception->getMessage())->toBe('Clip TestClip123 not found on Twitch');
     });
 
-    test('creates exception for url', function () {
+    test('creates exception for url', static function (): void {
         $exception = ClipNotFoundException::forUrl('https://clips.twitch.tv/invalid');
 
         expect($exception->getMessage())->toBe('Invalid or inaccessible clip URL: https://clips.twitch.tv/invalid');

@@ -7,11 +7,14 @@ namespace App\Services\Twitch\Api;
 use App\Services\Twitch\Contracts\TwitchApiClientInterface;
 use App\Services\Twitch\Exceptions\TwitchApiException;
 use Illuminate\Support\Facades\Http;
+use InvalidArgumentException;
+
+use function ltrim;
 
 /**
  * Core Twitch API client for making HTTP requests to Twitch Helix API.
  */
-class TwitchApiClient implements TwitchApiClientInterface
+final class TwitchApiClient implements TwitchApiClientInterface
 {
     private const BASE_URL = 'https://api.twitch.tv/helix';
 
@@ -23,10 +26,10 @@ class TwitchApiClient implements TwitchApiClientInterface
     /**
      * Make a request to the Twitch API.
      *
-     * @param  string  $endpoint  The API endpoint (without base URL)
-     * @param  array  $params  Query parameters
-     * @param  string|null  $accessToken  Optional access token for authenticated requests
-     * @return array The decoded JSON response
+     * @param  string      $endpoint    The API endpoint (without base URL)
+     * @param  array       $params      Query parameters
+     * @param  string|null $accessToken Optional access token for authenticated requests
+     * @return array       The decoded JSON response
      *
      * @throws TwitchApiException
      */
@@ -57,7 +60,7 @@ class TwitchApiClient implements TwitchApiClientInterface
     public function makeAuthenticatedRequest(string $endpoint, array $params, ?string $accessToken): array
     {
         if ($accessToken === null) {
-            throw new \InvalidArgumentException('Access token is required for authenticated requests');
+            throw new InvalidArgumentException('Access token is required for authenticated requests');
         }
 
         return $this->makeRequest($endpoint, $params, $accessToken);

@@ -12,12 +12,16 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+use function now;
+
 /**
- * Real-time clip status update event
+ * Real-time clip status update event.
  */
-class ClipStatusChanged implements ShouldBroadcast
+final class ClipStatusChanged implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public function __construct(
         public Clip $clip,
@@ -27,7 +31,7 @@ class ClipStatusChanged implements ShouldBroadcast
     ) {}
 
     /**
-     * Get the channels the event should broadcast on
+     * Get the channels the event should broadcast on.
      */
     public function broadcastOn(): array
     {
@@ -38,7 +42,7 @@ class ClipStatusChanged implements ShouldBroadcast
     }
 
     /**
-     * Get the data to broadcast
+     * Get the data to broadcast.
      */
     public function broadcastWith(): array
     {

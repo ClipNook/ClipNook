@@ -7,7 +7,14 @@ namespace App\Services\Image;
 use App\Contracts\ImageValidatorInterface;
 use App\Enums\ImageMimeType;
 use App\Services\Twitch\Exceptions\InvalidImageException;
+use finfo;
 use InvalidArgumentException;
+
+use function parse_url;
+use function str_ends_with;
+use function strlen;
+
+use const FILEINFO_MIME_TYPE;
 
 /**
  * Service for validating images.
@@ -35,8 +42,7 @@ final readonly class ImageValidator implements ImageValidatorInterface
     /**
      * Validate image MIME type.
      *
-     * @param  string  $imageData  Binary image data
-     * @return bool
+     * @param string $imageData Binary image data
      *
      * @throws InvalidImageException If MIME type is not allowed
      */
@@ -54,8 +60,7 @@ final readonly class ImageValidator implements ImageValidatorInterface
     /**
      * Validate image URL for security.
      *
-     * @param  string  $url  URL to validate
-     * @return bool
+     * @param string $url URL to validate
      *
      * @throws InvalidArgumentException If URL is invalid or untrusted
      */
@@ -82,9 +87,8 @@ final readonly class ImageValidator implements ImageValidatorInterface
     /**
      * Validate image file size.
      *
-     * @param  string  $imageData  Binary image data
-     * @param  int  $maxSize  Maximum size in bytes
-     * @return bool
+     * @param string $imageData Binary image data
+     * @param int    $maxSize   Maximum size in bytes
      *
      * @throws InvalidImageException If size exceeds limit
      */
@@ -102,12 +106,11 @@ final readonly class ImageValidator implements ImageValidatorInterface
     /**
      * Get MIME type of image data.
      *
-     * @param  string  $imageData  Binary image data
-     * @return string
+     * @param string $imageData Binary image data
      */
     public function getMimeType(string $imageData): string
     {
-        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
 
         return $finfo->buffer($imageData);
     }

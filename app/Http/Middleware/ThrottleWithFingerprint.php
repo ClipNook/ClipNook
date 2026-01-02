@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -7,7 +9,13 @@ use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ThrottleWithFingerprint
+use function hash;
+use function implode;
+use function max;
+use function pseudonymize_ip;
+use function response;
+
+final class ThrottleWithFingerprint
 {
     public function __construct(private RateLimiter $limiter) {}
 

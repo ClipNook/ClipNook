@@ -10,18 +10,20 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+use function url;
+
 /**
  * Notification sent to moderators when a new clip is submitted.
  *
  * This notification informs moderators about new clips that need review,
  * helping them stay on top of pending moderations.
  */
-class ClipSubmitted extends Notification implements ShouldQueue
+final class ClipSubmitted extends Notification implements ShouldQueue
 {
     use Queueable;
 
     public function __construct(
-        public Clip $clip
+        public Clip $clip,
     ) {}
 
     /**
@@ -39,7 +41,7 @@ class ClipSubmitted extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject("New clip submitted: {$this->clip->title}")
             ->greeting("Hello {$notifiable->twitch_display_name}!")
             ->line('A new clip has been submitted and needs your review.')

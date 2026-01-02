@@ -7,13 +7,20 @@ namespace App\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
+use function __;
+use function config;
+use function is_string;
+use function preg_match;
+use function str_contains;
+use function strlen;
+
 /**
  * Validation rule for Twitch Clip IDs.
  *
  * Validates both plain clip IDs and full Twitch URLs,
  * extracting the ID when necessary and ensuring proper format.
  */
-class ValidClipId implements ValidationRule
+final class ValidClipId implements ValidationRule
 {
     /**
      * Run the validation rule.
@@ -50,7 +57,7 @@ class ValidClipId implements ValidationRule
     /**
      * Extract clip ID from URL or return the ID itself.
      */
-    protected function extractClipId(string $value): ?string
+    private function extractClipId(string $value): ?string
     {
         // If it's a URL, extract the clip ID
         if (str_contains($value, 'twitch.tv') || str_contains($value, 'clips.twitch.tv')) {
@@ -73,7 +80,7 @@ class ValidClipId implements ValidationRule
     /**
      * Check if the clip ID matches the expected format.
      */
-    protected function isValidClipIdFormat(string $clipId): bool
+    private function isValidClipIdFormat(string $clipId): bool
     {
         return (bool) preg_match(config('constants.patterns.twitch_clip_id_format'), $clipId);
     }

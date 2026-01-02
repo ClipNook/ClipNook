@@ -65,6 +65,7 @@ final class User extends Authenticatable
         'twitch_access_token',
         'twitch_refresh_token',
         'twitch_token_expires_at',
+        'last_twitch_sync_at',
 
         // Profile Data
         'description',
@@ -75,8 +76,6 @@ final class User extends Authenticatable
         'twitch_avatar',
         'custom_avatar_path',
         'avatar_source',
-        'avatar_disabled',
-        'avatar_disabled_at',
 
         // Role Flags
         'is_viewer',
@@ -115,7 +114,7 @@ final class User extends Authenticatable
     protected $casts = [
         // Timestamps
         'twitch_token_expires_at' => 'datetime',
-        'avatar_disabled_at'      => 'datetime',
+        'last_twitch_sync_at'     => 'datetime',
         'last_activity_at'        => 'datetime',
         'last_login_at'           => 'datetime',
 
@@ -128,7 +127,6 @@ final class User extends Authenticatable
         'description'              => 'string',
 
         // Booleans
-        'avatar_disabled'         => 'boolean',
         'is_viewer'               => 'boolean',
         'is_cutter'               => 'boolean',
         'is_streamer'             => 'boolean',

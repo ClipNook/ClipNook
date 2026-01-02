@@ -7,7 +7,7 @@ namespace App\Exceptions;
 /**
  * Exception thrown when clip validation fails with detailed error messages.
  */
-class ClipValidationException extends ValidationException
+final class ClipValidationException extends ValidationException
 {
     /**
      * Create exception with validation errors.

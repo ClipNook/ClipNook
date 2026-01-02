@@ -9,14 +9,14 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class RejectClipAction
+final class RejectClipAction
 {
     /**
-     * Reject a clip with a reason
+     * Reject a clip with a reason.
      */
     public function execute(Clip $clip, User $moderator, string $reason): bool
     {
-        return DB::transaction(function () use ($clip, $moderator, $reason) {
+        return DB::transaction(static function () use ($clip, $moderator, $reason) {
             $clip->reject($reason, $moderator);
             Log::info('Clip rejected', [
                 'clip_id'      => $clip->id,
@@ -31,4 +31,4 @@ class RejectClipAction
 
 namespace App\Actions\Clip;
 
-class RejectClipAction {}
+final class RejectClipAction {}

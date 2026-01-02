@@ -9,10 +9,12 @@ use App\Services\Twitch\Contracts\TwitchApiClientInterface;
 use App\Services\Twitch\DTOs\GameDTO;
 use App\Services\Twitch\Exceptions\TwitchApiException;
 
+use function array_map;
+
 /**
  * Service for fetching Twitch game data.
  */
-class GameApiService
+final class GameApiService
 {
     public function __construct(
         private readonly TwitchApiClientInterface $apiClient,

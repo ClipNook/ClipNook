@@ -7,9 +7,9 @@ namespace App\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 
 /**
- * Performance threshold exceeded event
+ * Performance threshold exceeded event.
  */
-class PerformanceThresholdExceeded
+final class PerformanceThresholdExceeded
 {
     use Dispatchable;
 
@@ -17,6 +17,6 @@ class PerformanceThresholdExceeded
         public float $threshold,
         public float $value,
         public string $metric,
-        public array $context = []
+        public array $context = [],
     ) {}
 }
