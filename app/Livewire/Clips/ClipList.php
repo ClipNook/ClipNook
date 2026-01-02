@@ -7,6 +7,7 @@ namespace App\Livewire\Clips;
 use App\Livewire\Concerns\WithPagination;
 use App\Livewire\Concerns\WithSearch;
 use App\Livewire\Concerns\WithSorting;
+use Livewire\Attributes\Title;
 use App\Models\Clip;
 use Livewire\Component;
 use Livewire\WithPagination as LivewirePagination;
@@ -14,6 +15,7 @@ use Livewire\WithPagination as LivewirePagination;
 use function auth;
 use function view;
 
+#[Title('Clips Library')] 
 final class ClipList extends Component
 {
     use LivewirePagination;

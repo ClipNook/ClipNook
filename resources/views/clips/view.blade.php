@@ -8,13 +8,12 @@
 
             <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
                 <!-- Breadcrumb -->
-                <nav class="flex items-center gap-2 text-sm text-zinc-500 mb-6" aria-label="Breadcrumb">
-                    <a href="{{ route('home') }}" class="hover:text-(--color-accent-400) transition-colors">{{ __('common.home') }}</a>
-                    <i class="fa-solid fa-chevron-right text-xs"></i>
-                    <a href="{{ route('clips.list') }}" class="hover:text-(--color-accent-400) transition-colors">{{ __('clips.browse') }}</a>
-                    <i class="fa-solid fa-chevron-right text-xs"></i>
-                    <span class="text-zinc-300 truncate">{{ Str::limit($clip->title, 40) }}</span>
-                </nav>
+                <x-breadcrumb :items="[
+                    ['url' => route('home'), 'label' => __('common.home')],
+                    ['url' => route('clips.list'), 'label' => __('clips.browse')],
+                    ['label' => $clip->title, 'truncate' => 40, 'current' => true]
+                ]" />
+
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
                     <!-- Main Content -->

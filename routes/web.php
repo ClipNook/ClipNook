@@ -6,6 +6,7 @@ use App\Http\Controllers\ClipController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TwitchOAuthController;
+use App\Livewire\Clips\ClipList;
 use Illuminate\Support\Facades\Route;
 
 // Home
@@ -28,7 +29,7 @@ Route::group(['prefix' => 'auth', 'as' => 'auth.'], static function (): void {
 
 // Clips
 Route::group(['prefix' => 'clips', 'as' => 'clips.'], static function (): void {
-    Route::get('/', static fn () => view('clips.list'))->name('list');
+    Route::get('/', ClipList::class)->name('list');
     Route::get('/submit', static fn () => view('clips.submit'))->middleware('auth')->name('submit');
     Route::get('/view/{clip}', [ClipController::class, 'view'])->name('view');
 });
