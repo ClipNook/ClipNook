@@ -206,4 +206,21 @@ function themeSelector() {
         }
     }
 }
+
+document.addEventListener('livewire:init', () => {
+    Livewire.on('theme-changed', (event) => {
+        const theme = event.theme;
+        document.body.className = document.body.className.replace(/theme-\w+/g, '' );
+        document.body.classList.add(`theme-${theme}`);
+        
+        // Optional: Save to localStorage for persistence across page reloads
+        localStorage.setItem('theme', theme);
+    });
+    
+    // Load theme from localStorage on page load
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme && ['violet', 'blue', 'green', 'red'].includes(savedTheme)) {
+        document.body.classList.add(`theme-${savedTheme}`);
+    }
+});
 </script>
