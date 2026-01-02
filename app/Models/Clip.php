@@ -8,6 +8,7 @@ use App\Enums\ClipStatus;
 use App\Enums\VoteType;
 use App\Models\Concerns\Clip\HasMedia;
 use App\Models\Concerns\Clip\HasModeration;
+use App\Models\Concerns\Clip\HasOptimizedQueries;
 use App\Models\Concerns\Clip\HasVoting;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,7 @@ final class Clip extends Model
     use HasFactory;
     use HasMedia;
     use HasModeration;
+    use HasOptimizedQueries;
     use HasVoting;
 
     protected $fillable = [

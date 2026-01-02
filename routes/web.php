@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\ClipController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\GDPRController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TwitchOAuthController;
 use App\Livewire\Clips\ClipList;
@@ -45,6 +46,14 @@ Route::group(['prefix' => 'games', 'as' => 'games.'], static function (): void {
 // Admin
 Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], static function (): void {
     Route::get('/clips', static fn () => view('admin.clips'))->name('clips');
+});
+
+// GDPR
+Route::middleware(['auth', 'throttle:3,60'])->group(static function (): void {
+    Route::post('/gdpr/export', [GDPRController::class, 'exportData'])
+        ->name('gdpr.export');
+    Route::post('/gdpr/delete', [GDPRController::class, 'requestDeletion'])
+        ->name('gdpr.delete');
 });
 
 // Settings

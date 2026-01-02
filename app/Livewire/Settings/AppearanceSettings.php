@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace App\Livewire\Settings;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
+use function __;
 use function app;
+use function array_filter;
 use function array_keys;
-use function auth;
+use function array_merge;
 use function implode;
-use function session;
+use function is_array;
+use function is_scalar;
 use function view;
 
 /**
@@ -43,14 +47,23 @@ final class AppearanceSettings extends Component
 
     public function mount(): void
     {
-        $this->user = auth()->user();
-        $this->fill($this->user->appearance_settings ?? [
+        $this->user = Auth::user();
+        $settings   = $this->user->appearance_settings ?? [];
+
+        // Ensure settings is an array
+        if (! is_array($settings)) {
+            $settings = [];
+        }
+
+        $settings = array_filter($settings, static fn ($value): bool => is_scalar($value));
+
+        $this->fill(array_merge([
             'theme'           => 'dark',
             'language'        => 'en',
             'compact_mode'    => false,
             'show_thumbnails' => true,
             'clips_per_page'  => 12,
-        ]);
+        ], $settings));
     }
 
     public function updateAppearance(): void
@@ -76,7 +89,7 @@ final class AppearanceSettings extends Component
         // Update user's locale
         app()->setLocale($this->language);
 
-        session()->flash('message', 'Appearance settings updated successfully.');
+        $this->dispatch('notify', type: 'success', message: __('settings.appearance_settings_updated'));
     }
 
     public function render(): \Illuminate\View\View

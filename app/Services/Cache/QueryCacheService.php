@@ -43,10 +43,21 @@ final class QueryCacheService
     public function invalidate(string|array $tags): void
     {
         $tagArray = is_array($tags) ? $tags : [$tags];
-        $pattern  = 'query:*:'.implode(':', $tagArray).':*';
-        // For database/file cache, we can't easily invalidate by pattern
-        // This is a limitation - in production use Redis for proper tagging
-        Cache::flush(); // Fallback: clear all cache
+
+        // Use cache tags if available (Redis)
+        if (Cache::getStore() instanceof \Illuminate\Cache\TaggableStore) {
+            Cache::tags($tagArray)->flush();
+
+            return;
+        }
+
+        // Fallback: Delete only specific keys
+        $pattern = 'query:*:'.implode(':', $tagArray).':*';
+        $keys    = Cache::get('cache_keys:'.md5($pattern), []);
+
+        foreach ($keys as $key) {
+            Cache::forget($key);
+        }
     }
 
     /**

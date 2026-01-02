@@ -56,7 +56,7 @@ final class StreamerTab extends Component
     public function updateClipPermission(): void
     {
         $this->validate([
-            'clipSubmissionPermission' => 'required|in:everyone,followers,subscribers,none',
+            'clipSubmissionPermission' => 'required|in:everyone,none',
         ]);
 
         try {

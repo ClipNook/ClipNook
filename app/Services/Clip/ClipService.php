@@ -13,9 +13,9 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 
 use function config;
+use function mb_strlen;
 use function now;
 use function preg_replace;
-use function strlen;
 use function today;
 use function trim;
 
@@ -98,21 +98,24 @@ final class ClipService implements ClipServiceInterface
     public function searchClips(string $query, ?int $perPage = null): LengthAwarePaginator
     {
         $perPage ??= config('constants.pagination.default_per_page');
-        // Sanitize and prepare search query - only remove dangerous characters
-        $searchTerm = trim($query);
-        $searchTerm = preg_replace('/[<>\"\'&]/', '', $searchTerm); // Remove only dangerous HTML/JS chars
 
-        if (empty($searchTerm) || strlen($searchTerm) < 2) {
-            return Clip::whereRaw('1 = 0')->paginate($perPage); // Return empty result
+        // Strict validation
+        $searchTerm = trim($query);
+        $searchTerm = preg_replace('/[^\p{L}\p{N}\s\-_]/u', '', $searchTerm);
+
+        if (empty($searchTerm) || mb_strlen($searchTerm) < 2) {
+            return new LengthAwarePaginator([], 0, $perPage);
         }
 
-        return Clip::search($searchTerm)
-            ->orWhere(static function ($q) use ($searchTerm): void {
-                $q->whereJsonContains('tags', $searchTerm);
+        return Clip::query()
+            ->where(static function ($q) use ($searchTerm): void {
+                $q->where('title', 'LIKE', '%'.$searchTerm.'%')
+                    ->orWhere('description', 'LIKE', '%'.$searchTerm.'%')
+                    ->orWhereRaw('JSON_CONTAINS(tags, ?)', [json_encode($searchTerm)]);
             })
-            ->withRelations() // Use the optimized scope
+            ->withRelations()
             ->approved()
-            ->orderBy('created_at', 'desc')
+            ->orderByDesc('created_at')
             ->paginate($perPage);
     }
 

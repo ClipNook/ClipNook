@@ -24,6 +24,11 @@ final class SettingsPage extends Component
         $this->activeTab = $tab;
     }
 
+    public function updatedActiveTab(): void
+    {
+        // Optional: Track tab changes for analytics
+    }
+
     #[Layout('components.layouts.app')]
     public function render()
     {
