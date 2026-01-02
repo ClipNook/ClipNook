@@ -1,12 +1,4 @@
-<div class="relative bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200 group p-6">
-    <!-- Subtle accent border -->
-    <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent mb-6"></div>
-
-    <h2 class="text-2xl font-bold text-zinc-100 mb-4">
-        <i class="fa-solid fa-comments mr-3 text-violet-400"></i>
-        {{ __('clips.comments_count', ['count' => $comments->count()]) }}
-    </h2>
-
+<div>
     @if (session()->has('message'))
         <div class="bg-green-900/50 border border-green-800 rounded-lg p-4 mb-4">
             <div class="flex items-start gap-3">
@@ -33,7 +25,7 @@
                 wire:model="newComment"
                 rows="3"
                 placeholder="{{ __('clips.add_comment') }}"
-                class="w-full px-4 py-2.5 bg-zinc-800 border border-zinc-700 rounded-md text-white placeholder-zinc-500 focus:border-violet-500 focus:outline-none transition-colors resize-none"
+                class="w-full px-4 py-2.5 bg-zinc-800 border border-zinc-700 rounded-md text-white placeholder-zinc-500 focus:border-(--color-accent-500) focus:outline-none transition-colors resize-none"
             ></textarea>
             @error('newComment') <span class="text-red-400 text-sm mt-1">{{ $message }}</span> @enderror
             <div class="mt-2 flex justify-end">
@@ -48,7 +40,7 @@
         </div>
     @else
         <p class="text-zinc-400 text-center py-4">
-            <a href="{{ route('auth.login') }}" class="text-violet-400 hover:text-violet-300">{{ __('auth.login') }}</a> {{ __('clips.login_to_comment') }}
+            <a href="{{ route('auth.login') }}" class="text-(--color-accent-400) hover:text-(--color-accent-300)">{{ __('auth.login') }}</a> {{ __('clips.login_to_comment') }}
         </p>
     @endauth
 
@@ -72,7 +64,7 @@
                             <p class="text-zinc-300">{{ $comment->content }}</p>
                             <div class="mt-2 flex gap-3 text-sm">
                                 @auth
-                                    <button wire:click="setReplyTo({{ $comment->id }})" class="text-zinc-400 hover:text-violet-400 transition-colors">
+                                    <button wire:click="setReplyTo({{ $comment->id }})" class="text-zinc-400 hover:text-(--color-accent-400) transition-colors">
                                         <i class="fa-solid fa-reply mr-1"></i>
                                         {{ __('clips.reply') }}
                                     </button>

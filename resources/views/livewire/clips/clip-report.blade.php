@@ -37,7 +37,7 @@
                         <label class="block text-sm font-medium text-zinc-300 mb-2">{{ __('clips.report_reason') }}</label>
                         <select
                             wire:model="reason"
-                            class="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white focus:border-violet-500 focus:outline-none"
+                            class="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white focus:border-(--color-accent-500) focus:outline-none"
                         >
                             @foreach (__('clips.report_reasons') as $key => $label)
                                 <option value="{{ $key }}">{{ $label }}</option>
@@ -51,7 +51,7 @@
                         <textarea
                             wire:model="description"
                             rows="4"
-                            class="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white placeholder-zinc-500 focus:border-violet-500 focus:outline-none resize-none"
+                            class="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white placeholder-zinc-500 focus:border-(--color-accent-500) focus:outline-none resize-none"
                         ></textarea>
                         @error('description') <span class="text-red-400 text-sm mt-1">{{ $message }}</span> @enderror
                     </div>
