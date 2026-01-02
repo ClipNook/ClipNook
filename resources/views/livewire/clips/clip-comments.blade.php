@@ -1,6 +1,9 @@
-<div class="bg-zinc-900 rounded-md border border-zinc-800 p-6">
-    <h2 class="text-lg font-semibold text-zinc-100 mb-4">
-        <i class="fa-solid fa-comments mr-2 text-violet-400"></i>
+<div class="relative bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200 group p-6">
+    <!-- Subtle accent border -->
+    <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent mb-6"></div>
+
+    <h2 class="text-2xl font-bold text-zinc-100 mb-4">
+        <i class="fa-solid fa-comments mr-3 text-violet-400"></i>
         {{ __('clips.comments_count', ['count' => $comments->count()]) }}
     </h2>
 

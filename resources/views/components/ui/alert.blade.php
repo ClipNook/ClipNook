@@ -23,7 +23,7 @@
     $defaultIcon = $icon ?: ($iconClasses[$type] ?? 'fa-info-circle');
 @endphp
 
-<div class="p-4 {{ $typeClasses[$type] ?? $typeClasses['info'] }} border rounded {{ $class }}">
+<div class="p-4 {{ $typeClasses[$type] ?? $typeClasses['info'] }} border rounded {{ $class }} relative">
     <div class="flex items-start">
         <i class="fa-solid {{ $defaultIcon }} mr-3 mt-0.5 flex-shrink-0 text-sm"></i>
         <div class="flex-1 text-sm">

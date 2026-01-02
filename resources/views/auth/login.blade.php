@@ -3,15 +3,18 @@
         <div class="max-w-md w-full">
             <!-- Icon Badge -->
             <div class="flex justify-center mb-8">
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-zinc-900 border-2 border-violet-500 rounded-2xl">
-                    <i class="fa-brands fa-twitch text-3xl text-violet-400"></i>
+                <div
+                    class="inline-flex items-center justify-center w-20 h-20 bg-zinc-900 border-2 border-(--color-accent-500) rounded-2xl">
+                    <i class="fa-brands fa-twitch text-3xl text-(--color-accent-400)"></i>
                 </div>
             </div>
-            
+
             <!-- Login Card -->
             <div class="relative bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
-                <!-- Accent Border Top -->
-                <div class="absolute top-0 left-0 right-0 h-1 bg-violet-500"></div>
+                <!-- Subtle accent border at top -->
+                <div
+                    class="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent">
+                </div>
                 <div class="p-10">
                     <form method="POST" action="{{ route('auth.twitch.login') }}" class="space-y-6">
                         @csrf
@@ -61,23 +64,29 @@
                             </div>
                         </div>
 
+                        <!-- Subtle accent border at top -->
+                        <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent my-2"></div>
+
                         <!-- Submit Button -->
                         <div class="pt-4">
-                            <button
-                                type="submit"
-                                class="w-full bg-(--color-accent-500) hover:bg-(--color-accent-600) text-zinc-100 rounded-lg px-4 py-3 font-medium transition-colors flex items-center justify-center gap-2"
-                            >
+                            <button type="submit"
+                                class="w-full bg-(--color-accent-500) hover:bg-(--color-accent-600) text-zinc-100 rounded-lg px-4 py-3 font-medium transition-colors flex items-center justify-center gap-2">
                                 <i class="fa-brands fa-twitch"></i>
                                 <span>{{ __('auth.login_button') }}</span>
                             </button>
                         </div>
+                        
+                        <!-- Subtle accent border at top -->
+                        <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent my-2"></div>
 
                         <!-- Privacy Notice -->
-                        <div class="text-center pt-4 border-t border-zinc-800">
+                        <div class="text-center pt-4">
                             <p class="text-sm text-zinc-500 leading-relaxed">
                                 {!! __('auth.privacy_notice', [
-                                    'terms' => '<a href="#" class="text-(--color-accent-400) hover:text-(--color-accent-300) underline transition-colors">Terms of Service</a>',
-                                    'privacy' => '<a href="#" class="text-(--color-accent-400) hover:text-(--color-accent-300) underline transition-colors">Privacy Policy</a>'
+                                    'terms' =>
+                                        '<a href="#" class="text-(--color-accent-400) hover:text-(--color-accent-300) underline transition-colors">Terms of Service</a>',
+                                    'privacy' =>
+                                        '<a href="#" class="text-(--color-accent-400) hover:text-(--color-accent-300) underline transition-colors">Privacy Policy</a>',
                                 ]) !!}
                             </p>
                         </div>

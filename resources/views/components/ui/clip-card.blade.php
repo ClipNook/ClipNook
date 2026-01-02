@@ -11,7 +11,9 @@
 @endphp
 
 <a href="{{ route('clips.view', $clip) }}"
-    class="group block bg-zinc-800 rounded-md overflow-hidden border border-zinc-700 hover:border-violet-600 transition-colors">
+    class="group block bg-zinc-800 rounded-md overflow-hidden border border-zinc-700 hover:border-violet-600 transition-colors relative">
+    <!-- Subtle accent border -->
+    <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent"></div>
     <!-- Thumbnail -->
     <div class="aspect-video bg-zinc-700 relative overflow-hidden">
         @if ($clip->hasLocalThumbnail())
@@ -39,7 +41,7 @@
             <!-- Broadcaster -->
             <div class="flex items-center gap-2 text-xs">
                 <i class="fa-solid fa-user text-zinc-500 w-3"></i>
-                <span class="text-zinc-400 truncate">{{ $clip->broadcaster?->twitch_display_name ?? 'Unknown' }}</span>
+                <span class="text-zinc-400 truncate">{{ $clip->broadcaster?->twitch_display_name ?? __('clips.unknown') }}</span>
             </div>
 
             <!-- Game -->

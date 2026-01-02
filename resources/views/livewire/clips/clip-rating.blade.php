@@ -1,4 +1,6 @@
-<div class="bg-zinc-900 rounded-lg border border-zinc-800 p-6">
+<div class="relative bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200 group p-6">
+    <!-- Subtle accent border -->
+    <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent mb-6"></div>
     @if (session()->has('message'))
         <div class="bg-green-900/50 border border-green-800 rounded-lg p-4 mb-4">
             <div class="flex items-start gap-3">

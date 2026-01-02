@@ -10,8 +10,8 @@
 @endphp
 
 <a href="{{ route('games.view', $game) }}" class="group relative block bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-lg overflow-hidden transition-all duration-200 {{ $class }}">
-    <!-- Accent Border -->
-    <div class="absolute left-0 top-0 bottom-0 w-1 bg-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+    <!-- Subtle accent border -->
+    <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent"></div>
     <div class="aspect-[3/4] bg-zinc-700 relative">
         @if($game->local_box_art_path)
             <img

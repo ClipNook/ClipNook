@@ -19,6 +19,8 @@
         'ghost' => 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 border-transparent focus:ring-zinc-500',
         'danger' => 'bg-red-600 hover:bg-red-700 text-zinc-100 border-red-600 focus:ring-red-500',
         'success' => 'bg-green-600 hover:bg-green-700 text-zinc-100 border-green-600 focus:ring-green-500',
+        // Accent: subtle left-accent bar suitable for compact CTAs and header links (no shadows/gradients/scale)
+        'accent' => 'bg-zinc-800 border-l-4 border-violet-500 text-zinc-100 hover:bg-zinc-800/95 focus:ring-violet-500',
     ];
 
     $sizeClasses = [

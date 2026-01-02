@@ -31,17 +31,17 @@
     <div
         x-show="isOpen"
         x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 sm:scale-95 sm:translate-y-4 md:translate-y-0"
-        x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+        x-transition:enter-start="opacity-0 translate-y-4"
+        x-transition:enter-end="opacity-100 translate-y-0"
         x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-        x-transition:leave-end="opacity-0 sm:scale-95 sm:translate-y-4 md:translate-y-0"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 translate-y-4"
         class="fixed inset-x-0 bottom-0 z-101 sm:inset-0 sm:flex sm:items-center sm:justify-center"
         role="dialog"
         aria-modal="true"
         aria-label="Theme selection"
     >
-        <div class="w-full sm:max-w-sm md:max-w-md lg:max-w-lg bg-zinc-900 border-t sm:border border-zinc-700 rounded-t-xl sm:rounded-xl shadow-2xl overflow-hidden sm:mx-4">
+        <div class="w-full sm:max-w-sm md:max-w-md lg:max-w-lg bg-zinc-900 border-t sm:border border-zinc-700 rounded-t-xl sm:rounded-xl overflow-hidden sm:mx-4">
             <!-- Mobile Handle -->
             <div class="flex justify-center py-3 sm:hidden">
                 <div class="w-12 h-1.5 bg-zinc-600 rounded-full"></div>
@@ -92,7 +92,7 @@
                             class="w-full p-4 rounded-lg border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-900 text-left group"
                             :class="{
                                 'border-zinc-700 bg-zinc-800/30 hover:bg-zinc-800/60 hover:border-zinc-600': key !== currentTheme,
-                                'border-(--color-accent-500) bg-zinc-800/80 shadow-lg shadow-(--color-accent-500)/20 ring-1 ring-(--color-accent-500)/30': key === currentTheme
+                                'border-(--color-accent-500) bg-zinc-800/80 ring-1 ring-(--color-accent-500)/30': key === currentTheme
                             }"
                             role="radio"
                             :aria-checked="key === currentTheme"

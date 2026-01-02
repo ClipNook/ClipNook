@@ -6,15 +6,15 @@
         </div>
         <div class="space-y-4">
             <h1 class="text-4xl sm:text-5xl font-bold text-zinc-100">{{ __('clips.submit_page_title') }}</h1>
-            <p class="text-xl text-zinc-400 max-w-2xl mx-auto">{{ __('clips.submit_page_subtitle') }}</p>
+            <p class="text-lg text-zinc-400 max-w-2xl mx-auto">{{ __('clips.submit_page_subtitle') }}</p>
         </div>
     </div>
 
-    <!-- Step 1: Clip URL/ID eingeben -->
+    <!-- Step 1: Enter Clip URL/ID -->
     @if(!$clipInfo)
         <div class="relative bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200">
-            <!-- Accent Border -->
-            <div class="absolute left-0 top-0 bottom-0 w-1 bg-violet-500 opacity-0 hover:opacity-100 transition-opacity duration-200"></div>
+            <!-- Subtle accent border -->
+            <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent"></div>
 
             <div class="p-8">
                 <div class="flex flex-col items-center gap-6 mb-8">
@@ -67,10 +67,10 @@
             </div>
         </div>
 
-        <!-- Hilfe-Info -->
+        <!-- Help Information -->
         <div class="relative bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200">
-            <!-- Accent Border -->
-            <div class="absolute left-0 top-0 bottom-0 w-1 bg-violet-500 opacity-0 hover:opacity-100 transition-opacity duration-200"></div>
+            <!-- Subtle accent border -->
+            <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent"></div>
 
             <div class="p-8">
                 <div class="flex items-center gap-4 mb-6">
@@ -101,12 +101,12 @@
         </div>
     @endif
 
-    <!-- Step 2: Clip-Info & Preview -->
+    <!-- Step 2: Clip Info & Preview -->
     @if($clipInfo)
-        <!-- Clip-Informationen -->
+        <!-- Clip Information -->
         <div class="relative bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200">
-            <!-- Accent Border -->
-            <div class="absolute left-0 top-0 bottom-0 w-1 bg-violet-500 opacity-0 hover:opacity-100 transition-opacity duration-200"></div>
+            <!-- Subtle accent border -->
+            <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent"></div>
 
             <div class="p-8">
                 <div class="flex items-center gap-4 mb-8">
@@ -150,10 +150,10 @@
             </div>
         </div>
 
-        <!-- Clip-Vorschau -->
+        <!-- Clip Preview -->
         <div class="relative bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200">
-            <!-- Accent Border -->
-            <div class="absolute left-0 top-0 bottom-0 w-1 bg-violet-500 opacity-0 hover:opacity-100 transition-opacity duration-200"></div>
+            <!-- Subtle accent border -->
+            <div class="h-px bg-linear-to-r from-transparent via-(--color-accent-500)/30 to-transparent"></div>
 
             <div class="p-8">
                 <div class="flex items-center gap-4 mb-6">
