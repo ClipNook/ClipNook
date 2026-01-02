@@ -8,7 +8,6 @@ use App\Services\Twitch\Api\StreamerApiService;
 use App\Services\Twitch\Auth\TwitchTokenManager;
 use Exception;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Livewire\Component;
 
 use function __;
@@ -70,23 +69,6 @@ final class AccountTab extends Component
                 }
                 if ($twitchUser->email !== $user->twitch_email) {
                     $updatedFields[] = 'email';
-                }
-                if ($twitchUser->profileImageUrl !== $user->twitch_avatar) {
-                    $updatedFields[] = 'avatar';
-                }
-
-                // Avatar lokal herunterladen falls sich geändert hat
-                $avatarPath = $user->twitch_avatar;
-                if ($twitchUser->profileImageUrl !== $user->twitch_avatar) {
-                    // Alten lokalen Twitch-Avatar löschen falls vorhanden
-                    $user->deleteTwitchAvatar();
-
-                    // Neuen Avatar herunterladen
-                    $response = Http::get($twitchUser->profileImageUrl);
-                    if ($response->successful()) {
-                        $avatarPath = $user->getTwitchAvatarStoragePath();
-                        Storage::disk('public')->put($avatarPath, $response->body());
-                    }
                 }
 
                 $user->update([

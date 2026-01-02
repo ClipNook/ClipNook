@@ -92,7 +92,7 @@
                         <div class="relative hidden md:block">
                             <button @click="userMenuOpen = !userMenuOpen"
                                 class="flex items-center gap-3 text-zinc-400 hover:text-(--color-accent-400) px-3 py-2 rounded text-sm transition-colors hover:bg-zinc-800/50">
-                                <img src="{{ auth()->user()->avatar_url }}"
+                                <img src="{{ auth()->user()->getAvatarSourceAttribute() }}"
                                     alt="{{ auth()->user()->twitch_display_name }}"
                                     class="w-8 h-8 rounded-full object-cover border border-zinc-700 hover:border-(--color-accent-500)/50 transition-colors">
                                 <span class="hidden lg:block">{{ auth()->user()->twitch_display_name }}</span>
@@ -105,7 +105,7 @@
                                 x-cloak>
                                 <div class="px-5 py-4 border-b border-zinc-700/50 bg-gradient-to-r from-zinc-800/50 to-zinc-900/50 rounded-t-xl">
                                     <div class="flex items-center gap-3">
-                                        <img src="{{ auth()->user()->avatar_url }}"
+                                        <img src="{{ auth()->user()->getAvatarSourceAttribute() }}"
                                             alt="{{ auth()->user()->twitch_display_name }}"
                                             class="w-10 h-10 rounded-full object-cover border-2 border-(--color-accent-500)/30 shadow-sm">
                                         <div class="flex-1 min-w-0">

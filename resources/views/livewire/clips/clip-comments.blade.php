@@ -77,7 +77,7 @@
             <div class="border-t border-zinc-800 pt-4 first:border-t-0 first:pt-0">
                 <div class="flex gap-3">
                     <img
-                        src="{{ $comment->user->avatar_url }}"
+                        src="{{ $comment->user->getAvatarSourceAttribute() }}"
                         alt="{{ $comment->user->twitch_display_name }}"
                         class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex-shrink-0"
                     >
@@ -120,7 +120,7 @@
                                 @foreach ($comment->replies as $reply)
                                     <div class="flex gap-3">
                                         <img
-                                            src="{{ $reply->user->avatar_url }}"
+                                            src="{{ $reply->user->getAvatarSourceAttribute() }}"
                                             alt="{{ $reply->user->twitch_display_name }}"
                                             class="w-8 h-8 rounded-lg flex-shrink-0"
                                         >

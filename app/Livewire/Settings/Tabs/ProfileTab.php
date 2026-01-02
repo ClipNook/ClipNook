@@ -8,12 +8,13 @@ use App\Services\Twitch\Api\StreamerApiService;
 use App\Services\Twitch\Auth\TwitchTokenManager;
 use Exception;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
+use InvalidArgumentException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
 use function __;
 use function app;
+use function logger;
 use function view;
 
 final class ProfileTab extends Component
@@ -32,29 +33,20 @@ final class ProfileTab extends Component
 
     public function uploadAvatar(): void
     {
-        $this->validate([
-            'avatar' => 'required|image|max:2048',
-        ]);
-
         try {
             $user = Auth::user();
 
-            // Alten Custom-Avatar löschen
-            $user->deleteCustomAvatar();
-
-            // Neuen Avatar speichern
-            $path = $this->avatar->store('avatars', 'public');
-
-            $user->update([
-                'avatar_source' => $path,
-            ]);
-
-            $user->setAvatarSource('custom');
-
+            $user->uploadCustomAvatar($this->avatar);
             $this->avatar = null;
             $this->dispatch('notify', type: 'success', message: __('Avatar successfully uploaded.'));
+        } catch (InvalidArgumentException $e) {
+            $this->dispatch('notify', type: 'error', message: __('Avatar upload failed: :error', ['error' => $e->getMessage()]));
         } catch (Exception $e) {
-            $this->dispatch('notify', type: 'error', message: __('Error uploading avatar: :error', ['error' => $e->getMessage()]));
+            logger()->error('Avatar upload error', [
+                'user_id' => $user->id,
+                'error'   => $e->getMessage(),
+            ]);
+            $this->dispatch('notify', type: 'error', message: __('An unexpected error occurred while uploading the avatar.'));
         }
     }
 
@@ -68,28 +60,19 @@ final class ProfileTab extends Component
             $twitchUser = $streamerApi->getStreamer($user->twitch_id, $tokenManager->getAppAccessToken());
 
             if ($twitchUser && $twitchUser->profileImageUrl) {
-                // Alten Twitch-Avatar löschen
-                $user->deleteTwitchAvatar();
-
-                // Custom-Avatar löschen
-                $user->deleteCustomAvatar();
-
-                // Twitch-Avatar herunterladen und lokal speichern
-                $response = Http::get($twitchUser->profileImageUrl);
-                if ($response->successful()) {
-                    $path = $user->getTwitchAvatarStoragePath();
-
-                    Storage::disk('public')->put($path, $response->body());
-
-                    $this->dispatch('notify', type: 'success', message: __('Twitch avatar synchronized.'));
-                } else {
-                    $this->dispatch('notify', type: 'error', message: __('Could not download Twitch avatar.'));
-                }
+                $user->syncTwitchAvatar($twitchUser->profileImageUrl);
+                $this->dispatch('notify', type: 'success', message: __('Twitch avatar synchronized.'));
             } else {
                 $this->dispatch('notify', type: 'error', message: __('Could not retrieve Twitch user data.'));
             }
+        } catch (InvalidArgumentException $e) {
+            $this->dispatch('notify', type: 'error', message: __('Avatar sync failed: :error', ['error' => $e->getMessage()]));
         } catch (Exception $e) {
-            $this->dispatch('notify', type: 'error', message: __('Error syncing Twitch avatar: :error', ['error' => $e->getMessage()]));
+            logger()->error('Twitch avatar sync error', [
+                'user_id' => Auth::id(),
+                'error'   => $e->getMessage(),
+            ]);
+            $this->dispatch('notify', type: 'error', message: __('An unexpected error occurred while syncing the avatar.'));
         }
     }
 
@@ -98,11 +81,28 @@ final class ProfileTab extends Component
         try {
             $user = Auth::user();
 
-            if ($user->deleteCustomAvatar()) {
-                $this->dispatch('notify', type: 'success', message: __('Custom avatar deleted.'));
+            if ($user->deleteAvatar()) {
+                $this->dispatch('notify', type: 'success', message: __('Avatar deleted.'));
+            } else {
+                $this->dispatch('notify', type: 'info', message: __('No avatar to delete.'));
             }
         } catch (Exception $e) {
             $this->dispatch('notify', type: 'error', message: __('Error deleting avatar: :error', ['error' => $e->getMessage()]));
+        }
+    }
+
+    public function resetAvatar(): void
+    {
+        try {
+            $user = Auth::user();
+
+            if ($user->resetAvatar()) {
+                $this->dispatch('notify', type: 'success', message: __('Avatar reset to default.'));
+            } else {
+                $this->dispatch('notify', type: 'info', message: __('No avatar to reset.'));
+            }
+        } catch (Exception $e) {
+            $this->dispatch('notify', type: 'error', message: __('Error resetting avatar: :error', ['error' => $e->getMessage()]));
         }
     }
 

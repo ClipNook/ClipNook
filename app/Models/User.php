@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 use function __;
@@ -252,16 +251,6 @@ final class User extends Authenticatable
     public function getLastActivityFormattedAttribute(): string
     {
         return $this->last_activity_at?->diffForHumans() ?? __('user.never');
-    }
-
-    /**
-     * Check if the user has completed their profile.
-     */
-    public function getProfileCompleteAttribute(): bool
-    {
-        return ! empty($this->description)
-               && ! empty($this->twitch_display_name)
-               && ($this->avatar_url !== null);
     }
 
     // Helper Methods
