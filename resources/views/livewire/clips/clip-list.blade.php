@@ -60,7 +60,7 @@
     @if($clips->count() > 0)
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             @foreach($clips as $clip)
-                <a href="{{ route('clips.view', $clip) }}" class="group block bg-zinc-800 rounded-md overflow-hidden border border-zinc-700 hover:border-zinc-600 transition-colors">
+                <a href="{{ route('clips.view', $clip) }}" class="group block bg-zinc-800 rounded-md overflow-hidden border border-zinc-700 hover:border-violet-600 transition-colors">
                     <!-- Thumbnail -->
                     <div class="aspect-video bg-zinc-700 relative overflow-hidden">
                         @if($clip->thumbnail_url)

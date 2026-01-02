@@ -1,14 +1,20 @@
 <div class="bg-zinc-900 rounded-lg border border-zinc-800 p-6">
     @if (session()->has('message'))
-        <x-ui.alert type="success" class="mb-4">
-            {{ session('message') }}
-        </x-ui.alert>
+        <div class="bg-green-900/50 border border-green-800 rounded-lg p-4 mb-4">
+            <div class="flex items-start gap-3">
+                <i class="fa-solid fa-check-circle text-green-400 mt-0.5"></i>
+                <span class="text-green-200">{{ session('message') }}</span>
+            </div>
+        </div>
     @endif
 
     @if (session()->has('error'))
-        <x-ui.alert type="error" class="mb-4">
-            {{ session('error') }}
-        </x-ui.alert>
+        <div class="bg-red-900/50 border border-red-800 rounded-lg p-4 mb-4">
+            <div class="flex items-start gap-3">
+                <i class="fa-solid fa-triangle-exclamation text-red-400 mt-0.5"></i>
+                <span class="text-red-200">{{ session('error') }}</span>
+            </div>
+        </div>
     @endif
 
     <div class="flex items-center justify-between">

@@ -60,7 +60,7 @@
     @if($games->count() > 0)
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             @foreach($games as $game)
-                <a href="{{ route('games.view', $game) }}" class="group block bg-zinc-800 rounded-md border border-zinc-700 hover:border-zinc-600 transition-colors overflow-hidden">
+                <a href="{{ route('games.view', $game) }}" class="group block bg-zinc-800 border border-zinc-700 hover:border-violet-600 rounded-md transition-colors overflow-hidden">
                     <div class="aspect-[3/4] bg-zinc-700 relative">
                         @if($game->local_box_art_path)
                             <img

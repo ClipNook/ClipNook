@@ -1,13 +1,16 @@
 <div class="bg-zinc-900 rounded-md border border-zinc-800 p-6">
     <h2 class="text-lg font-semibold text-zinc-100 mb-4">
-        <i class="fa-solid fa-comments mr-2"></i>
+        <i class="fa-solid fa-comments mr-2 text-violet-400"></i>
         {{ __('clips.comments_count', ['count' => $comments->count()]) }}
     </h2>
 
     @if (session()->has('message'))
-        <x-ui.alert type="success" class="mb-4">
-            {{ session('message') }}
-        </x-ui.alert>
+        <div class="bg-green-900/50 border border-green-800 rounded-lg p-4 mb-4">
+            <div class="flex items-start gap-3">
+                <i class="fa-solid fa-check-circle text-green-400 mt-0.5"></i>
+                <span class="text-green-200">{{ session('message') }}</span>
+            </div>
+        </div>
     @endif
 
     @auth

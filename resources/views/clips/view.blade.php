@@ -2,19 +2,19 @@
     <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-zinc-950">
         <div class="max-w-6xl mx-auto space-y-8">
             <!-- Clip Player -->
-            <div class="bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden shadow-2xl">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
                 <div class="aspect-video bg-zinc-800">
                     <livewire:twitch-player-consent :clip-info="['twitchClipId' => $clip->twitch_clip_id, 'localThumbnailPath' => $clip->local_thumbnail_path]" />
                 </div>
             </div>
 
             <!-- Clip Info -->
-            <div class="bg-zinc-900 rounded-lg border border-zinc-800 p-8 shadow-xl">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-8">
                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6">
                     <div class="flex-1">
                         <h1 class="text-3xl font-bold text-zinc-100 mb-4 leading-tight">{{ $clip->title }}</h1>
                         <div class="flex flex-wrap items-center gap-4 text-sm text-zinc-400 mb-4">
-                            <a href="{{ route('clips.list', ['broadcaster' => $clip->broadcaster->twitch_login]) }}" class="flex items-center gap-2 hover:text-violet-400 transition-colors">
+                            <a href="{{ route('clips.list', ['broadcaster' => $clip->broadcaster->twitch_login]) }}" class="flex items-center gap-2 text-zinc-400 hover:text-violet-400 transition-colors">
                                 <i class="fa-solid fa-user"></i>
                                 {{ $clip->broadcaster->twitch_display_name }}
                             </a>
@@ -70,17 +70,17 @@
                             </x-ui.button>
                         @endif
                         @if ($clip->submitter)
-                            <span class="px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded-lg text-sm">
-                                <i class="fa-solid fa-user-pen mr-2"></i>
+                            <span class="px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded-lg text-sm hover:border-violet-600 transition-colors">
+                                <i class="fa-solid fa-user-pen mr-2 text-violet-400"></i>
                                 {{ __('clips.submitted_by_label') }}: {{ $clip->submitter->twitch_login }}
                             </span>
                         @endif
-                        <span class="px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded-lg text-sm">
-                            <i class="fa-solid fa-scissors mr-2"></i>
+                        <span class="px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded-lg text-sm hover:border-violet-600 transition-colors">
+                            <i class="fa-solid fa-scissors mr-2 text-violet-400"></i>
                             {{ __('clips.created_by_label') }}: {{ $clip->clip_creator_name }}
                         </span>
-                        <span class="px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded-lg text-sm">
-                            <i class="fa-solid fa-plus mr-2"></i>
+                        <span class="px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded-lg text-sm hover:border-violet-600 transition-colors">
+                            <i class="fa-solid fa-plus mr-2 text-violet-400"></i>
                             {{ __('clips.added_on_label', ['date' => $clip->created_at->format('M j, Y')]) }}
                         </span>
                     </div>
@@ -97,12 +97,13 @@
 
             <!-- Related Clips -->
             @if ($relatedClips->isNotEmpty())
-                <div class="bg-zinc-900 rounded-lg border border-zinc-800 p-8 shadow-xl">
-                    <x-ui.section-header
-                        :title="__('clips.related_clips')"
-                        icon="film"
-                        class="mb-8"
-                    />
+                <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2 class="text-2xl font-bold text-zinc-100">
+                            <i class="fa-solid fa-film mr-2 text-violet-400"></i>
+                            {{ __('clips.related_clips') }}
+                        </h2>
+                    </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         @foreach ($relatedClips as $relatedClip)
                             <x-ui.clip-card :clip="$relatedClip" />

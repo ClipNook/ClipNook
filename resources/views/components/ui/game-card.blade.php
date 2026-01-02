@@ -9,7 +9,7 @@
     }
 @endphp
 
-<a href="{{ route('games.view', $game) }}" class="block bg-zinc-800 border border-zinc-700 hover:border-zinc-600 rounded-lg overflow-hidden transition-colors {{ $class }}">
+<a href="{{ route('games.view', $game) }}" class="block bg-zinc-800 border border-zinc-700 hover:border-violet-600 rounded-lg overflow-hidden transition-colors {{ $class }}">
     <div class="aspect-[3/4] bg-zinc-700 relative">
         @if($game->local_box_art_path)
             <img

@@ -1,7 +1,7 @@
 <div>
     @if (!$showPlayer)
         <!-- Privacy-First Player Placeholder -->
-        <div class="relative aspect-video bg-zinc-900 rounded-lg overflow-hidden shadow-2xl cursor-pointer group"
+        <div class="relative aspect-video bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden cursor-pointer group"
              wire:click="loadPlayer"
              role="button"
              tabindex="0"
@@ -50,7 +50,7 @@
         </div>
     @else
         <!-- Twitch Player Embed -->
-        <div class="relative aspect-video rounded-lg overflow-hidden shadow-2xl border border-zinc-700/50">
+        <div class="relative aspect-video rounded-lg overflow-hidden border border-zinc-700/50">
             <iframe
                 src="https://clips.twitch.tv/embed?clip={{ $clipInfo['twitchClipId'] }}&parent={{ request()->getHost() }}"
                 height="100%"

@@ -2,30 +2,28 @@
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-zinc-950">
         <div class="max-w-md w-full space-y-8">
             <!-- Login Card -->
-            <div class="bg-zinc-900 rounded-lg border border-zinc-800 shadow-2xl">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-lg">
                 <div class="p-8">
                     <form method="POST" action="{{ route('auth.twitch.login') }}" class="space-y-6">
                         @csrf
 
                         <!-- General Errors -->
                         @if ($errors->any())
-                            <x-ui.alert type="error" class="mb-6">
-                                <h4 class="font-medium mb-2">{{ __('auth.error_occurred') }}</h4>
-                                <ul class="space-y-1 text-sm">
+                            <div class="bg-red-900/50 border border-red-800 rounded-lg p-4 mb-6">
+                                <h4 class="font-medium text-red-200 mb-2">{{ __('auth.error_occurred') }}</h4>
+                                <ul class="space-y-1 text-sm text-red-300">
                                     @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
                                     @endforeach
                                 </ul>
-                            </x-ui.alert>
+                            </div>
                         @endif
 
                         <!-- Info Section -->
-                        <div class="bg-zinc-800 rounded-lg p-6 border border-zinc-700">
+                        <div class="bg-zinc-800 border border-zinc-700 rounded-lg p-6">
                             <div class="flex items-start gap-4">
                                 <div class="flex-shrink-0">
-                                    <div class="w-10 h-10 bg-violet-600/20 rounded-full flex items-center justify-center">
-                                        <i class="fa-solid fa-circle-info text-violet-400"></i>
-                                    </div>
+                                    <i class="fa-solid fa-circle-info text-zinc-400 text-lg"></i>
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-semibold text-zinc-100 mb-2">
@@ -39,46 +37,38 @@
                         </div>
 
                         <!-- Features List -->
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-4 p-3 bg-zinc-800/50 rounded-lg border border-zinc-700/50">
-                                <div class="w-8 h-8 bg-green-600/20 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <i class="fa-solid fa-shield text-green-400 text-sm"></i>
-                                </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-4 p-3 bg-zinc-800 border border-zinc-700 rounded-lg">
+                                <i class="fa-solid fa-shield text-zinc-400 text-sm"></i>
                                 <span class="text-zinc-200 font-medium">{{ __('auth.feature_secure') }}</span>
                             </div>
-                            <div class="flex items-center gap-4 p-3 bg-zinc-800/50 rounded-lg border border-zinc-700/50">
-                                <div class="w-8 h-8 bg-violet-600/20 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <i class="fa-solid fa-bolt text-violet-400 text-sm"></i>
-                                </div>
+                            <div class="flex items-center gap-4 p-3 bg-zinc-800 border border-zinc-700 rounded-lg">
+                                <i class="fa-solid fa-bolt text-zinc-400 text-sm"></i>
                                 <span class="text-zinc-200 font-medium">{{ __('auth.feature_authentication') }}</span>
                             </div>
-                            <div class="flex items-center gap-4 p-3 bg-zinc-800/50 rounded-lg border border-zinc-700/50">
-                                <div class="w-8 h-8 bg-zinc-600/20 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <i class="fa-solid fa-shield-halved text-zinc-400 text-sm"></i>
-                                </div>
+                            <div class="flex items-center gap-4 p-3 bg-zinc-800 border border-zinc-700 rounded-lg">
+                                <i class="fa-solid fa-shield-halved text-zinc-400 text-sm"></i>
                                 <span class="text-zinc-200 font-medium">{{ __('auth.feature_privacy') }}</span>
                             </div>
                         </div>
 
                         <!-- Submit Button -->
                         <div class="pt-4">
-                            <x-ui.button
+                            <button
                                 type="submit"
-                                variant="primary"
-                                size="lg"
-                                class="w-full justify-center"
+                                class="w-full bg-(--color-accent-500) hover:bg-(--color-accent-600) text-zinc-100 rounded-lg px-4 py-3 font-medium transition-colors flex items-center justify-center gap-2"
                             >
-                                <i class="fa-brands fa-twitch mr-2"></i>
-                                {{ __('auth.login_button') }}
-                            </x-ui.button>
+                                <i class="fa-brands fa-twitch"></i>
+                                <span>{{ __('auth.login_button') }}</span>
+                            </button>
                         </div>
 
                         <!-- Privacy Notice -->
                         <div class="text-center pt-4 border-t border-zinc-800">
                             <p class="text-sm text-zinc-500 leading-relaxed">
                                 {!! __('auth.privacy_notice', [
-                                    'terms' => '<a href="#" class="text-violet-400 hover:text-violet-300 underline transition-colors">Terms of Service</a>',
-                                    'privacy' => '<a href="#" class="text-violet-400 hover:text-violet-300 underline transition-colors">Privacy Policy</a>'
+                                    'terms' => '<a href="#" class="text-(--color-accent-400) hover:text-(--color-accent-300) underline transition-colors">Terms of Service</a>',
+                                    'privacy' => '<a href="#" class="text-(--color-accent-400) hover:text-(--color-accent-300) underline transition-colors">Privacy Policy</a>'
                                 ]) !!}
                             </p>
                         </div>

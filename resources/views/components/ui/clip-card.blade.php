@@ -10,7 +10,7 @@
     }
 @endphp
 
-<a href="{{ route('clips.view', $clip) }}" class="block bg-zinc-800 border border-zinc-700 hover:border-zinc-600 rounded-lg overflow-hidden transition-colors {{ $class }}">
+<a href="{{ route('clips.view', $clip) }}" class="block bg-zinc-800 border border-zinc-700 hover:border-violet-600 rounded-lg overflow-hidden transition-colors {{ $class }}">
     <div class="aspect-video bg-zinc-700 relative overflow-hidden">
         <img
             src="{{ $clip->thumbnail_url }}"

@@ -2,7 +2,10 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-zinc-100 mb-2">{{ __('admin.clip_moderation') }}</h1>
+            <h1 class="text-3xl font-bold text-zinc-100 mb-2">
+                <i class="fa-solid fa-shield-halved mr-3 text-violet-400"></i>
+                {{ __('admin.clip_moderation') }}
+            </h1>
             <p class="text-zinc-400">{{ __('admin.clip_moderation_description') }}</p>
         </div>
 
@@ -301,11 +304,11 @@
 
     <!-- Flash Messages -->
     @if(session()->has('success'))
-        <x-ui.alert
-            type="success"
-            class="fixed bottom-4 right-4 z-50"
-        >
-            {{ session('success') }}
-        </x-ui.alert>
+        <div class="fixed bottom-4 right-4 z-50 bg-green-900/50 border border-green-800 rounded-lg p-4 max-w-sm">
+            <div class="flex items-start gap-3">
+                <i class="fa-solid fa-check-circle text-green-400 mt-0.5"></i>
+                <span class="text-green-200 text-sm">{{ session('success') }}</span>
+            </div>
+        </div>
     @endif
 </div>
