@@ -1,7 +1,8 @@
 <?php
 
-return [
+declare(strict_types=1);
 
+return [
     /*
     |--------------------------------------------------------------------------
     | Authentication Language Lines
@@ -20,7 +21,7 @@ return [
     // Login Page
     'login_title'                     => 'Login with Twitch',
     'welcome_title'                   => 'Welcome to :app_name',
-    'welcome_subtitle'                => 'Manage your Twitch clips with ease',
+    'welcome_subtitle'                => 'Your open-source hub for Twitch clips: share, explore, and enjoy!',
     'required_permission_title'       => 'Required Permission',
     'required_permission_description' => ':app_name requires access to your email address for account verification, password resets, and important notifications.',
     'login_button'                    => 'Login with Twitch',
@@ -30,5 +31,4 @@ return [
     'feature_authentication'          => 'Seamless Twitch integration',
     'feature_privacy'                 => 'Your privacy is protected',
     'no_account_needed'               => 'No separate account needed - just use your Twitch login!',
-
 ];

@@ -106,14 +106,14 @@
                 @endif
             </p>
             @if($search)
-                <button
+                <x-ui.button
                     wire:click="$set('search', '')"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white text-sm font-medium rounded-md transition-colors focus:outline-none"
-                    aria-label="{{ __('games.clear_search') }}"
+                    variant="secondary"
+                    size="sm"
+                    icon="xmark"
                 >
-                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     {{ __('games.clear_search') }}
-                </button>
+                </x-ui.button>
             @endif
         </div>
     @endif

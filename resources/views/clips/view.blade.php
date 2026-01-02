@@ -35,14 +35,15 @@
 
                     <!-- Actions -->
                     <div class="flex items-center gap-3">
-                        <button
+                        <x-ui.button
                             x-data="{ copied: false }"
                             x-on:click="navigator.clipboard.writeText(window.location.href); copied = true; setTimeout(() => copied = false, 2000)"
-                            class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-zinc-100 rounded-lg transition-colors border border-zinc-700"
+                            variant="secondary"
+                            size="md"
+                            icon="share-nodes"
                         >
-                            <i class="fa-solid fa-share-nodes mr-2"></i>
                             <span x-text="copied ? 'Copied!' : '{{ __('clips.share') }}'"></span>
-                        </button>
+                        </x-ui.button>
                     </div>
                 </div>
 

@@ -146,14 +146,16 @@
                 @endif
             </p>
             @if($search)
-                <button
+                <x-ui.button
                     wire:click="$set('search', '')"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-600"
+                    variant="secondary"
+                    size="sm"
+                    class="inline-flex items-center gap-2"
                     aria-label="{{ __('clips.clear_search') }}"
                 >
                     <i class="fa-solid fa-xmark"></i>
                     {{ __('clips.clear_search') }}
-                </button>
+                </x-ui.button>
             @endif
         </div>
     @endif

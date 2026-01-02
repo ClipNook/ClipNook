@@ -1,23 +1,25 @@
 <div>
     @if (session()->has('error'))
-        <div class="mb-4 p-3 bg-red-900/50 border border-red-700 rounded-md text-red-200 text-sm">
+        <x-ui.alert type="error" class="mb-4">
             {{ session('error') }}
-        </div>
+        </x-ui.alert>
     @endif
 
     @if (session()->has('message'))
-        <div class="mb-4 p-3 bg-violet-900/50 border border-violet-700 rounded-md text-violet-200 text-sm">
+        <x-ui.alert type="success" class="mb-4">
             {{ session('message') }}
-        </div>
+        </x-ui.alert>
     @endif
 
-    <button
+    <x-ui.button
         wire:click="openModal"
-        class="px-4 py-2 bg-red-900/50 hover:bg-red-900 text-red-300 rounded-md transition-colors"
+        variant="danger"
+        size="sm"
+        class="mb-4"
     >
         <i class="fa-solid fa-flag mr-2"></i>
         {{ __('clips.report_clip') }}
-    </button>
+    </x-ui.button>
 
     @if ($showModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75" wire:click="closeModal">
@@ -49,18 +51,20 @@
                     </div>
 
                     <div class="flex gap-3">
-                        <button
+                        <x-ui.button
                             wire:click="submitReport"
-                            class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
+                            variant="danger"
+                            class="flex-1"
                         >
                             {{ __('clips.submit_report') }}
-                        </button>
-                        <button
+                        </x-ui.button>
+                        <x-ui.button
                             wire:click="closeModal"
-                            class="flex-1 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-md transition-colors"
+                            variant="secondary"
+                            class="flex-1"
                         >
                             {{ __('clips.cancel') }}
-                        </button>
+                        </x-ui.button>
                     </div>
                 </div>
             </div>

@@ -1,17 +1,6 @@
 <x-layouts.app title="{{ __('auth.login_title') }}">
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-zinc-950">
         <div class="max-w-md w-full space-y-8">
-            <!-- Header Section -->
-            <x-ui.hero-section
-                :title="__('auth.welcome_title', ['app_name' => config('app.name')])"
-                :subtitle="__('auth.welcome_subtitle')"
-                class="text-center"
-            >
-                <div class="flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-video text-violet-400 text-3xl"></i>
-                </div>
-            </x-ui.hero-section>
-
             <!-- Login Card -->
             <div class="bg-zinc-900 rounded-lg border border-zinc-800 shadow-2xl">
                 <div class="p-8">
@@ -77,10 +66,9 @@
                                 type="submit"
                                 variant="primary"
                                 size="lg"
-                                icon="twitch"
-                                icon-type="brand"
                                 class="w-full justify-center"
                             >
+                                <i class="fa-brands fa-twitch mr-2"></i>
                                 {{ __('auth.login_button') }}
                             </x-ui.button>
                         </div>

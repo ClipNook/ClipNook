@@ -55,14 +55,14 @@
                             <i class="fas fa-palette text-zinc-400"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-semibold text-zinc-100">Choose Theme</h3>
-                            <p class="text-sm text-zinc-500">Pick your favorite color scheme</p>
+                            <h3 class="text-lg font-semibold text-zinc-100">{{ __('theme.choose_theme') }}</h3>
+                            <p class="text-sm text-zinc-500">{{ __('theme.pick_favorite') }}</p>
                         </div>
                     </div>
                     <button
                         @click="closeSelector()"
                         class="p-2 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-600"
-                        aria-label="Close theme selector"
+                        aria-label="{{ __('theme.close_selector') }}"
                     >
                         <i class="fas fa-times text-sm"></i>
                     </button>
@@ -78,7 +78,7 @@
                             <i class="fas fa-check-circle text-[var(--color-accent-500)] text-lg"></i>
                         </div>
                         <div>
-                            <div class="text-sm text-zinc-500">Current Theme</div>
+                            <div class="text-sm text-zinc-500">{{ __('theme.current_theme') }}</div>
                             <div class="text-base font-semibold text-zinc-100" x-text="currentThemeName"></div>
                         </div>
                     </div>
@@ -107,7 +107,7 @@
                                 <!-- Theme Info -->
                                 <div class="flex-1 min-w-0">
                                     <div class="text-base font-semibold" :class="key === currentTheme ? 'text-zinc-100' : 'text-zinc-300'" x-text="theme.name"></div>
-                                    <div x-show="key === currentTheme" class="text-sm text-[var(--color-accent-500)] font-medium mt-0.5">Active</div>
+                                    <div x-show="key === currentTheme" class="text-sm text-[var(--color-accent-500)] font-medium mt-0.5">{{ __('theme.active') }}</div>
                                 </div>
 
                                 <!-- Selection Indicator -->
@@ -126,7 +126,7 @@
             <div class="hidden sm:block px-6 py-4 border-t border-zinc-700 bg-zinc-900/50">
                 <div class="flex items-center justify-center gap-2">
                     <i class="fas fa-circle text-sm text-[var(--color-accent-500)]"></i>
-                    <span class="text-sm text-zinc-400">Theme changes apply instantly</span>
+                    <span class="text-sm text-zinc-400">{{ __('theme.changes_apply_instantly') }}</span>
                 </div>
             </div>
         </div>

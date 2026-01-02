@@ -188,29 +188,44 @@
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-2">
                                         @if($clip->status->value === 'pending')
-                                            <button wire:click="approveClip({{ $clip->id }})"
-                                                    wire:loading.attr="disabled"
-                                                    class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors disabled:opacity-50">
+                                            <x-ui.button
+                                                wire:click="approveClip({{ $clip->id }})"
+                                                wire:loading.attr="disabled"
+                                                variant="success"
+                                                size="xs"
+                                                class="disabled:opacity-50"
+                                            >
                                                 {{ __('admin.approve') }}
-                                            </button>
-                                            <button wire:click="openRejectModal({{ $clip->id }})"
-                                                    class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md transition-colors">
+                                            </x-ui.button>
+                                            <x-ui.button
+                                                wire:click="openRejectModal({{ $clip->id }})"
+                                                variant="danger"
+                                                size="xs"
+                                            >
                                                 {{ __('admin.reject') }}
-                                            </button>
+                                            </x-ui.button>
                                         @endif
 
-                                        <button wire:click="toggleFeatured({{ $clip->id }})"
-                                                wire:loading.attr="disabled"
-                                                class="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-sm rounded-md transition-colors disabled:opacity-50">
+                                        <x-ui.button
+                                            wire:click="toggleFeatured({{ $clip->id }})"
+                                            wire:loading.attr="disabled"
+                                            variant="primary"
+                                            size="xs"
+                                            class="disabled:opacity-50"
+                                        >
                                             {{ $clip->is_featured ? __('admin.unfeature') : __('admin.feature') }}
-                                        </button>
+                                        </x-ui.button>
 
-                                        <button wire:click="deleteClip({{ $clip->id }})"
-                                                wire:confirm="{{ __('admin.confirm_delete') }}"
-                                                wire:loading.attr="disabled"
-                                                class="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-white text-sm rounded-md transition-colors disabled:opacity-50">
+                                        <x-ui.button
+                                            wire:click="deleteClip({{ $clip->id }})"
+                                            wire:confirm="{{ __('admin.confirm_delete') }}"
+                                            wire:loading.attr="disabled"
+                                            variant="secondary"
+                                            size="xs"
+                                            class="disabled:opacity-50"
+                                        >
                                             {{ __('admin.delete') }}
-                                        </button>
+                                        </x-ui.button>
                                     </div>
                                 </td>
                             </tr>
@@ -263,15 +278,20 @@
                         </div>
 
                         <div class="flex gap-3 justify-end">
-                            <button wire:click="closeRejectModal" type="button"
-                                    class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white rounded-md transition-colors">
+                            <x-ui.button
+                                wire:click="closeRejectModal"
+                                variant="secondary"
+                            >
                                 {{ __('admin.cancel') }}
-                            </button>
-                            <button wire:click="rejectClip" type="button"
-                                    wire:loading.attr="disabled"
-                                    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors disabled:opacity-50">
+                            </x-ui.button>
+                            <x-ui.button
+                                wire:click="rejectClip"
+                                wire:loading.attr="disabled"
+                                variant="danger"
+                                class="disabled:opacity-50"
+                            >
                                 {{ __('admin.reject') }}
-                            </button>
+                            </x-ui.button>
                         </div>
                     </div>
                 </div>
@@ -281,9 +301,11 @@
 
     <!-- Flash Messages -->
     @if(session()->has('success'))
-        <div class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-md shadow-lg flex items-center gap-3">
-            <i class="fa-solid fa-check text-lg"></i>
-            <span>{{ session('success') }}</span>
-        </div>
+        <x-ui.alert
+            type="success"
+            class="fixed bottom-4 right-4 z-50"
+        >
+            {{ session('success') }}
+        </x-ui.alert>
     @endif
 </div>

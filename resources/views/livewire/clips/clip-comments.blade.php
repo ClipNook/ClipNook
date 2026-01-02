@@ -5,9 +5,9 @@
     </h2>
 
     @if (session()->has('message'))
-        <div class="mb-4 p-3 bg-violet-900/50 border border-violet-700 rounded-md text-violet-200 text-sm">
+        <x-ui.alert type="success" class="mb-4">
             {{ session('message') }}
-        </div>
+        </x-ui.alert>
     @endif
 
     @auth
@@ -31,12 +31,13 @@
             ></textarea>
             @error('newComment') <span class="text-red-400 text-sm mt-1">{{ $message }}</span> @enderror
             <div class="mt-2 flex justify-end">
-                <button
+                <x-ui.button
                     wire:click="postComment"
-                    class="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-md transition-colors"
+                    variant="primary"
+                    size="sm"
                 >
                     {{ __('clips.post_comment') }}
-                </button>
+                </x-ui.button>
             </div>
         </div>
     @else

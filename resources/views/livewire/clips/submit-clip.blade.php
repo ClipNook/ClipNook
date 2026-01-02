@@ -24,14 +24,20 @@
                     </p>
                 </div>
 
-                <button
+                <x-ui.button
                     type="submit"
                     wire:loading.attr="disabled"
-                    class="w-full sm:w-auto px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-md transition-colors disabled:opacity-50"
+                    variant="primary"
+                    size="lg"
+                    class="w-full sm:w-auto"
+                    :loading="false"
                 >
                     <span wire:loading.remove>{{ __('clips.check_clip_button') }}</span>
-                    <span wire:loading>{{ __('clips.checking_button') }}</span>
-                </button>
+                    <span wire:loading>
+                        <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+                        {{ __('clips.checking_button') }}
+                    </span>
+                </x-ui.button>
             </form>
         </div>
 
@@ -88,21 +94,28 @@
 
         <!-- Submit Button -->
         <div class="flex gap-3">
-            <button
+            <x-ui.button
                 wire:click="submit"
                 wire:loading.attr="disabled"
-                class="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors disabled:opacity-50"
+                variant="success"
+                size="lg"
+                class="flex-1"
+                :loading="false"
             >
                 <span wire:loading.remove>{{ __('clips.submit_clip_button') }}</span>
-                <span wire:loading>{{ __('clips.submitting_button') }}</span>
-            </button>
+                <span wire:loading>
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+                    {{ __('clips.submitting_button') }}
+                </span>
+            </x-ui.button>
 
-            <button
+            <x-ui.button
                 wire:click="$set('clipInfo', null)"
-                class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-medium rounded-md transition-colors"
+                variant="secondary"
+                size="lg"
             >
                 {{ __('clips.cancel_button') }}
-            </button>
+            </x-ui.button>
         </div>
     @endif
 
