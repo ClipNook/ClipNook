@@ -50,7 +50,7 @@
                     <a href="{{ route('home') }}"
                         class="flex items-center gap-3 text-zinc-100 hover:text-(--color-accent-400) transition-colors group">
                         <i
-                            class="fa-solid fa-video text-lg text-zinc-400 group-hover:text-(--color-accent-400) transition-colors"></i>
+                            class="fa-solid fa-video text-lg text-(--color-accent-400) group-hover:text-(--color-accent-500) transition-colors"></i>
                         <span class="font-semibold text-xl">{{ config('app.name') }}</span>
                     </a>
                 </div>
