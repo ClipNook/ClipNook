@@ -8,7 +8,7 @@
         aria-haspopup="true"
         :aria-label="'Current theme: ' + currentThemeName + '. Open theme selector'"
     >
-        <i class="fas fa-swatchbook text-base" :class="isOpen ? 'text-[var(--color-accent-500)]' : ''"></i>
+        <i class="fas fa-swatchbook text-base" :class="isOpen ? 'text-(--color-accent-500)' : ''"></i>
         <span class="hidden sm:inline" x-text="currentThemeName"></span>
         <i class="fas fa-chevron-down text-xs transition-transform duration-150" :class="{ 'rotate-180': isOpen }"></i>
     </button>
@@ -22,7 +22,7 @@
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
-        class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+        class="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm"
         @click="closeSelector()"
         @keydown.escape.window="closeSelector()"
     ></div>
@@ -36,7 +36,7 @@
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
         x-transition:leave-end="opacity-0 sm:scale-95 sm:translate-y-4 md:translate-y-0"
-        class="fixed inset-x-0 bottom-0 z-[101] sm:inset-0 sm:flex sm:items-center sm:justify-center"
+        class="fixed inset-x-0 bottom-0 z-101 sm:inset-0 sm:flex sm:items-center sm:justify-center"
         role="dialog"
         aria-modal="true"
         aria-label="Theme selection"
@@ -74,8 +74,8 @@
                 <!-- Current Theme Highlight -->
                 <div class="mb-6 p-4 bg-zinc-800/50 rounded-lg border border-zinc-700">
                     <div class="flex items-center gap-3">
-                        <div class="p-2 bg-[var(--color-accent-500)]/10 rounded-lg">
-                            <i class="fas fa-check-circle text-[var(--color-accent-500)] text-lg"></i>
+                        <div class="p-2 bg-(--color-accent-500)/10 rounded-lg">
+                            <i class="fas fa-check-circle text-(--color-accent-500) text-lg"></i>
                         </div>
                         <div>
                             <div class="text-sm text-zinc-500">{{ __('theme.current_theme') }}</div>
@@ -92,7 +92,7 @@
                             class="w-full p-4 rounded-lg border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-900 text-left group"
                             :class="{
                                 'border-zinc-700 bg-zinc-800/30 hover:bg-zinc-800/60 hover:border-zinc-600': key !== currentTheme,
-                                'border-[var(--color-accent-500)] bg-zinc-800/80 shadow-lg shadow-[var(--color-accent-500)]/20 ring-1 ring-[var(--color-accent-500)]/30': key === currentTheme
+                                'border-(--color-accent-500) bg-zinc-800/80 shadow-lg shadow-(--color-accent-500)/20 ring-1 ring-(--color-accent-500)/30': key === currentTheme
                             }"
                             role="radio"
                             :aria-checked="key === currentTheme"
@@ -100,19 +100,19 @@
                         >
                             <div class="flex items-center gap-4">
                                 <!-- Theme Icon -->
-                                <div class="flex-shrink-0 p-3 rounded-lg bg-zinc-700/50 group-hover:bg-zinc-700/70 transition-colors" :class="key === currentTheme ? 'bg-[var(--color-accent-500)]/10' : ''">
-                                    <i class="text-2xl" :class="[getThemeIcon(key), key === currentTheme ? 'text-[var(--color-accent-500)]' : 'text-zinc-400']"></i>
+                                <div class="shrink-0 p-3 rounded-lg bg-zinc-700/50 group-hover:bg-zinc-700/70 transition-colors" :class="key === currentTheme ? 'bg-(--color-accent-500)/10' : ''">
+                                    <i class="text-2xl" :class="[getThemeIcon(key), key === currentTheme ? 'text-(--color-accent-500)' : 'text-zinc-400']"></i>
                                 </div>
 
                                 <!-- Theme Info -->
                                 <div class="flex-1 min-w-0">
                                     <div class="text-base font-semibold" :class="key === currentTheme ? 'text-zinc-100' : 'text-zinc-300'" x-text="theme.name"></div>
-                                    <div x-show="key === currentTheme" class="text-sm text-[var(--color-accent-500)] font-medium mt-0.5">{{ __('theme.active') }}</div>
+                                    <div x-show="key === currentTheme" class="text-sm text-(--color-accent-500) font-medium mt-0.5">{{ __('theme.active') }}</div>
                                 </div>
 
                                 <!-- Selection Indicator -->
-                                <div x-show="key === currentTheme" class="flex-shrink-0">
-                                    <div class="w-6 h-6 bg-[var(--color-accent-500)] rounded-full flex items-center justify-center">
+                                <div x-show="key === currentTheme" class="shrink-0">
+                                    <div class="w-6 h-6 bg-(--color-accent-500) rounded-full flex items-center justify-center">
                                         <i class="fas fa-check text-white text-xs"></i>
                                     </div>
                                 </div>
@@ -125,7 +125,7 @@
             <!-- Footer - Hidden on Mobile -->
             <div class="hidden sm:block px-6 py-4 border-t border-zinc-700 bg-zinc-900/50">
                 <div class="flex items-center justify-center gap-2">
-                    <i class="fas fa-circle text-sm text-[var(--color-accent-500)]"></i>
+                    <i class="fas fa-circle text-sm text-(--color-accent-500)"></i>
                     <span class="text-sm text-zinc-400">{{ __('theme.changes_apply_instantly') }}</span>
                 </div>
             </div>
